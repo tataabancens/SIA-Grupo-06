@@ -43,8 +43,16 @@ class StatusEffect(Enum):
     FREEZE = ("freeze", 2)
     NONE = ("none", 1)
 
+    @staticmethod
+    def from_value(value):
+        for status in StatusEffect:
+            if status.value[0] == value:
+                return status
+        raise ValueError(f"No se encontró StatusEffect con el valor '{value}'")
+
 
 class Pokemon:
+
     def __init__(
         self,
         name: str,

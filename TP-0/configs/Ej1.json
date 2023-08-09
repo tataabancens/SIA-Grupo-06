@@ -1,0 +1,19 @@
+{
+  "iterations": 100,
+  "pokeballs": [
+    "pokeball",
+    "ultraball",
+    "fastball",
+    "heavyball"
+  ],
+  "pokemons": [
+    "snorlax",
+    "jolteon",
+    "caterpie",
+    "onix",
+    "mewtwo"
+  ],
+  "level": 100,
+  "health": 1.0,
+  "status_effect": "none"
+}
