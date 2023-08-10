@@ -1,16 +1,14 @@
 import json
 
 from typing import List
+import sys
+from pathlib import Path
+import os
+from statistics import mean, stdev
 
 from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect, Pokemon
-import sys
-import plotly.express as px
-from pathlib import Path
-import os
-
-_NOISE = 0.15  # TODO: qué valor deberíamos usar??
-_OUTPUT_HTML_NAME = "first_figure"
+from utils.constants import OUTPUT_PATH, DEFAULT_NOISE, EJ1_FILENAME
 
 
 class ConfigData:
@@ -22,22 +20,30 @@ class ConfigData:
     health: float = 1.0
 
 
-def plot_values(x: List[any], y: List[float], title="Title"):
-    fig = px.bar(x=x, y=y, title=title)
-    fig.update_layout(title_font_size=50)
-    fig.write_html(f'{_OUTPUT_HTML_NAME}.html', auto_open=True)
-
-
 def stress_pokeball(ball: str, pkmons: List[Pokemon], n: int):
-    prob_sum, max_prob, min_prob = 0, 0, 1
+    """Tests the given Pokeball with the provided list of Pokemons and returns the average catch rate and the standard
+    deviation
+
+    :param ball: The name of the type of ball to use
+    :type ball: str
+    :param pkmons: List of Pokemons to try catching
+    :type pkmons: list[Pokemon]
+    :param n: The amount of iterations to test
+    :type n: int
+    :return:
+        The catch rate of the Pokeball in relation to the given Pokemons, as a tuple with the mean catch rate and
+        its standard deviation
+    """
+    catch_rates = []
+    catches = 0
     for pkmon in pkmons:
         for _ in range(n):
-            catch_ok, prob = attempt_catch(pkmon, ball, _NOISE)
-            max_prob = max(max_prob, prob)
-            min_prob = min(min_prob, prob)
-            prob_sum += prob
-    prob_avg = prob_sum / (n * len(pkmons))
-    return [prob_avg, max_prob, min_prob]
+            caught, rate = attempt_catch(pkmon, ball, DEFAULT_NOISE)
+            catch_rates.append(rate)
+            catches += 1 if caught else 0
+    print(f"For {pokeball}: {catches}/{n*len(pkmons)} catches")
+    mean_rate = mean(catch_rates)
+    return [mean_rate, stdev(catch_rates, mean_rate)]
 
 
 def create_all_pokemons(names: List[str], lvl: int, status: StatusEffect, health: float) -> List[Pokemon]:
@@ -57,19 +63,36 @@ def load_config() -> ConfigData:
         config = json.load(config_f)
 
         # With default values
-        config_data.iterations = config["iterations"]
-        config_data.pokeballs = config["pokeballs"]
-        config_data.pokemon_names = config["pokemons"]
-        config_data.level = config["level"]
-        config_data.status_effect = config["status_effect"]
-        config_data.health = config["health"]
+        try:
+            config_data.iterations = config["iterations"]
+        except KeyError:
+            pass
+        try:
+            config_data.pokeballs = config["pokeballs"]
+        except KeyError:
+            pass
+        try:
+            config_data.pokemon_names = config["pokemons"]
+        except KeyError:
+            pass
+        try:
+            config_data.level = config["level"]
+        except KeyError:
+            pass
+        try:
+            config_data.status_effect = config["status_effect"]
+        except KeyError:
+            pass
+        try:
+            config_data.health = config["health"]
+        except KeyError:
+            pass
     return config_data
 
 
 if __name__ == "__main__":
     total_prob_sum, total_max_prob, total_min_prob = 0, 0, 1
-    output_path = Path("output")
-    ej1_filename = "Ej1"
+    output_path = Path(OUTPUT_PATH)
 
     config = load_config()
 
@@ -81,24 +104,18 @@ if __name__ == "__main__":
     )
 
     os.makedirs(output_path, exist_ok=True)  # create dir if not exists
-    with open(output_path.joinpath(f"{ej1_filename}.csv"), "w") as csv_f:
+    with open(output_path.joinpath(EJ1_FILENAME), "w") as csv_f:
 
-        csv_f.write("pokeball,min_prob,max_prob,avg_prob")
+        csv_f.write("pokeball,avg_prob,stdev\n")
 
         # TODO: ahora está todo hardcodeado pero habría que ver si podemos abstraer todo en el config file
         #       o directamente hacer todas las rutinas hardcodeadas acá para cada gráfico
 
-        probs = []
-        balls = []
         for pokeball in config.pokeballs:
-            poke_prob_avg, poke_max_prob, poke_min_prob = stress_pokeball(pokeball, pokemons, config.iterations)
+            poke_prob_avg, poke_stdev = stress_pokeball(pokeball, pokemons, config.iterations)
            # TODO: Imprimir esto en el csv en vez de en consola  || por qué no ambos? =D
             print(f"Pokebola: {pokeball}")
-            print(f"min: {poke_min_prob}, max: {poke_max_prob}")
             print(f"average_prob: {poke_prob_avg}")
+            print(f"deviation: {poke_stdev}")
             print("---------------------")
-            csv_f.write(f"{pokeball},{poke_min_prob},{poke_max_prob},{avg_prob}\n")
-
-            balls.append(pokeball)
-            probs.append(avg_prob)
-        plot_values(balls, probs, "Balls")
+            csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
