@@ -166,4 +166,4 @@ cython_debug/
 *.html
 
 # Output files
-output
+output/

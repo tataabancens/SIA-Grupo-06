@@ -29,4 +29,5 @@ para instalar las dependencias necesarias en el ambiente virtual
 ```
 pipenv run python main.py [config_file]
 ```
-
+Donde `config_file` es un archivo json que contiene las variables necesarias para la simulación.
+Si se omite el archivo o alguna de las variables se usarán valores por defecto.
