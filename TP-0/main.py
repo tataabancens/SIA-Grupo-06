@@ -1,3 +1,4 @@
+
 import json
 
 from typing import List
@@ -15,9 +16,9 @@ class ConfigData:
     iterations: int = 100
     pokeballs: List[str] = ["pokeball", "ultraball", "fastball", "heavyball"]
     pokemon_names: List[str] = ["snorlax"]
-    level: int = 100
-    status_effect: str = "none"
-    health: float = 1.0
+    levels: List[int] = [100]
+    status_effects: List[str] = ["none"]
+    healths: List[float] = [1.0]
 
 
 def stress_pokeball(ball: str, pkmons: List[Pokemon], n: int):
@@ -46,11 +47,14 @@ def stress_pokeball(ball: str, pkmons: List[Pokemon], n: int):
     return [mean_rate, stdev(catch_rates, mean_rate)]
 
 
-def create_all_pokemons(names: List[str], lvl: int, status: StatusEffect, health: float) -> List[Pokemon]:
+def create_all_pokemons(names: List[str], lvls: List[int], statuses: List[StatusEffect], healths: List[float]) -> List[Pokemon]:
     factory = PokemonFactory("pokemon.json")
     pokemons_to_ret: List[Pokemon] = []
     for pokemon_name in names:
-        pokemons_to_ret.append(factory.create(pokemon_name, lvl, status, health))
+        for lvl in lvls:
+            for status in statuses:
+                for health in healths:
+                    pokemons_to_ret.append(factory.create(pokemon_name, lvl, status, health))
     return pokemons_to_ret
 
 
@@ -60,31 +64,31 @@ def load_config() -> ConfigData:
         return config_data
 
     with open(f"{sys.argv[1]}", "r") as config_f:
-        config = json.load(config_f)
+        json_config = json.load(config_f)
 
         # With default values
         try:
-            config_data.iterations = config["iterations"]
+            config_data.iterations = json_config["iterations"]
         except KeyError:
             pass
         try:
-            config_data.pokeballs = config["pokeballs"]
+            config_data.pokeballs = json_config["pokeballs"]
         except KeyError:
             pass
         try:
-            config_data.pokemon_names = config["pokemons"]
+            config_data.pokemon_names = json_config["pokemons"]
         except KeyError:
             pass
         try:
-            config_data.level = config["level"]
+            config_data.levels = json_config["levels"]
         except KeyError:
             pass
         try:
-            config_data.status_effect = config["status_effect"]
+            config_data.status_effects = map(lambda x: StatusEffect.from_value(x) ,json_config["status_effects"])
         except KeyError:
             pass
         try:
-            config_data.health = config["health"]
+            config_data.healths = json_config["healths"]
         except KeyError:
             pass
     return config_data
@@ -95,15 +99,17 @@ if __name__ == "__main__":
 
     config = load_config()
 
+    print(f"Config: {config.__dict__}")
+
     pokemons = create_all_pokemons(
         config.pokemon_names,
-        config.level,
-        StatusEffect.from_value(config.status_effect),
-        config.health
+        config.levels,
+        config.status_effects,
+        config.healths
     )
 
     os.makedirs(output_path, exist_ok=True)  # create dir if not exists
-    with open(output_path.joinpath(EJ1_FILENAME), "w") as csv_f:
+    with open(output_path.joinpath(EJ1_FILENAME), "w", encoding="utf8") as csv_f:
 
         csv_f.write("pokeball,avg_prob,stdev\n")
 
@@ -117,4 +123,4 @@ if __name__ == "__main__":
             print(f"average_prob: {poke_prob_avg}")
             print(f"deviation: {poke_stdev}")
             print("---------------------")
-            csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
+            #csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
