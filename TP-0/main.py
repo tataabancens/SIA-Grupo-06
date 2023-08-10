@@ -91,7 +91,6 @@ def load_config() -> ConfigData:
 
 
 if __name__ == "__main__":
-    total_prob_sum, total_max_prob, total_min_prob = 0, 0, 1
     output_path = Path(OUTPUT_PATH)
 
     config = load_config()
