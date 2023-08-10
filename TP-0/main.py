@@ -148,12 +148,31 @@ def ej2a(pokemons: List[Pokemon], config: ConfigData):
 
     for pokeball in config.pokeballs:
         for health in config.healths:
-            poke_prob_avg, poke_stdev = stress_pokeball(pokeball, list(filter(lambda pokemon: math.ceil((pokemon.current_hp * 100)/pokemon.max_hp) == health * 100, pokemons)), config.iterations)
+            poke_prob_avg, poke_stdev = stress_pokeball(pokeball, list(filter(lambda pokemon: math.ceil((pokemon.current_hp * 100)/pokemon.max_hp) == math.floor(health * 100), pokemons)), config.iterations)
             data.append(f"{pokeball},{health},{poke_prob_avg},{poke_stdev}\n")
 
     print("Writing CSV...")
     return data
 
+# similar al ej2a pero en este caso tomamos 2 pokemons y vemos como varia con la health
+def ej2b(pokemons: List[Pokemon], config: ConfigData):
+    data: List[str] = []
+    
+    for pokeball in config.pokeballs:
+        for pokemon_name in config.pokemon_names:
+            for health in config.healths:
+                poke_prob_avg, poke_stdev = stress_pokeball(pokeball, list(filter(lambda pokemon: pokemon.name == pokemon_name and math.ceil((pokemon.current_hp * 100)/pokemon.max_hp) == math.floor(health * 100), pokemons)), config.iterations)
+                data.append(f"{pokeball},{pokemon_name},{health},{poke_prob_avg},{poke_stdev}\n")
+    print("Writing CSV...")
+    return data
+
+
+def ej2c(pokemons: List[Pokemon], config: ConfigData):
+    pass
+def ej2d(pokemons: List[Pokemon], config: ConfigData):
+    pass
+def ej2e(pokemons: List[Pokemon], config: ConfigData):
+    pass
 
 if __name__ == "__main__":
     output_path = Path(OUTPUT_PATH)
@@ -167,4 +186,5 @@ if __name__ == "__main__":
         config.healths
     )
     os.makedirs(output_path, exist_ok=True)  # create dir if not exists
-    solve_and_write_csv(lambda: ej2a(pokemons, config), ["pokeball", "health", "avg_prob", "stdev"], "Ej2a")
+    #solve_and_write_csv(lambda: ej2a(pokemons, config), ["pokeball", "health", "avg_prob", "stdev"], "Ej2a")
+    #solve_and_write_csv(lambda: ej2b(pokemons, config), ["pokeball", "pokemon_name", "health", "avg_prob", "stdev"], "Ej2b")
