@@ -1,7 +1,7 @@
-from _types import Grid
+from _types import GridWorld
 def main():
     # 3 agents, 5x5 grid
-    grid = Grid(5,3)
+    grid = GridWorld(5,3)
     grid.print()
     for agent in grid.agents:
         print(agent)

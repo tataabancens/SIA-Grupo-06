@@ -55,7 +55,7 @@ class Target:
 
 
 
-class Grid:
+class GridWorld:
     pass
 
 class Agent:
@@ -64,7 +64,7 @@ class Agent:
         formatted_value = "Agent {}:{}".format(self.id, self.position)
         return formatted_value
 
-    def __init__(self, grid: Grid):
+    def __init__(self, grid: GridWorld):
         self.id = Agent.next_id
         self.grid = grid
         self.target = Target(self)
@@ -88,7 +88,7 @@ class Agent:
 
 
 
-class Grid:
+class GridWorld:
     obstacle_proportion = 0.2
 
     def print(self):
@@ -121,7 +121,7 @@ class Grid:
                     target.set_position(random_x,random_y)
                     break
         
-        obstacle_count =  int(size*size*Grid.obstacle_proportion)
+        obstacle_count =  int(size*size*GridWorld.obstacle_proportion)
 
         for _ in range(obstacle_count):
             while True:
