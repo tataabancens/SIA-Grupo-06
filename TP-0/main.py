@@ -54,18 +54,14 @@ if __name__ == "__main__":
 
         pokemons = create_all_pokemons(pokemon_names, level, StatusEffect.from_value(status_effect), health)
         with open("output/Ej1.csv", "w") as csv_f:
-            csv_f.write("pokeball,min_prob,max_prob,avg_prob")
+            csv_f.write("pokeball,min_prob,max_prob,avg_prob\n")
             # TODO: ahora está todo hardcodeado pero habría que ver si podemos abstraer todo en el config file
             #       o directamente hacer todas las rutinas hardcodeadas acá para cada gráfico
             for pokeball in pokeballs:
                 poke_prob_avg, poke_max_prob, poke_min_prob = stress_pokeball(pokeball, pokemons, iterations)
-                total_prob_sum += poke_prob_avg
-                total_max_prob = max(total_max_prob, poke_max_prob)
-                total_min_prob = min(total_min_prob, poke_min_prob)
-                avg_prob = total_prob_sum / len(pokeballs)
                 # TODO: Imprimir esto en el csv en vez de en consola  || por qué no ambos? =D
                 print(f"Pokebola: {pokeball}")
                 print(f"min: {poke_min_prob}, max: {poke_max_prob}")
-                print(f"average_prob: {avg_prob}")
+                print(f"average_prob: {poke_prob_avg}")
                 print("---------------------")
-                csv_f.write(f"{pokeball},{poke_min_prob},{poke_max_prob},{avg_prob}\n")
+                csv_f.write(f"{pokeball},{poke_min_prob},{poke_max_prob},{poke_prob_avg}\n")
