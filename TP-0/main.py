@@ -1,5 +1,6 @@
 
 import json
+import math
 
 from typing import List
 import sys
@@ -9,7 +10,7 @@ from statistics import mean, stdev
 
 from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect, Pokemon
-from utils.constants import OUTPUT_PATH, DEFAULT_NOISE, EJ1_FILENAME
+from utils.constants import EJ2_FILENAME, OUTPUT_PATH, DEFAULT_NOISE, EJ1_FILENAME
 
 
 class ConfigData:
@@ -42,9 +43,12 @@ def stress_pokeball(ball: str, pkmons: List[Pokemon], n: int):
             caught, rate = attempt_catch(pkmon, ball, DEFAULT_NOISE)
             catch_rates.append(rate)
             catches += 1 if caught else 0
-    print(f"For {pokeball}: {catches}/{n*len(pkmons)} catches")
-    mean_rate = mean(catch_rates)
-    return [mean_rate, stdev(catch_rates, mean_rate)]
+    #print(f"For {pokeball}: {catches}/{n*len(pkmons)} catches")
+
+    mean_rate = mean(catch_rates) if len(catch_rates) > 0 else 0
+    variance = stdev(catch_rates, mean_rate) if len(catch_rates) > 0 else 0
+
+    return [mean_rate, variance]
 
 
 def create_all_pokemons(names: List[str], lvls: List[int], statuses: List[StatusEffect], healths: List[float]) -> List[Pokemon]:
@@ -84,7 +88,7 @@ def load_config() -> ConfigData:
         except KeyError:
             pass
         try:
-            config_data.status_effects = map(lambda x: StatusEffect.from_value(x) ,json_config["status_effects"])
+            config_data.status_effects = list(map(lambda x: StatusEffect.from_value(x) ,json_config["status_effects"]))
         except KeyError:
             pass
         try:
@@ -93,28 +97,35 @@ def load_config() -> ConfigData:
             pass
     return config_data
 
+def write_CSV(filename: str, columns: List[str], data: List[str]):
+    """Write a CSV file with the given filename, columns and data
 
-if __name__ == "__main__":
-    output_path = Path(OUTPUT_PATH)
+    :param filename: The name of the file to write (without the extension)
+    :type filename: str
+    :param columns: The names of the columns
+    :type columns: list[str]
+    :param data: The data to write
+    :type data: list[str]
 
-    config = load_config()
+    """
+    with open(Path(OUTPUT_PATH).joinpath(filename + ".csv"), "w", encoding="utf8") as csv_f:
+        csv_f.write(",".join(columns) + "\n")
+        for row in data:
+            csv_f.write(row)
 
-    print(f"Config: {config.__dict__}")
 
-    pokemons = create_all_pokemons(
-        config.pokemon_names,
-        config.levels,
-        config.status_effects,
-        config.healths
-    )
 
-    os.makedirs(output_path, exist_ok=True)  # create dir if not exists
-    with open(output_path.joinpath(EJ1_FILENAME), "w", encoding="utf8") as csv_f:
+
+def ej1(pokemons: List[Pokemon], config: ConfigData):
+    with open(Path(OUTPUT_PATH).joinpath(EJ1_FILENAME), "w", encoding="utf8") as csv_f:
 
         csv_f.write("pokeball,avg_prob,stdev\n")
 
         # TODO: ahora está todo hardcodeado pero habría que ver si podemos abstraer todo en el config file
         #       o directamente hacer todas las rutinas hardcodeadas acá para cada gráfico
+
+        print(config.pokeballs)
+
 
         for pokeball in config.pokeballs:
             poke_prob_avg, poke_stdev = stress_pokeball(pokeball, pokemons, config.iterations)
@@ -124,3 +135,34 @@ if __name__ == "__main__":
             print(f"deviation: {poke_stdev}")
             print("---------------------")
             #csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
+
+def solve_and_write_csv():
+    pass
+
+def ej2a(pokemons: List[Pokemon], config: ConfigData):
+
+    data:List[str] = []
+
+    for pokeball in config.pokeballs:
+        for health in config.healths:
+            poke_prob_avg, poke_stdev = stress_pokeball(pokeball, list(filter(lambda pokemon: math.ceil((pokemon.current_hp * 100)/pokemon.max_hp) == health * 100, pokemons)), config.iterations)
+            data.append(f"{pokeball},{health},{poke_prob_avg},{poke_stdev}\n")
+
+    print("Writing CSV...")
+    write_CSV("Ej2a", ["pokeball", "health", "avg_prob", "stdev"], data)
+
+
+if __name__ == "__main__":
+    output_path = Path(OUTPUT_PATH)
+
+    config = load_config()
+
+    pokemons = create_all_pokemons(
+        config.pokemon_names,
+        config.levels,
+        config.status_effects,
+        config.healths
+    )
+    os.makedirs(output_path, exist_ok=True)  # create dir if not exists
+    
+    ej2a(pokemons, config)
