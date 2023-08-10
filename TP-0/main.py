@@ -2,7 +2,7 @@
 import json
 import math
 
-from typing import List
+from typing import  List
 import sys
 from pathlib import Path
 import os
@@ -10,7 +10,7 @@ from statistics import mean, stdev
 
 from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect, Pokemon
-from utils.constants import EJ2_FILENAME, OUTPUT_PATH, DEFAULT_NOISE, EJ1_FILENAME
+from utils.constants import  OUTPUT_PATH, DEFAULT_NOISE, EJ1_FILENAME
 
 
 class ConfigData:
@@ -136,8 +136,11 @@ def ej1(pokemons: List[Pokemon], config: ConfigData):
             print("---------------------")
             #csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
 
-def solve_and_write_csv():
-    pass
+def solve_and_write_csv(exercise: callable, columns: List[str], filename:str):
+    data = exercise()
+    write_CSV(filename, columns, data)
+
+    
 
 def ej2a(pokemons: List[Pokemon], config: ConfigData):
 
@@ -149,7 +152,7 @@ def ej2a(pokemons: List[Pokemon], config: ConfigData):
             data.append(f"{pokeball},{health},{poke_prob_avg},{poke_stdev}\n")
 
     print("Writing CSV...")
-    write_CSV("Ej2a", ["pokeball", "health", "avg_prob", "stdev"], data)
+    return data
 
 
 if __name__ == "__main__":
@@ -164,5 +167,4 @@ if __name__ == "__main__":
         config.healths
     )
     os.makedirs(output_path, exist_ok=True)  # create dir if not exists
-    
-    ej2a(pokemons, config)
+    solve_and_write_csv(lambda: ej2a(pokemons, config), ["pokeball", "health", "avg_prob", "stdev"], "Ej2a")
