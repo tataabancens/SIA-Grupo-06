@@ -1,4 +1,5 @@
-from grid_world.grid import GridWorld
+# from grid_world.grid import GridWorld
+from _types import GridWorld, Move
 
 
 def main():
