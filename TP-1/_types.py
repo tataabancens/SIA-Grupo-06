@@ -160,3 +160,10 @@ class GridWorld:
         new_position = move.get_next_position(position)
         agent.set_position(new_position.x, new_position.y)
         return True
+
+    def win_condition(self):
+        for agent in self.agents:
+            if agent.position != agent.target.position:
+                return False
+        return True
+
