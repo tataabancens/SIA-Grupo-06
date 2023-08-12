@@ -1,6 +1,10 @@
 from enum import Enum
 import random
 
+seed_value = 0
+random.seed(seed_value)
+
+
 class CellType(Enum):
     def __str__(self):
         formatted_value = "{:<5}".format(self.name)
@@ -9,13 +13,14 @@ class CellType(Enum):
     WALL = 1
     TARGET = 3
 
+
 class Position:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
     def __str__(self):
-        formatted_value = "({},{})".format(self.x, self.y)
+        formatted_value = f"({self.x},{self.y})"
         return formatted_value
 
     def is_valid(self, size):
@@ -33,41 +38,43 @@ class Move(Enum):
     LEFT = 6
     DOWN = 7
 
-    def get_next_position(self, position:Position):
+    def get_next_position(self, position: Position):
         if self == Move.RIGHT:
-            return Position(position.x+1,position.y)
+            return Position(position.x+1, position.y)
         elif self == Move.LEFT:
-            return Position(position.x-1,position.y)
+            return Position(position.x-1, position.y)
         elif self == Move.DOWN:
-            return Position(position.x,position.y-1)
+            return Position(position.x, position.y-1)
         else:
             # UP
-            return Position(position.x,position.y+1)
+            return Position(position.x, position.y+1)
 
 
 class Target:
     def __init__(self, agent):
         self.agent = agent
+        self.position = None
 
-    def set_position(self, x:int,y:int):
-        self.position = Position(x,y)
-
-
+    def set_position(self, x: int,y: int):
+        self.position = Position(x, y)
 
 
 class GridWorld:
     pass
 
+
 class Agent:
     next_id = 1
+
     def __str__(self):
-        formatted_value = "Agent {}:{}".format(self.id, self.position)
+        formatted_value = f"Agent {self.id}:{self.position}"
         return formatted_value
 
     def __init__(self, grid: GridWorld):
         self.id = Agent.next_id
         self.grid = grid
         self.target = Target(self)
+        self.position = None
         Agent.next_id += 1
 
     def can_move(self, movement: Move) -> bool:
@@ -79,13 +86,11 @@ class Agent:
     def move(self, movement: Move):
         return self.grid.move(self, movement)
     
-    def set_position(self, x:int, y:int):
-        self.position = Position(x,y)
-
+    def set_position(self, x: int, y: int):
+        self.position = Position(x, y)
 
     def get_position(self) -> Position:
         return self.position
-
 
 
 class GridWorld:
@@ -107,7 +112,7 @@ class GridWorld:
                 random_x = random.randint(0, self.size - 1)
                 random_y = random.randint(0, self.size - 1)
                 if self.grid[random_x][random_y] == CellType.EMPTY:
-                    agent.set_position(random_x,random_y)
+                    agent.set_position(random_x, random_y)
                     break
 
         for agent in self.agents:
@@ -116,12 +121,12 @@ class GridWorld:
                 random_x = random.randint(0, self.size - 1)
                 random_y = random.randint(0, self.size - 1)
                 cell = self.grid[random_x][random_y]
-                if cell == CellType.EMPTY and not self.is_agent_occuppying(Position(random_x,random_y)):
+                if cell == CellType.EMPTY and not self.is_agent_occuppying(Position(random_x, random_y)):
                     self.grid[random_x][random_y] = CellType.TARGET
-                    target.set_position(random_x,random_y)
+                    target.set_position(random_x, random_y)
                     break
         
-        obstacle_count =  int(size*size*GridWorld.obstacle_proportion)
+        obstacle_count = int(size*size*GridWorld.obstacle_proportion)
 
         for _ in range(obstacle_count):
             while True:
@@ -145,7 +150,6 @@ class GridWorld:
             return False
         
         cell_content = self.grid[new_position.y][new_position.x]
-        
 
         return cell_content == CellType.EMPTY or cell_content == CellType.TARGET
 
@@ -154,8 +158,5 @@ class GridWorld:
             return False
         position = agent.get_position()
         new_position = move.get_next_position(position)
-        agent.set_position(new_position)
+        agent.set_position(new_position.x, new_position.y)
         return True
-
-            
-
