@@ -1,4 +1,4 @@
-from _types import GridWorld, Move
+from grid_world.grid import GridWorld
 
 
 def main():
@@ -17,6 +17,7 @@ def main():
     print()
     print(clone)
     print(clone == grid) # Returns true because the placement of the agents is the same
+
 
 
 
