@@ -1,0 +1,16 @@
+{
+    "levels": [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100],
+    "pokeballs": [
+        "pokeball",
+        "fastball",
+        "ultraball",
+        "heavyball"
+    ],
+    "hps": [1.0, 0.8, 0.6, 0.4, 0.2, 0.01],
+    "statuses": ["POISON", "BURN", "PARALYSIS", "SLEEP", "FREEZE", "NONE"],
+    "default_pokemon_name": "snorlax",
+    "default_hp": 1.0,
+    "default_level": 100,
+    "default_status": "NONE",
+    "default_pokeball": "pokeball"
+}

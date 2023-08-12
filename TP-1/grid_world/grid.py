@@ -79,3 +79,9 @@ class GridWorld:
         agent.set_position(new_position)
         self.grid[new_position.y][new_position.x].insert_agent(agent.id)
         return True
+    
+    def win_condition(self): # TODO: Checkear Cell
+        for agent in self.agents:
+            if agent.position != agent.target.position:
+                return False
+        return True
