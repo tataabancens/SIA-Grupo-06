@@ -1,5 +1,4 @@
 from enum import Enum
-from grid import GridWorld
 
 
 class Position:
@@ -7,8 +6,11 @@ class Position:
         self.x = x
         self.y = y
 
+    def clone(self) -> 'Position':
+        return Position(self.x, self.y)
+
     def __str__(self):
-        formatted_value = "({},{})".format(self.x, self.y)
+        formatted_value = f"({self.x},{self.y})"
         return formatted_value
 
     def is_valid(self, size):
@@ -39,37 +41,68 @@ class Move(Enum):
 
 
 class Target:
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(self, position:Position, id:int):
+        self.position = position
+        self.id = id
 
-    def set_position(self, x: int, y: int):
-        self.position = Position(x, y)
+
 
 
 class Agent:
     next_id = 1
 
     def __str__(self):
-        formatted_value = "Agent {}:{}".format(self.id, self.position)
+        formatted_value = f"Agent {self.id}:{self.position}->{self.target_position}"
         return formatted_value
 
-    def __init__(self, grid: GridWorld):
+    def __init__(self, target_position: Position, position: Position):
+        self.target_position = Position(target_position.x, target_position.y)
+        self.position = Position(position.x, position.y)
         self.id = Agent.next_id
-        self.grid = grid
-        self.target = Target(self)
         Agent.next_id += 1
 
-    def can_move(self, movement: Move) -> bool:
-        return self.grid.can_move(self, movement)
+    def reach_target(self) -> bool:
+        """
+        Returns true if the agent is in the target position
+        """
+        return self.position.x == self.target_position.x and self.position.y == self.target_position.y
 
-    def get_target(self) -> Target:
-        return self.target
+    @classmethod
+    def create(cls, target_position: Position, position: Position) -> "Agent":
+        """
+            Creates an agent with a target position and a position
+        """
+        agent = cls(target_position, position)
+        # agent._id = Agent.next_id
+        # Agent.next_id += 1
+        return agent
 
-    def move(self, movement: Move):
-        return self.grid.move(self, movement)
+    def get_target_position(self) -> Position:
+        """
+            Returns the target position of the agent
+        """
+        return self.position
 
-    def set_position(self, x: int, y: int):
-        self.position = Position(x, y)
+    def clone(self) -> "Agent":
+        """
+            Returns a copy of the agent
+        """
+        agent = Agent.create(self.target_position, self.position)
+        agent.id = self.id
+
+        return agent
+
+    def __eq__(self, other: 'Agent') -> bool:
+        return self.id == other.id and self.position == other.position
+
+    def set_position(self, position: Position):
+        """
+            Sets the position of the agent
+        """
+        self.position = Position(position.x, position.y)
 
     def get_position(self) -> Position:
+        """
+            Returns the position of the agent
+        """
         return self.position

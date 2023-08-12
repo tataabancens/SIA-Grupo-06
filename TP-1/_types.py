@@ -1,5 +1,5 @@
-import random
 from enum import Enum
+import random
 
 seed_value = 0
 random.seed(seed_value)
