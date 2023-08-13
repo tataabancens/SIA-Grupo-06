@@ -11,6 +11,14 @@ class SearchMethod(ABC):
         pass
 
 
+def trace_path(node: Node):
+    path = []
+    while node.parent:
+        path.append(node)
+        node = node.parent
+    path.append(node)
+    return path[::-1]
+
 class BFS(SearchMethod):
     def search(self, start):
         frontier = [start]  # Frontier nodes
@@ -19,7 +27,7 @@ class BFS(SearchMethod):
             node = frontier.pop(0)
             if node not in explored:
                 explored.add(node)
-                if node.get_position() == start:
-                    return node
+                if node.is_goal():
+                    trace_path(node)
                 for child in node.get_children():
                     frontier.append(child)

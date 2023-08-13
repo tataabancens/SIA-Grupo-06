@@ -21,6 +21,9 @@ class Position:
             return self.x == other.x and self.y == other.y
         return False
 
+    def __hash__(self):
+        return hash(self.x) + hash(self.y)
+
 
 class Move(Enum):
     UP = 4
@@ -41,11 +44,9 @@ class Move(Enum):
 
 
 class Target:
-    def __init__(self, position:Position, id:int):
+    def __init__(self, position: Position, id: int):
         self.position = position
         self.id = id
-
-
 
 
 class Agent:
@@ -94,6 +95,9 @@ class Agent:
 
     def __eq__(self, other: 'Agent') -> bool:
         return self.id == other.id and self.position == other.position
+
+    def __hash__(self):
+        return hash(self.id) + hash(self.position)
 
     def set_position(self, position: Position):
         """
