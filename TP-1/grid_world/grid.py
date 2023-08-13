@@ -1,38 +1,14 @@
 import random
 from grid_world.cell import CellType
 from grid_world.utils import Position, Move, Agent
-from typing import Dict
+from typing import Dict, Iterable, List
+
 
 random.seed(0)
 
 
 class GridWorld:
     obstacle_proportion = 0
-
-    def __str__(self):
-        enum_to_string_mapping = {
-            CellType.EMPTY: "____",
-            CellType.WALL: "****",
-            CellType.TARGET: "____",
-            CellType.AGENT: "____"
-        }
-        string_array = [[enum_to_string_mapping[value]
-                         for value in row] for row in self.grid]
-        for agent in self.agents.values():
-            id = agent.id
-            agent_position = agent.position
-            target_position = agent.target_position
-            prev = string_array[target_position.y][target_position.x][0:2]
-            string_array[target_position.y][target_position.x] = f"T{id}{prev}"
-            prev = string_array[agent_position.y][agent_position.x][0:2]
-            string_array[agent_position.y][agent_position.x] = f"{prev}A{id}"
-
-        s = ""
-        for row in string_array:
-            for value in row:
-                s += value + " "  # Print with a space between values
-            s += "\n"
-        return s
 
     def __init__(self, size: int):
         self.size = size
@@ -41,7 +17,7 @@ class GridWorld:
         self.agents: Dict[int, Agent] = {}
         self.agent_count = 0
 
-    def is_agent_occuppying(self, position: Position):
+    def is_agent_occupying(self, position: Position):
         """
         Returns true if there is an agent in the given position
         """
@@ -53,7 +29,8 @@ class GridWorld:
         """
         if not position.is_valid(self.size):
             return False
-        return not self.grid[position.y][position.x] == CellType.WALL and not self.grid[position.y][position.x] == CellType.AGENT
+        return (not self.grid[position.y][position.x] == CellType.WALL
+                and not self.grid[position.y][position.x] == CellType.AGENT)
 
     def can_move(self, agent: Agent, move: Move) -> bool:
         """
@@ -76,7 +53,7 @@ class GridWorld:
         """
         self.grid[position.y][position.x] = cell_type
 
-    def get_possible_moves(self, agent: Agent) -> list:
+    def get_possible_moves(self, agent: Agent) -> List[Move]:
         """
         Returns a list of possible moves for the given agent
         """
@@ -118,6 +95,9 @@ class GridWorld:
             if not agent.reach_target():
                 return False
         return True
+
+    def get_agents(self) -> Iterable[Agent]:
+        return list(self.agents.values())
 
     def __eq__(self, other: object) -> bool:
         # The only thing differing between states is the position of agents
@@ -203,3 +183,28 @@ class GridWorld:
         grid_world.agent_count = self.agent_count
 
         return grid_world
+
+    def __str__(self):
+        enum_to_string_mapping = {
+            CellType.EMPTY: "____",
+            CellType.WALL: "****",
+            CellType.TARGET: "____",
+            CellType.AGENT: "____"
+        }
+        string_array = [[enum_to_string_mapping[value]
+                         for value in row] for row in self.grid]
+        for agent in self.agents.values():
+            id = agent.id
+            agent_position = agent.position
+            target_position = agent.target_position
+            prev = string_array[target_position.y][target_position.x][0:2]
+            string_array[target_position.y][target_position.x] = f"T{id}{prev}"
+            prev = string_array[agent_position.y][agent_position.x][0:2]
+            string_array[agent_position.y][agent_position.x] = f"{prev}A{id}"
+
+        s = ""
+        for row in string_array:
+            for value in row:
+                s += value + " "  # Print with a space between values
+            s += "\n"
+        return s

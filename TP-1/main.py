@@ -11,6 +11,7 @@ def main():
 
     # Generate grid
     grid = GridWorld.generate(2, 1)
+    print("Starting Grid\n", grid)
 
     # Generate search tree
     tree = SearchTree(Node(grid, None))

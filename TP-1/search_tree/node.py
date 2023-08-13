@@ -1,4 +1,5 @@
 from grid_world.grid import GridWorld
+from typing import Set
 
 
 class Node:
@@ -16,18 +17,18 @@ class Node:
 
     def __str__(self):
 
-        formated_tree = "Parent\n" + str(self.grid) + "\n"
+        formatted_tree = "Parent\n" + str(self.grid) + "\n"
         for i, child in enumerate(self.children):
-            formated_tree += "Child " + str(i) + ":\n"
-            formated_tree += str(child.grid) + "\n"
+            formatted_tree += "Child " + str(i) + ":\n"
+            formatted_tree += str(child.grid) + "\n"
 
-        formated_tree += "\n\n"
+        formatted_tree += "\n\n"
 
         for child in self.children:
             if len(child.children) > 0:
-                formated_tree += str(child)
+                formatted_tree += str(child)
 
-        return formated_tree
+        return formatted_tree
 
     def __eq__(self, other):
         if isinstance(other, Node):
@@ -43,31 +44,31 @@ class Node:
         """
         return self.grid.win_condition()
 
-    def add_child(self, child: 'Node'):
+    def add_child(self, child: 'Node') -> 'None':
         """
             Adds a child to the node
         """
         self.children.add(child)
 
-    def get_children(self):
+    def get_children(self) -> Set['Node']:
         """
             Returns the children of the node
         """
         return self.children
 
-    def get_cost(self):
+    def get_cost(self) -> int:
         """
             Returns the cost of the node
         """
         return self.cost
 
-    def get_parent(self):
+    def get_parent(self) -> 'Node':
         """
             Returns the parent of the node
         """
         return self.parent
 
-    def get_grid(self):
+    def get_grid(self) -> GridWorld:
         """
             Returns the grid of the node
         """
@@ -91,42 +92,49 @@ class SearchTree:
     def __str__(self):
         return str(self.root)
 
-    def get_root(self):
+    def get_root(self) -> 'Node':
         """
             Returns the root of the tree
         """
         return self.root
 
-    def next_agent_turn(self):
+    def next_agent_turn(self) -> None:
         """
             Changes the agent turn to the next agent
         """
         self.agent_turn = (self.agent_turn % self.agent_count) + 1
 
-    def build_tree(self):
+    def build_tree(self) -> None:
         """
             Builds the tree recursively
         """
-        self._build_tree_recursive(self.root)
+        self._build_tree_recursive(self.root, set())
 
-    def _build_tree_recursive(self, node: Node):
+    def _build_tree_recursive(self, node: Node, visited: Set[Node]) -> None:
         """
             Builds the tree recursively
         """
+        visited.add(node)
 
         if node.grid.lost_game() or node.grid.win_condition():
             return
 
-        for move in node.grid.get_possible_moves(node.grid.agents[self.agent_turn]):
+        possible_moves = node.grid.get_possible_moves(node.grid.agents[self.agent_turn])
+        print("Tree\n", self.root)
+        print("Possible moves:\n", possible_moves)
+        for move in possible_moves:
             new_grid = node.grid.clone()
             new_grid.move(new_grid.agents[self.agent_turn], move)
             new_node = Node(new_grid, node)
 
-            if new_node == node.parent:
+            # Search for repeated nodes up the tree
+            if new_node in visited:
                 continue
 
-            if new_node not in node.children:
-                node.add_child(new_node)
-                self._build_tree_recursive(new_node)
+            # if new_node not in node.children:
+            node.add_child(new_node)
+            self.next_agent_turn()
+            self._build_tree_recursive(new_node, visited)
+
         self.next_agent_turn()
-        self._build_tree_recursive(node)
+        self._build_tree_recursive(node, visited)
