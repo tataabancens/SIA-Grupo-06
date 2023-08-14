@@ -3,6 +3,7 @@ from enum import Enum
 DEFAULT_NOISE = 0  # Dijeron que no lo usemos, salvo para el 2c y no sé si el 2d
 
 OUTPUT_PATH = "output"  # Relativo al root
+CONFIG_PATH = "configs"
 
 
 class OutputFilenames(Enum):

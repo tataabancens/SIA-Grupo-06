@@ -1,17 +1,17 @@
 import os
-import pathlib
 
-from .constants import OUTPUT_PATH
-from typing import List, Tuple
-import sys
+from .constants import OUTPUT_PATH, CONFIG_PATH
+from typing import List, Optional
 import json
 from src.pokemon import StatusEffect
+from pathlib import Path
+
 
 SOURCE_FOLDER_NAME = "TP-0"
 
 
-def get_src() -> pathlib.Path:
-    file_location = pathlib.Path(__file__).parent.resolve()
+def get_src() -> Path:
+    file_location = Path(__file__).parent.resolve()
     current_location = file_location
     while current_location.name != SOURCE_FOLDER_NAME:
         current_location = current_location.parent.resolve()
@@ -27,12 +27,16 @@ def move_to_src() -> None:
     os.chdir(src)
 
 
-def get_output_dir() -> pathlib.Path:
-    return pathlib.Path(get_src()).joinpath(OUTPUT_PATH)
+def get_output_dir() -> Path:
+    return get_src().joinpath(OUTPUT_PATH)
 
 
 def get_output_dir_str() -> str:
     return str(get_output_dir().resolve()) + "/"
+
+
+def get_config_dir() -> Path:
+    return get_src().joinpath(CONFIG_PATH)
 
 
 class ConfigData:
@@ -40,16 +44,25 @@ class ConfigData:
     pokeballs: List[str] = ["pokeball", "ultraball", "fastball", "heavyball"]
     pokemon_names: List[str] = ["snorlax"]
     levels: List[int] = [100]
-    status_effects: List[str] = ["none"]
+    status_effects: List[StatusEffect] = [StatusEffect.NONE]
     healths: List[float] = [1.0]
 
+    def __str__(self):
+        return f"""
+        iterations: {self.iterations}
+        pokeballs: {self.pokeballs}
+        pokemons: {self.pokemon_names}
+        levels: {self.levels}
+        status effects: {self.status_effects}
+        heath values: {self.healths}
+        """
 
-def load_config() -> ConfigData:
+def load_config(filename: Optional[str]) -> ConfigData:
     config_data = ConfigData()
-    if len(sys.argv) == 1:
+    if filename is None:
         return config_data
 
-    with open(f"{sys.argv[1]}", "r") as config_f:
+    with open(get_config_dir().joinpath(filename), "r") as config_f:
         json_config = json.load(config_f)
 
         # With default values

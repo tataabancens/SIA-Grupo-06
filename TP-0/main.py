@@ -8,14 +8,11 @@ from pathlib import Path
 import os
 from statistics import mean, stdev
 
-from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect, Pokemon
-from utils.constants import  OUTPUT_PATH, DEFAULT_NOISE
-from utils.file_utils import get_output_dir
-from math import sqrt
-import plotly.graph_objects as go
-from pandas import pandas as pd
-
+from utils.constants import OUTPUT_PATH, DEFAULT_NOISE
+from ejs.ej1b import ej1b_data, ej1b_plot
+from utils.file_utils import ConfigData
+from utils.poke_utils import stress_pokeball
 
 def write_CSV(filename: str, columns: List[str], data: List[str]):
     """Write a CSV file with the given filename, columns and data
@@ -34,34 +31,10 @@ def write_CSV(filename: str, columns: List[str], data: List[str]):
             csv_f.write(row)
 
 
-def ej1(pokemons: List[Pokemon], config: ConfigData):
-    with open(Path(OUTPUT_PATH).joinpath(EJ1_FILENAME), "w", encoding="utf8") as csv_f:
-
-        csv_f.write("pokeball,avg_prob,stdev\n")
-
-        # TODO: ahora está todo hardcodeado pero habría que ver si podemos abstraer todo en el config file
-        #       o directamente hacer todas las rutinas hardcodeadas acá para cada gráfico
-
-        print(config.pokeballs)
-
-
-        for pokeball in config.pokeballs:
-            poke_prob_avg, poke_stdev = stress_pokeball(pokeball, pokemons, config.iterations)
-           # TODO: Imprimir esto en el csv en vez de en consola  || por qué no ambos? =D
-            print(f"Pokebola: {pokeball}")
-            print(f"average_prob: {poke_prob_avg}")
-            print(f"deviation: {poke_stdev}")
-            print("---------------------")
-            #csv_f.write(f"{pokeball},{poke_prob_avg},{poke_stdev}\n")
-
-
-
-
 def solve_and_write_csv(exercise: callable, columns: List[str], filename:str):
     data = exercise()
     write_CSV(filename, columns, data)
 
-    
 
 def ej2a(pokemons: List[Pokemon], config: ConfigData):
 
