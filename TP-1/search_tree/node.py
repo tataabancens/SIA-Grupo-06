@@ -133,12 +133,19 @@ class SearchTree:
         """
             Builds the tree recursively
         """
-        self._build_tree_recursive(self.root)
+        # self._build_tree_recursive(self.root)
+        self._build_tree_iterative(self.root)
+
+    count = 0
 
     def _build_tree_recursive(self, node: Node) -> None:
         """
             Builds the tree recursively
         """
+        if self.count % 1000 == 0 and self.count != 0:
+            print(self)
+
+        self.count += 1
         if node.grid.lost_game() or node.grid.win_condition():
             # print("End node:\n", node)
             return
@@ -171,3 +178,36 @@ class SearchTree:
         no_op_node = Node(no_op_grid, node, self.next_agent_turn(node.get_turn()))
         node.add_child(no_op_node)
         self._build_tree_recursive(no_op_node)
+
+    def _build_tree_iterative(self, node: Node):
+        tr = set()
+        fr = [node]
+        tr.add(node)
+
+        while len(fr) > 0:
+            node = fr.pop(0)
+
+            if node.grid.lost_game() or node.grid.win_condition():
+                print("End node:\n", node)
+                return
+
+            possible_moves = node.grid.get_possible_moves(
+                node.grid.agents[node.get_turn()])
+
+            for move in possible_moves:
+                new_grid = node.grid.clone()
+                new_grid.move(new_grid.agents[node.get_turn()], move)
+                new_node = Node(new_grid, node, self.next_agent_turn(node.get_turn()))
+
+                node.add_child(new_node)
+                fr.append(new_node)
+
+            if len(possible_moves) != 0:
+                continue
+            # NO-OP
+            # Node's cost is 0
+            # print("No Op node")
+            no_op_grid = node.grid.clone()
+            no_op_node = Node(no_op_grid, node, self.next_agent_turn(node.get_turn()))
+            node.add_child(no_op_node)
+            fr.append(no_op_node)
