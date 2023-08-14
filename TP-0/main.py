@@ -152,6 +152,49 @@ def ej2a(pokemons: List[Pokemon], config: ConfigData):
     print("Writing CSV...")
     return data
 
+### EJ 2 A #####
+def create_pokemons_by_status(name: str, lvl: int, statusses: List[str], health: float) -> List[Pokemon]:
+    factory = PokemonFactory("pokemon.json")
+    pokemons_to_ret: List[Pokemon] = []
+    for status in statusses:
+        pokemons_to_ret.append(factory.create(name, lvl, StatusEffect.from_value(status), health))
+    return pokemons_to_ret
+
+def ej2aStatus():
+
+    with open(get_config_dir().joinpath("Ej2a.json"), "r") as config_f_2a:
+        config_2a = json.load(config_f_2a)
+
+    pokemon_name = config_2a["pokemon_name"]
+    statuses = config_2a["statuses"]
+    level = config_2a["level"]
+    pokeballs = config_2a["pokeballs"]
+    hp = config_2a["hp"]
+    iterations = config_2a["iterations"]
+    pokemons = create_pokemons_by_status(pokemon_name, level, statuses, hp)
+
+    ###
+
+    fig, axs = plt.subplots(2, 2, figsize=(10, 6))
+
+    for i, pokeball in enumerate(pokeballs):
+        catch_rates = []
+        errors = []
+        for pokemon in pokemons:
+            catch_rate, error = catch_pokemon(pokemon, pokeball, iterations)
+            catch_rates.append(catch_rate)
+            errors.append(error)
+
+        row, col = divmod(i, 2)
+
+        # Plot as a bar chart
+        axs[row, col].bar(statuses, catch_rates, yerr=errors, capsize=5, align='center')
+        axs[row, col].set_xlabel('Status')
+        axs[row, col].set_ylabel('Capture Rate')
+        axs[row, col].set_title(f"Capture rate of {pokemon_name} with {pokeball} in {iterations} attempts", fontsize=10)
+
+    plt.tight_layout()
+    plt.show()
 
 # similar al ej2a pero en este caso tomamos 2 pokemons y vemos como varia con la health
 def ej2b(pokemons: List[Pokemon], config: ConfigData):
@@ -190,6 +233,10 @@ def calculate_rates(statuses: List[str], hps: List[float], pokeballs: List[str],
     return pokemon_rates
 
 
+## Dado que en el ejercicio 2c se puede ver que el nivel parece no influir en la probabilidad de captura
+# y que en el 2e se pide analizar qué pasa para otros niveles,
+# se decidió usar para este ejercicio el nivel 100 para el pokemon Snorlax.
+
 def ej2d(pokemons: List[Pokemon], config: ConfigData):
     factory = PokemonFactory("pokemon.json")
 
@@ -218,8 +265,40 @@ def ej2d(pokemons: List[Pokemon], config: ConfigData):
 #######
 
 def ej2e(pokemons: List[Pokemon], config: ConfigData):
-    pass
+    factory = PokemonFactory("pokemon.json")
 
+    with open("configs/Ej2d.json", "r") as config_f_2d:
+        config_2d = json.load(config_f_2d)
+
+    pokemon_name = config_2d["pokemon_name"]
+    hps = config_2d["hps"]
+    statuses = config_2d["statuses"]
+    level = config_2d["level"]
+    pokeballs = config_2d["pokeballs"]
+
+    levels = config_2d["levels"]
+
+    best_combination_by_level = {}
+    for level in levels:
+        pokemon_rates = calculate_rates(statuses, hps, pokeballs, pokemon_name, level)
+        max_rate = max(pokemon_rates.values())
+        for key, value in pokemon_rates.items():
+            if value == max_rate:
+                best_combination = key
+                break
+        best_combination_by_level[level] = {
+            "best_combination": best_combination,
+            "max_rate": max_rate
+        }
+
+    for index, (level, info) in enumerate(best_combination_by_level.items()):
+        print(f"Nivel {index + 1}:")
+        print(f"  Mejor combinación: {info['best_combination']}")
+        print(f"  Probabilidad: {info['max_rate']}")
+
+##Rta:
+## Como se infirió en base al ejercicio 2c, vemos que el nivel no influye en la probabilidad de captura.
+# La mejor combinación de parámetros es la misma para todos los niveles para Snorlax.
 
 if __name__ == "__main__":
     output_path = Path(OUTPUT_PATH)
