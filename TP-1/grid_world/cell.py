@@ -7,5 +7,4 @@ class CellType(Enum):
         return formatted_value
     EMPTY = 0
     WALL = 1
-    AGENT = 2
     TARGET = 3

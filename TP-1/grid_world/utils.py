@@ -14,7 +14,7 @@ class Position:
         return formatted_value
 
     def is_valid(self, size):
-        return self.x >= 0 and self.y >= 0 and self.x < size and self.y < size
+        return 0 <= self.x < size and 0 <= self.y < size
 
     def __eq__(self, other):
         if isinstance(other, Position):

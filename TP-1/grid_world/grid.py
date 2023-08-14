@@ -2,13 +2,13 @@ import random
 from grid_world.cell import CellType
 from grid_world.utils import Position, Move, Agent
 from typing import Dict, Iterable, List
-
+import copy
 
 random.seed(0)
 
 
 class GridWorld:
-    obstacle_proportion = 0
+    obstacle_proportion = 0.33
 
     def __init__(self, size: int):
         self.size = size
@@ -21,7 +21,10 @@ class GridWorld:
         """
         Returns true if there is an agent in the given position
         """
-        return self.grid[position.y][position.x] == CellType.AGENT
+        return position in [agent.position for agent in self.agents.values()]
+
+    def is_wall(self, position: Position):
+        return self.grid[position.y][position.x] == CellType.WALL
 
     def is_cell_available(self, position: Position):
         """
@@ -29,8 +32,7 @@ class GridWorld:
         """
         if not position.is_valid(self.size):
             return False
-        return (not self.grid[position.y][position.x] == CellType.WALL
-                and not self.grid[position.y][position.x] == CellType.AGENT)
+        return not self.is_wall(position) and not self.is_agent_occupying(position)
 
     def can_move(self, agent: Agent, move: Move) -> bool:
         """
@@ -70,12 +72,9 @@ class GridWorld:
         """
 
         if not self.can_move(agent, move):
-            print("Cannot move")
+            # print("Cannot move")
             return False
-        self.change_grid_cell_type(agent.get_position(), CellType.EMPTY)
         agent.set_position(move.get_next_position(agent.get_position()))
-        if not self.grid[agent.get_position().y][agent.get_position().x] == CellType.TARGET:
-            self.change_grid_cell_type(agent.get_position(), CellType.AGENT)
         return True
 
     def lost_game(self):
@@ -83,9 +82,9 @@ class GridWorld:
         Returns true if all agents got stuck
         """
         for agent in self.agents.values():
-            if not self.can_move(agent=agent, move=Move.UP) and not self.can_move(agent=agent, move=Move.DOWN) and not self.can_move(agent=agent, move=Move.LEFT) and not self.can_move(agent=agent, move=Move.RIGHT):
-                return True
-        return False
+            if self.can_move(agent=agent, move=Move.UP) or self.can_move(agent=agent, move=Move.DOWN) or self.can_move(agent=agent, move=Move.LEFT) or self.can_move(agent=agent, move=Move.RIGHT):
+                return False
+        return True
 
     def win_condition(self):
         """
@@ -101,9 +100,11 @@ class GridWorld:
 
     def __eq__(self, other: object) -> bool:
         # The only thing differing between states is the position of agents
+        if not isinstance(other, GridWorld):
+            return False
         other_agents = other.agents
-        for id, agent in self.agents.items():
-            if agent != other_agents[id]:
+        for agent_id, agent in self.agents.items():
+            if agent != other_agents[agent_id]:
                 return False
         return True
 
@@ -148,8 +149,6 @@ class GridWorld:
                         target_position=target_position, position=agent_position)
                     agents[agent.id] = agent
                     grid_world.change_grid_cell_type(
-                        agent_position, CellType.AGENT)
-                    grid_world.change_grid_cell_type(
                         target_position, CellType.TARGET)
                     break
 
@@ -176,8 +175,8 @@ class GridWorld:
         grid_world = GridWorld(self.size)
         agents = {}
         grid = self.grid
-        for id, agent in self.agents.items():
-            agents[id] = agent.clone()
+        for agent_id, agent in self.agents.items():
+            agents[agent_id] = agent.clone()
         grid_world.agents = agents
         grid_world.grid = grid
         grid_world.agent_count = self.agent_count
@@ -188,8 +187,7 @@ class GridWorld:
         enum_to_string_mapping = {
             CellType.EMPTY: "____",
             CellType.WALL: "****",
-            CellType.TARGET: "____",
-            CellType.AGENT: "____"
+            CellType.TARGET: "____"
         }
         string_array = [[enum_to_string_mapping[value]
                          for value in row] for row in self.grid]
@@ -197,8 +195,8 @@ class GridWorld:
             id = agent.id
             agent_position = agent.position
             target_position = agent.target_position
-            prev = string_array[target_position.y][target_position.x][0:2]
-            string_array[target_position.y][target_position.x] = f"T{id}{prev}"
+            pos = string_array[target_position.y][target_position.x][2:4]
+            string_array[target_position.y][target_position.x] = f"T{id}{pos}"
             prev = string_array[agent_position.y][agent_position.x][0:2]
             string_array[agent_position.y][agent_position.x] = f"{prev}A{id}"
 

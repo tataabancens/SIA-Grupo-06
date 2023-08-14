@@ -1,6 +1,5 @@
 from grid_world.grid import GridWorld
-from typing import Set
-
+from typing import Set, Optional
 
 class Node:
     """
@@ -10,13 +9,17 @@ class Node:
 
     cost = 1
     id = 0
+    turn = None
 
-    def __init__(self, grid: GridWorld, parent: 'Node'):
+    def __init__(self, grid: GridWorld, parent: Optional['Node'], turn: int):
         self.grid: GridWorld = grid
         self.parent: Node = parent
         self.children: set[Node] = set()
         self.id = Node.id
         Node.id += 1
+        if turn < 1:
+            raise ValueError(f"Turn must be greater than 1 and is {turn}")
+        self.turn = turn
 
     def __str__(self):
 
@@ -27,7 +30,7 @@ class Node:
                 str(child.id) + ")\n"
             formatted_tree += str(child.grid) + "\n"
 
-        formatted_tree += "\n\n"
+        # formatted_tree += "\n\n"
 
         for child in self.children:
             if len(child.children) > 0:
@@ -37,11 +40,11 @@ class Node:
 
     def __eq__(self, other):
         if isinstance(other, Node):
-            return self.grid == other.grid
+            return self.grid == other.grid and self.turn == other.turn
         return False
 
     def __hash__(self):
-        return hash(self.grid)
+        return hash((self.grid, self.turn))
 
     def is_goal(self):
         """
@@ -67,6 +70,12 @@ class Node:
         """
         return self.cost
 
+    def get_turn(self) -> int:
+        """
+            Returns the id of the agent with the current turn
+        """
+        return self.turn
+
     def get_parent(self) -> 'Node':
         """
             Returns the parent of the node
@@ -78,6 +87,18 @@ class Node:
             Returns the grid of the node
         """
         return self.grid
+
+
+def is_present_before(node: Optional[Node]) -> bool:
+    """
+        Returns if the node was present in the tree
+    """
+    node_ref = node
+    while node_ref is not None:
+        if node_ref.parent == node:
+            return True
+        node_ref = node_ref.parent
+    return False
 
 
 class SearchTree:
@@ -92,7 +113,6 @@ class SearchTree:
     def __init__(self, root: Node):
         self.root = root
         self.agent_count = root.grid.agent_count
-        self.agent_turn = 1
 
     def __str__(self):
         return str(self.root)
@@ -103,67 +123,51 @@ class SearchTree:
         """
         return self.root
 
-    def next_agent_turn(self) -> None:
+    def next_agent_turn(self, current_turn: int) -> int:
         """
             Changes the agent turn to the next agent
         """
-        self.agent_turn = (self.agent_turn % self.agent_count) + 1
-
-    def is_present_before(self, node: Node) -> bool:
-        """
-            Returns if the node was present in the tree 
-        """
-        node_ref = node
-        while node_ref is not None:
-            if node_ref.parent == node:
-                return True
-            node_ref = node_ref.parent
-        return False
+        return (current_turn % self.agent_count) + 1
 
     def build_tree(self) -> None:
         """
             Builds the tree recursively
         """
-        self._build_tree_recursive(self.root, set())
+        self._build_tree_recursive(self.root)
 
-    def _build_tree_recursive(self, node: Node, visited: Set[Node]) -> None:
+    def _build_tree_recursive(self, node: Node) -> None:
         """
             Builds the tree recursively
         """
-
-        if self.is_present_before(node):
-            print("Node already present")  # NO ESTA ENTRANDO ACA
-            return
-
-        # if node in visited:
-        #     return
-
-        # visited.add(node)
-        # print("Visited(", len(visited), "): ", visited, )
-
         if node.grid.lost_game() or node.grid.win_condition():
+            # print("End node:\n", node)
             return
 
         possible_moves = node.grid.get_possible_moves(
-            node.grid.agents[self.agent_turn])
-        print("Tree\n", self.root)
-        print("Possible moves:\n", possible_moves)
+            node.grid.agents[node.get_turn()])
+        # print("Current node:\n", node)
+        # print(f"Turn of A{self.agent_turn}")
+        # print("Possible moves:\n", possible_moves)
         for move in possible_moves:
+            # print(f"Analyzing move: {move}")
             new_grid = node.grid.clone()
-            new_grid.move(new_grid.agents[self.agent_turn], move)
-            new_node = Node(new_grid, node)
+            new_grid.move(new_grid.agents[node.get_turn()], move)
+            new_node = Node(new_grid, node, self.next_agent_turn(node.get_turn()))
 
-            # if new_node in visited:
-            #     continue
-
-            # Search for repeated nodes up the tree
-            if self.is_present_before(new_node):
-                print("NEW Node already present")  # NO ESTA ENTRANDO ACA
+            if is_present_before(new_node):
+                # print(f"NEW Node already present: {move}")
                 continue
+            # print("-------------------------------------------------------")
 
             node.add_child(new_node)
-            self.next_agent_turn()
-            self._build_tree_recursive(new_node, visited)
+            self._build_tree_recursive(new_node)
 
-        self.next_agent_turn()
-        self._build_tree_recursive(node, visited)
+        if len(possible_moves) != 0:
+            return
+        # NO-OP
+        # Node's cost is 0
+        # print("No Op node")
+        no_op_grid = node.grid.clone()
+        no_op_node = Node(no_op_grid, node, self.next_agent_turn(node.get_turn()))
+        node.add_child(no_op_node)
+        self._build_tree_recursive(no_op_node)
