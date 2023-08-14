@@ -10,7 +10,7 @@ def main():
     # 3 agents, 5x5 grid
 
     # Generate grid
-    grid = GridWorld.generate(2, 1)
+    grid = GridWorld.generate(3, 1)
     print("Starting Grid\n", grid)
 
     # Generate search tree
