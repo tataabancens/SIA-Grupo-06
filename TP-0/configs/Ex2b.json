@@ -1,0 +1,8 @@
+{
+    "hps": [1.0, 0.8, 0.6, 0.4, 0.2, 0.01],
+    "pokemons":["snorlax","caterpie"],
+    "default_hp": 1.0,
+    "default_level": 100,
+    "default_status": "NONE",
+    "default_pokeball": "pokeball"
+}
