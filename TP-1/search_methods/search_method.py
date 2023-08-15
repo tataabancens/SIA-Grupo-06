@@ -199,5 +199,5 @@ class GlobalGreedy(SearchMethod):
                         return SearchInfo(trace, get_weight_of_path(trace), len(explored))
 
         #     Ordenar a la frontera de acuerdo a la heuristica
-            frontier_queue.sort(key=lambda n: n.manhatan_distance_to_goal())
+            frontier_queue.sort(key=lambda n: n.manhattan_distance_to_goal())
         return None

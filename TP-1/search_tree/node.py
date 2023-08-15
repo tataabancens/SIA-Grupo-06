@@ -89,13 +89,15 @@ class Node:
         """
         return self.grid
 
-    def manhatan_distance_to_goal(self) -> int:
+    def manhattan_distance_to_goal(self) -> int:
         """
-            Returns the distance of the current turn agent to target
+            Returns accumulated manhattan distance from agent to their respective target
         """
-        agent = self.grid.agents[self.get_turn()]
-        target = agent.target_position
-        return agent.position.get_manhatan_distance(target)
+        accum = 0
+        for agent in self.grid.agents.values():
+            target = agent.target_position
+            accum += agent.position.get_manhattan_distance(target)
+        return accum
 
 
 def is_present_before(node: Optional[Node]) -> bool:
