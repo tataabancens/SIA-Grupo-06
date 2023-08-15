@@ -1,5 +1,5 @@
 {
-  "iterations": 100,
+  "iterations": 50000,
   "pokeballs": [
     "pokeball",
     "ultraball",
