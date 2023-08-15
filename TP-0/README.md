@@ -27,7 +27,16 @@ para instalar las dependencias necesarias en el ambiente virtual
 ## Ejecución
 
 ```
-pipenv run python main.py [config_file]
+jupyter notebook
 ```
-Donde `config_file` es un archivo json que contiene las variables necesarias para la simulación.
-Si se omite el archivo o alguna de las variables se usarán valores por defecto.
+Ingresar al main.ipynb y correr el proyecto. Esto generara todos los conjuntos de datos y los graficos correspondientes
+
+## Documentos
+
+En la carpeta "docs" dejamos el notebook exportado a html para que puedan recorrerlo sin necesidad de ejecutar el proyecto.
+
+## Aclaración
+
+En el proyecto van a encontrar archivos python como "main.py", son libres de ignorarlos. Los utilizamos para la elaboración
+del TP pero toda la información correspondiente se encuentra en el notebook.
+
