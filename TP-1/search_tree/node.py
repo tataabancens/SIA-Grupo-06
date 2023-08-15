@@ -89,6 +89,14 @@ class Node:
         """
         return self.grid
 
+    def manhatan_distance_to_goal(self) -> int:
+        """
+            Returns the distance of the current turn agent to target
+        """
+        agent = self.grid.agents[self.get_turn()]
+        target = agent.target_position
+        return agent.position.get_manhatan_distance(target)
+
 
 def is_present_before(node: Optional[Node]) -> bool:
     """

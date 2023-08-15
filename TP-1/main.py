@@ -3,7 +3,7 @@
 # from _types import GridWorld, Move
 from search_tree.node import SearchTree, Node
 from grid_world.grid import GridWorld
-from search_methods.search_method import BFS, DFS
+from search_methods.search_method import BFS, DFS, GlobalGreedy
 
 
 def main():
@@ -17,11 +17,14 @@ def main():
     tree = SearchTree(Node(grid, None, 1))
     # print(tree)
     bfs_cost = BFS().search(tree)
-    print("BFS Cost: ", bfs_cost)
+    print("BFS:", bfs_cost)
 
     dfs_cost = DFS().search(tree)
-    print("DFS Cost: ", dfs_cost)
+    print("DFS:", dfs_cost)
     # print(tree)
+
+    global_greedy = GlobalGreedy().search(tree)
+    print("Global Greedy:", global_greedy)
 
 
 if __name__ == "__main__":

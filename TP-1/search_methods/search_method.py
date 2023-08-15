@@ -2,6 +2,17 @@ from functools import reduce
 from typing import List, Optional
 from abc import ABC, abstractmethod
 from search_tree.node import Node, SearchTree
+from dataclasses import dataclass
+
+
+@dataclass
+class SearchInfo:
+    trace: List[Node]
+    weight_of_path: int
+    nodes_explored_amount: int
+
+    def __str__(self):
+        return f"Cost: {self.weight_of_path}, Explored {self.nodes_explored_amount} nodes"
 
 
 class SearchMethod(ABC):
@@ -9,7 +20,7 @@ class SearchMethod(ABC):
         self.heuristic = heuristic
 
     @abstractmethod
-    def search(self, searchTree: SearchTree) -> Optional[int]:
+    def search(self, searchTree: SearchTree) -> Optional[SearchInfo]:
         """
         Applies a search algorithm to the given search tree and returns the weight of the path to the goal node. 
         """
@@ -44,12 +55,11 @@ class BFS(SearchMethod):
     Breadth-first search algorithm.
     """
 
-    def search(self, searchTree: SearchTree) -> Optional[int]:
+    def search(self, searchTree: SearchTree) -> Optional[SearchInfo]:
         frontier_queue = [searchTree.root]  # Frontier nodes
         explored = set()  # Explored nodes
 
         while len(frontier_queue) > 0:
-
             node = frontier_queue.pop(0)
 
             if node.grid.lost_game():
@@ -84,7 +94,8 @@ class BFS(SearchMethod):
                     explored.add(new_node)
                     frontier_queue.append(new_node)
                     if new_node.is_goal():
-                        return get_weight_of_path(trace_path(new_node))
+                        trace = trace_path(new_node)
+                        return SearchInfo(trace, get_weight_of_path(trace), len(explored))
 
         return None
 
@@ -94,7 +105,7 @@ class DFS(SearchMethod):
     Depth-first search algorithm.
     """
 
-    def search(self, searchTree: SearchTree) -> Optional[int]:
+    def search(self, searchTree: SearchTree) -> Optional[SearchInfo]:
         frontier_queue = [searchTree.root]  # Frontier nodes
         explored = set()  # Explored nodes
 
@@ -134,6 +145,59 @@ class DFS(SearchMethod):
                     explored.add(new_node)
                     frontier_queue.append(new_node)
                     if new_node.is_goal():
-                        return get_weight_of_path(trace_path(new_node))
+                        trace = trace_path(new_node)
+                        return SearchInfo(trace, get_weight_of_path(trace), len(explored))
 
+        return None
+
+
+class GlobalGreedy(SearchMethod):
+    """
+    Global-Greedy search algorithm.
+    """
+
+    def search(self, searchTree: SearchTree) -> Optional[SearchInfo]:
+        frontier_queue = [searchTree.root]  # Frontier nodes
+        explored = set()  # Explored nodes
+
+        while len(frontier_queue) > 0:
+            node = frontier_queue.pop(0)
+
+            if node.grid.lost_game():
+                # print("End node:\n", node)
+                continue
+
+            possible_moves = node.grid.get_possible_moves(
+                node.grid.agents[node.get_turn()])
+            # print("Grid:\n", node.grid)
+
+            if len(possible_moves) < 1:
+                no_op_grid = node.grid.clone()
+                no_op_node = Node(
+                    no_op_grid, node, searchTree.next_agent_turn(node.get_turn()))
+                node.add_child(no_op_node)
+                if no_op_node not in explored:
+                    explored.add(no_op_node)
+                    frontier_queue.append(no_op_node)
+                    # No-op node cant be goal node
+
+            for move in possible_moves:
+                # print("Move: ", move)
+
+                new_grid = node.grid.clone()
+                new_grid.move(new_grid.agents[node.get_turn()], move)
+                new_node = Node(
+                    new_grid, node, searchTree.next_agent_turn(node.get_turn()))
+
+                node.add_child(new_node)
+
+                if new_node not in explored:
+                    explored.add(new_node)
+                    frontier_queue.append(new_node)
+                    if new_node.is_goal():
+                        trace = trace_path(new_node)
+                        return SearchInfo(trace, get_weight_of_path(trace), len(explored))
+
+        #     Ordenar a la frontera de acuerdo a la heuristica
+            frontier_queue.sort(key=lambda n: n.manhatan_distance_to_goal())
         return None

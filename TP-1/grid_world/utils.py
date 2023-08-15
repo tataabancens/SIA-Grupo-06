@@ -1,5 +1,5 @@
 from enum import Enum
-
+import math
 
 class Position:
     def __init__(self, x, y):
@@ -23,6 +23,11 @@ class Position:
 
     def __hash__(self):
         return hash(self.x) + hash(self.y)
+
+    def get_manhatan_distance(self, other):
+        if isinstance(other, Position):
+            return math.fabs(self.x - other.x) + math.fabs(self.y - other.y)
+        raise ValueError(f"{other} is not a Position object")
 
 
 class Move(Enum):
