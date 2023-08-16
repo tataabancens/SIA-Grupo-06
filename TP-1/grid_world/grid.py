@@ -4,11 +4,11 @@ from grid_world.utils import Position, Move, Agent
 from typing import Dict, Iterable, List
 import copy
 
-random.seed(0)
+random.seed(3)
 
 
 class GridWorld:
-    obstacle_proportion = 0.2
+    obstacle_proportion = 0.15
 
     def __init__(self, size: int):
         self.size = size

@@ -2,17 +2,16 @@ from grid_world.grid import GridWorld
 from typing import Set, Optional
 import math
 
+
 class Node:
     """
         A node in the search tree.
         The value of the node is a GridWorld object.
     """
-
-    cost = 1
     id = 0
     turn = None
 
-    def __init__(self, grid: GridWorld, parent: Optional['Node'], turn: int):
+    def __init__(self, grid: GridWorld, parent: Optional['Node'], turn: int, cost: int = 0):
         self.grid: GridWorld = grid
         self.parent: Node = parent
         self.children: set[Node] = set()
@@ -21,6 +20,7 @@ class Node:
         if turn < 1:
             raise ValueError(f"Turn must be greater than 1 and is {turn}")
         self.turn = turn
+        self.cost = cost
 
     def __str__(self):
 
@@ -112,6 +112,13 @@ class Node:
             Returns accumulated x distance from agents to their respective target
         """
         return sum(math.fabs(agent.position.y - agent.target_position.y) for agent in self.grid.agents.values())
+
+    def clone(self) -> 'Node':
+        """
+            Returns a deep copy of a Node
+        """
+        new_grid = self.grid.clone()
+        return Node(new_grid, self.parent, self.turn, cost=self.get_cost())
 
 
 def is_present_before(node: Optional[Node]) -> bool:

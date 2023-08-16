@@ -52,6 +52,9 @@ class Move(Enum):
             # UP
             return Position(position.x, position.y+1)
 
+    @staticmethod
+    def get_cost():
+        return 1
 
 class Target:
     def __init__(self, position: Position, id: int):
