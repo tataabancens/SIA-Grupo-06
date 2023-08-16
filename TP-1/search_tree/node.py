@@ -91,7 +91,7 @@ class Node:
 
     def manhattan_distance_to_goal(self) -> int:
         """
-            Returns accumulated manhattan distance from agent to their respective target
+            Returns accumulated manhattan distance from agents to their respective target
         """
         accum = 0
         for agent in self.grid.agents.values():

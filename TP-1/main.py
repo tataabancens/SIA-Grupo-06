@@ -23,7 +23,7 @@ def main():
     print("DFS:", dfs_cost)
     # print(tree)
 
-    global_greedy = GlobalGreedy().search(tree)
+    global_greedy = GlobalGreedy(heuristic=Node.manhattan_distance_to_goal).search(tree)
     print("Global Greedy:", global_greedy)
 
 
