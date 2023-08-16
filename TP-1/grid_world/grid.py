@@ -8,7 +8,7 @@ random.seed(0)
 
 
 class GridWorld:
-    obstacle_proportion = 0.33
+    obstacle_proportion = 0.2
 
     def __init__(self, size: int):
         self.size = size
@@ -82,7 +82,8 @@ class GridWorld:
         Returns true if all agents got stuck
         """
         for agent in self.agents.values():
-            if self.can_move(agent=agent, move=Move.UP) or self.can_move(agent=agent, move=Move.DOWN) or self.can_move(agent=agent, move=Move.LEFT) or self.can_move(agent=agent, move=Move.RIGHT):
+            if self.can_move(agent=agent, move=Move.UP) or self.can_move(agent=agent, move=Move.DOWN) or self.can_move(
+                    agent=agent, move=Move.LEFT) or self.can_move(agent=agent, move=Move.RIGHT):
                 return False
         return True
 
@@ -144,7 +145,10 @@ class GridWorld:
                     0, size - 1), random.randint(0, size - 1))
                 target_position = Position(random.randint(
                     0, size - 1), random.randint(0, size - 1))
-                if grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and agent_position != target_position:
+                agent_position_empty = grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(agent_position)
+                target_position_empty = grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(target_position)
+
+                if agent_position_empty and target_position_empty and agent_position != target_position:
                     agent = Agent.create(
                         target_position=target_position, position=agent_position)
                     agents[agent.id] = agent
@@ -160,8 +164,8 @@ class GridWorld:
             while True:
                 random_x = random.randint(0, size - 1)
                 random_y = random.randint(0, size - 1)
-                cell = grid_world.grid[random_x][random_y]
-                if cell == CellType.EMPTY:
+                cell = grid_world.grid[random_y][random_x]
+                if cell == CellType.EMPTY and not grid_world.is_agent_occupying(Position(random_x, random_y)):
                     grid_world.change_grid_cell_type(
                         Position(random_x, random_y), CellType.WALL)
                     break

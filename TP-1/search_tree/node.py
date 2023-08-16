@@ -1,6 +1,6 @@
 from grid_world.grid import GridWorld
 from typing import Set, Optional
-
+import math
 
 class Node:
     """
@@ -93,11 +93,25 @@ class Node:
         """
             Returns accumulated manhattan distance from agents to their respective target
         """
-        accum = 0
-        for agent in self.grid.agents.values():
-            target = agent.target_position
-            accum += agent.position.get_manhattan_distance(target)
-        return accum
+        return sum(agent.position.get_manhattan_distance(agent.target_position) for agent in self.grid.agents.values())
+
+    def distance_squared(self) -> int:
+        """
+            Returns accumulated distance squared from agents to their respective target
+        """
+        return sum(agent.position.get_distance_squared(agent.target_position) for agent in self.grid.agents.values())
+
+    def x_diff_accum(self) -> int:
+        """
+            Returns accumulated x distance from agents to their respective target
+        """
+        return sum(math.fabs(agent.position.x - agent.target_position.x) for agent in self.grid.agents.values())
+
+    def y_diff_accum(self) -> int:
+        """
+            Returns accumulated x distance from agents to their respective target
+        """
+        return sum(math.fabs(agent.position.y - agent.target_position.y) for agent in self.grid.agents.values())
 
 
 def is_present_before(node: Optional[Node]) -> bool:

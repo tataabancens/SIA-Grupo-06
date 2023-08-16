@@ -29,6 +29,11 @@ class Position:
             return math.fabs(self.x - other.x) + math.fabs(self.y - other.y)
         raise ValueError(f"{other} is not a Position object")
 
+    def get_distance_squared(self, other):
+        if isinstance(other, Position):
+            return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
+        raise ValueError(f"{other} is not a Position object")
+
 
 class Move(Enum):
     UP = 4

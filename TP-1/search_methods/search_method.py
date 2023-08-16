@@ -16,7 +16,11 @@ class SearchInfo:
 
 
 class SearchMethod(ABC):
+
     def __init__(self, heuristic=None):
+        """
+            Default heuristic returns same node
+        """
         self.heuristic = heuristic
 
     @abstractmethod
@@ -97,6 +101,7 @@ class BFS(SearchMethod):
                         trace = trace_path(new_node)
                         return SearchInfo(trace, get_weight_of_path(trace), len(explored))
 
+            frontier_queue.sort(key=self.heuristic) if self.heuristic else None
         return None
 
 
@@ -147,57 +152,4 @@ class DFS(SearchMethod):
                     if new_node.is_goal():
                         trace = trace_path(new_node)
                         return SearchInfo(trace, get_weight_of_path(trace), len(explored))
-
-        return None
-
-
-class GlobalGreedy(SearchMethod):
-    """
-    Global-Greedy search algorithm.
-    """
-
-    def search(self, searchTree: SearchTree) -> Optional[SearchInfo]:
-        frontier_queue = [searchTree.root]  # Frontier nodes
-        explored = set()  # Explored nodes
-
-        while len(frontier_queue) > 0:
-            node = frontier_queue.pop(0)
-
-            if node.grid.lost_game():
-                # print("End node:\n", node)
-                continue
-
-            possible_moves = node.grid.get_possible_moves(
-                node.grid.agents[node.get_turn()])
-            # print("Grid:\n", node.grid)
-
-            if len(possible_moves) < 1:
-                no_op_grid = node.grid.clone()
-                no_op_node = Node(
-                    no_op_grid, node, searchTree.next_agent_turn(node.get_turn()))
-                node.add_child(no_op_node)
-                if no_op_node not in explored:
-                    explored.add(no_op_node)
-                    frontier_queue.append(no_op_node)
-                    # No-op node cant be goal node
-
-            for move in possible_moves:
-                # print("Move: ", move)
-
-                new_grid = node.grid.clone()
-                new_grid.move(new_grid.agents[node.get_turn()], move)
-                new_node = Node(
-                    new_grid, node, searchTree.next_agent_turn(node.get_turn()))
-
-                node.add_child(new_node)
-
-                if new_node not in explored:
-                    explored.add(new_node)
-                    frontier_queue.append(new_node)
-                    if new_node.is_goal():
-                        trace = trace_path(new_node)
-                        return SearchInfo(trace, get_weight_of_path(trace), len(explored))
-
-        #     Ordenar a la frontera de acuerdo a la heuristica
-            frontier_queue.sort(key=self.heuristic)
         return None
