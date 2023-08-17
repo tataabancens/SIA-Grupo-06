@@ -23,7 +23,7 @@ class SearchInfoEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, SearchInfo):
             grid = obj.trace.grid
-            return {"method": obj.method_name, "cost": obj.weight_of_path, "nodes_explored": obj.nodes_explored_amount, "elapsed_time": obj.time_elapsed, "agents": grid.agent_count, "grid_size":grid.size}
+            return {"map_id": grid.configuration_id(),"method": obj.method_name, "cost": obj.weight_of_path, "nodes_explored": obj.nodes_explored_amount, "elapsed_time": obj.time_elapsed, "agents": grid.agent_count, "grid_size":grid.size}
         return super().default(obj)
 class SearchMethod(ABC):
 
