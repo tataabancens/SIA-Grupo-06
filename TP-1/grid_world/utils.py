@@ -1,5 +1,7 @@
 from enum import Enum
+from typing import List
 import math
+
 
 class Position:
     def __init__(self, x, y):
@@ -55,6 +57,7 @@ class Move(Enum):
     @staticmethod
     def get_cost():
         return 1
+
 
 class Target:
     def __init__(self, position: Position, id: int):
@@ -123,3 +126,15 @@ class Agent:
             Returns the position of the agent
         """
         return self.position
+
+
+class MapData:
+    size: int = 2
+    agents: List[List[int]] = [[0, 0]]
+    map_data: List[List[int]] = [[0, 0], [3, 1]]
+
+
+class AgentData:
+    def __init__(self, position, target):
+        self.position = position
+        self.target = target

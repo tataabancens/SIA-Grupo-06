@@ -1,6 +1,6 @@
 import random
 from grid_world.cell import CellType
-from grid_world.utils import Position, Move, Agent
+from grid_world.utils import Position, Move, Agent, MapData
 from typing import Dict, Iterable, List
 import copy
 
@@ -171,6 +171,30 @@ class GridWorld:
                     break
 
         return grid_world
+
+    @classmethod
+    def generate_from_map_data(cls, map_data: MapData) -> 'GridWorld':
+        grid_world = cls(map_data.size)
+        grid_world.agent_count = len(map_data.agents)
+
+        for x in range(grid_world.size):
+            for y in range(grid_world.size):
+                grid_world.change_grid_cell_type(Position(y, x), CellType.from_value(map_data.map_data[x][y]))
+
+        agents = {}
+        for agent in map_data.agents:
+            agent_position = Position(agent['position'][0], agent['position'][1])
+            target_position = Position(agent['target'][0], agent['target'][1])
+
+            agent = Agent.create(
+                target_position=target_position, position=agent_position)
+            agents[agent.id] = agent
+            grid_world.change_grid_cell_type(
+                target_position, CellType.TARGET)
+
+        grid_world.agents = agents
+        return grid_world
+
 
     def clone(self) -> 'GridWorld':
         """
