@@ -101,6 +101,12 @@ class Node:
         """
         return sum(agent.position.get_distance_squared(agent.target_position) for agent in self.grid.agents.values())
 
+    def euclidean_distance(self) -> int:
+        """
+            Returns accumulated distance squared from agents to their respective target
+        """
+        return sum(math.sqrt(agent.position.get_distance_squared(agent.target_position)) for agent in self.grid.agents.values())
+
     def x_diff_accum(self) -> int:
         """
             Returns accumulated x distance from agents to their respective target

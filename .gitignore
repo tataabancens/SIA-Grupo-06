@@ -3,3 +3,5 @@ TP-0/.idea/
 
 TP-1/.idea/
 __pycache__/
+.vscode
+*.json

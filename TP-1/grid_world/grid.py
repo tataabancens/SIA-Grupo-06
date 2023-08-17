@@ -110,11 +110,15 @@ class GridWorld:
         return True
 
     def __hash__(self) -> int:
+        return hash(tuple(self.agents.values()))
         # The only thing differing between states is the position of agents
-        filal_hash = 0
-        for agent in self.agents.values():
-            filal_hash += hash(agent)
-        return filal_hash
+        # filal_hash = 0
+        # for agent in self.agents.values():
+        #     filal_hash += hash(agent)
+        # return filal_hash
+
+    def configuration_id(self) -> str:
+        return f"{hash(self.__str__())}"
 
     @classmethod
     def generate(cls, size: int, agent_count: int) -> 'GridWorld':
