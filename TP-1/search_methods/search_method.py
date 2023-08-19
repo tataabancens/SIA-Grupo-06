@@ -14,6 +14,7 @@ class SearchInfo:
     weight_of_path: int
     nodes_explored_amount: int
     time_elapsed: int
+    frontier_nodes: int
 
     def __str__(self):
         return f"Cost: {self.weight_of_path}, Explored {self.nodes_explored_amount} nodes"
@@ -23,7 +24,7 @@ class SearchInfoEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, SearchInfo):
             grid = obj.trace.grid
-            return {"map_id": grid.configuration_id(),"method": obj.method_name, "cost": obj.weight_of_path, "nodes_explored": obj.nodes_explored_amount, "elapsed_time": obj.time_elapsed, "agents": grid.agent_count, "grid_size":grid.size}
+            return {"map_id": grid.configuration_id(),"method": obj.method_name, "cost": obj.weight_of_path, "nodes_explored": obj.nodes_explored_amount, "elapsed_time": obj.time_elapsed, "agents": grid.agent_count, "grid_size":grid.size, "frontier_nodes": obj.frontier_nodes}
         return super().default(obj)
 class SearchMethod(ABC):
 
@@ -126,7 +127,7 @@ class BFS(SearchMethod):
                         trace = trace_path_tree(new_node)
 
                         elapsed = time.time() - initial_time
-                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed)
+                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed, len(frontier_queue))
 
             frontier_queue.sort(key=self.heuristic) if self.heuristic else None
         return None
@@ -181,7 +182,7 @@ class DFS(SearchMethod):
                         trace = trace_path_tree(new_node)
 
                         elapsed = time.time() - initial_time
-                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed)
+                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed, len(frontier_queue))
         return None
 
 
@@ -236,6 +237,6 @@ class AStar(SearchMethod):
                         trace = trace_path_tree(new_node)
 
                         elapsed = time.time() - initial_time
-                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed)
+                        return SearchInfo(self.name, trace, new_node.get_cost(), len(explored), elapsed, len(frontier_queue))
             frontier_queue.sort(key=lambda n: (self.heuristic(n) + n.cost)) if self.heuristic else None
         return None

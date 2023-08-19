@@ -95,10 +95,12 @@ def plot_lines(data: json,title: str,x_label: str, y_label: str, x_mapper, y_map
 def main():
     with open(os.getcwd() + '/TP-1/data.json', 'r') as json_file:
         data = json.load(json_file)
-    # plot_by_method(data, "Tiempo / método de búsqueda", "tiempo (seg.)", lambda v: v['elapsed_time'],lambda v: v['agents'] == 3)
-    # plot_by_method(data, "Nodos explorados / método de búsqueda", "nodos explorados", lambda v: v['nodes_explored'], lambda v: v['agents'] == 1)
+    plot_by_method(data, "Tiempo / método de búsqueda", "tiempo (seg.)", lambda v: v['elapsed_time'],lambda v: v['agents'] == 3 and v['grid_size'] <= 8)
+    plot_by_method(data, "Nodos frontera / método de búsqueda", "nodos frontera", lambda v: v['frontier_nodes'],lambda v: v['agents'] == 3)
+    plot_by_method(data, "Nodos explorados / método de búsqueda", "nodos explorados", lambda v: v['nodes_explored'], lambda v: v['agents'] == 1)
     plot_by_method(data, "Costo total / método de búsqueda", "costo", lambda v: v['cost'] )
     plot_lines(data, "Nodos explorados / largo de grilla","largo de grilla", "nodos explorados",lambda v: v['grid_size'],lambda v: v['nodes_explored'], lambda v:v['agents'] == 3) # filter so the number of agents stays constant and the only variable is grid size
+    plot_lines(data, "Tiempo / largo de grilla","largo de grilla", "Tiempo",lambda v: v['grid_size'],lambda v: v['elapsed_time'], lambda v: True) # filter so the number of agents stays constant and the only variable is grid size
     plot_lines(data, "Costo / nodos explorados","nodos explorados", "costo",lambda v: v['nodes_explored'],lambda v: v['cost'], lambda v: True)
 
 
