@@ -1,2 +1,0 @@
-    # plot_by_method(data, "Tiempo / método de búsqueda", "tiempo (seg.)", lambda v: v['elapsed_time'],lambda v: v['agents'] == 3)
-    # plot_by_method(data, "Nodos explorados / método de búsqueda", "nodos explorados", lambda v: v['nodes_explored'], lambda v: v['agents'] == 1)
