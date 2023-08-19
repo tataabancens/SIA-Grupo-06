@@ -8,6 +8,10 @@ class Position:
         self.x = x
         self.y = y
 
+    @classmethod
+    def from_array(cls, pos: List[int]):
+        return cls(pos[0], pos[1])
+
     def clone(self) -> 'Position':
         return Position(self.x, self.y)
 
