@@ -2,20 +2,20 @@ import random
 from grid_world.cell import CellType
 from grid_world.utils import Position, Move, Agent, MapData
 from typing import Dict, Iterable, List
-import copy
 
 random.seed(3)
 
 
 class GridWorld:
-    obstacle_proportion = 0.15
+    # obstacle_proportion = 0.15
 
-    def __init__(self, size: int):
+    def __init__(self, size: int, obstacle_proportion: float):
         self.size = size
         self.grid = [
             [CellType.EMPTY for _ in range(size)] for _ in range(size)]
         self.agents: Dict[int, Agent] = {}
         self.agent_count = 0
+        self.obstacle_proportion = obstacle_proportion
 
     def is_agent_occupying(self, position: Position):
         """
@@ -24,6 +24,9 @@ class GridWorld:
         return position in [agent.position for agent in self.agents.values()]
 
     def is_wall(self, position: Position):
+        """
+        Returns true if the cell is a wall
+        """
         return self.grid[position.y][position.x] == CellType.WALL
 
     def is_cell_available(self, position: Position):
@@ -121,7 +124,7 @@ class GridWorld:
         return f"{hash(self.__str__())}"
 
     @classmethod
-    def generate(cls, size: int, agent_count: int) -> 'GridWorld':
+    def generate(cls, size: int, agent_count: int, obstacles_proportion=0.15) -> 'GridWorld':
         """
         Generates a grid world with the given size and number of agents
         """
@@ -134,11 +137,11 @@ class GridWorld:
             raise ValueError("Number of agents must be greater than 0")
         if size < 1:
             raise ValueError("Size must be greater than 0")
-        if agent_count * 2 > size * size * (1 - cls.obstacle_proportion):
+        if agent_count * 2 > size * size * (1 - obstacles_proportion):
             raise ValueError(
                 "Number of agents and targets cannot be greater than the number of empty cells")
 
-        grid_world = cls(size)
+        grid_world = cls(size, obstacles_proportion)
         grid_world.agent_count = agent_count
 
         agents = {}
@@ -149,8 +152,10 @@ class GridWorld:
                     0, size - 1), random.randint(0, size - 1))
                 target_position = Position(random.randint(
                     0, size - 1), random.randint(0, size - 1))
-                agent_position_empty = grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(agent_position)
-                target_position_empty = grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(target_position)
+                agent_position_empty = grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(
+                    agent_position)
+                target_position_empty = grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(
+                    target_position)
 
                 if agent_position_empty and target_position_empty and agent_position != target_position:
                     agent = Agent.create(
@@ -162,7 +167,7 @@ class GridWorld:
 
         grid_world.agents = agents
 
-        obstacle_count = int(size * size * GridWorld.obstacle_proportion)
+        obstacle_count = int(size * size * grid_world.obstacle_proportion)
 
         for _ in range(obstacle_count):
             while True:
@@ -178,16 +183,18 @@ class GridWorld:
 
     @classmethod
     def generate_from_map_data(cls, map_data: MapData) -> 'GridWorld':
-        grid_world = cls(map_data.size)
+        grid_world = cls(map_data.size, map_data.obstacle_proportion)
         grid_world.agent_count = len(map_data.agents)
 
         for x in range(grid_world.size):
             for y in range(grid_world.size):
-                grid_world.change_grid_cell_type(Position(y, x), CellType.from_value(map_data.map_data[x][y]))
+                grid_world.change_grid_cell_type(
+                    Position(y, x), CellType.from_value(map_data.map_data[x][y]))
 
         agents = {}
         for agent in map_data.agents:
-            agent_position = Position(agent['position'][0], agent['position'][1])
+            agent_position = Position(
+                agent['position'][0], agent['position'][1])
             target_position = Position(agent['target'][0], agent['target'][1])
 
             agent = Agent.create(
@@ -199,12 +206,11 @@ class GridWorld:
         grid_world.agents = agents
         return grid_world
 
-
     def clone(self) -> 'GridWorld':
         """
         Returns a deep copy of the grid world
         """
-        grid_world = GridWorld(self.size)
+        grid_world = GridWorld(self.size, self.obstacle_proportion)
         agents = {}
         grid = self.grid
         for agent_id, agent in self.agents.items():
