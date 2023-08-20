@@ -3,13 +3,13 @@ import json
 import numpy as np
 import os
 
-def plot_by_method(data: json,title: str,y_label: str, mapper, filter_func=None):
-    if filter_func is not None:
-        data = filter(filter_func,data)
-
+def plot_by_method(data: json,title: str,y_label: str, mapper, filter_func=lambda v: True):
+    data = list(filter(filter_func,data))
     processed = {}
     color_labels = []
     for stats in data:
+        if stats is None:
+            continue
         method = stats['method']
         if method not in processed:
             processed[method] = []
@@ -50,12 +50,12 @@ def plot_by_method(data: json,title: str,y_label: str, mapper, filter_func=None)
 
         plt.show()
         
-def plot_lines(data: json,title: str,x_label: str, y_label: str, x_mapper, y_mapper, filter_func=None):
-    if filter_func is not None:
-        data = filter(filter_func,data)
+def plot_lines(data: json,title: str,x_label: str, y_label: str, x_mapper, y_mapper, filter_func=lambda v:True):
+    data = filter(filter_func,data)
     processed = {}
     x_values = []
     for stats in data:
+        print(stats)
         method = stats['method']
         x_value = x_mapper(stats)
         if method not in processed:
@@ -93,16 +93,17 @@ def plot_lines(data: json,title: str,x_label: str, y_label: str, x_mapper, y_map
     plt.show()
 
 def main():
-    with open(os.getcwd() + '/TP-1/data.json', 'r') as json_file:
+    with open(os.getcwd() + '/TP-1/data2.json', 'r') as json_file:
         data = json.load(json_file)
-    plot_by_method(data, "Tiempo / método de búsqueda", "tiempo (seg.)", lambda v: v['elapsed_time'],lambda v: v['agents'] == 3 and v['grid_size'] <= 8)
-    plot_by_method(data, "Nodos frontera / método de búsqueda", "nodos frontera", lambda v: v['frontier_nodes'],lambda v: v['agents'] == 3)
-    plot_by_method(data, "Nodos explorados / método de búsqueda", "nodos explorados", lambda v: v['nodes_explored'], lambda v: v['agents'] == 1)
-    plot_by_method(data, "Costo total / método de búsqueda", "costo", lambda v: v['cost'] )
-    plot_lines(data, "Nodos explorados / largo de grilla","largo de grilla", "nodos explorados",lambda v: v['grid_size'],lambda v: v['nodes_explored'], lambda v:v['agents'] == 3) # filter so the number of agents stays constant and the only variable is grid size
-    plot_lines(data, "Tiempo / largo de grilla","largo de grilla", "Tiempo",lambda v: v['grid_size'],lambda v: v['elapsed_time'], lambda v: True) # filter so the number of agents stays constant and the only variable is grid size
-    plot_lines(data, "Costo / nodos explorados","nodos explorados", "costo",lambda v: v['nodes_explored'],lambda v: v['cost'], lambda v: True)
+    # plot_by_method(data, "Tiempo / método de búsqueda", "tiempo (seg.)", lambda v: v['elapsed_time'], lambda v: v['grid_size'] == 5)
+    # plot_by_method(data, "Nodos frontera / método de búsqueda", "nodos frontera", lambda v: v['frontier_nodes'], lambda v: v['grid_size'] == 5)
+    # plot_by_method(data, "Nodos explorados / método de búsqueda", "nodos explorados", lambda v: v['nodes_explored'], lambda v: v['grid_size'] == 5)
+    plot_by_method(data, "Costo total / método de búsqueda", "costo", lambda v: v['cost'], lambda v: v['grid_size'] == 5)
+    plot_lines(data, "Tiempo / largo de grilla","largo de grilla", "Tiempo",lambda v: v['grid_size'],lambda v: v['elapsed_time'], lambda v: v['method'] != 'BFS' and v['method']!='DFS') # filter so the number of agents stays constant and the only variable is grid size
+    plot_lines(data, "Tiempo / largo de grilla","largo de grilla", "Tiempo",lambda v: v['grid_size'],lambda v: v['elapsed_time'], lambda v: v['method'] == 'BFS' or v['method'] == 'DFS') # filter so the number of agents stays constant and the only variable is grid size
+    plot_lines(data, "Nodos explorados / largo de grilla","largo de grilla", "nodos explorados",lambda v: v['grid_size'],lambda v: v['nodes_explored'], lambda v:v['method'] != 'BFS' and v['method'] != 'DFS') # filter so the number of agents stays constant and the only variable is grid size
 
+    plot_lines(data, "Nodos explorados / largo de grilla","largo de grilla", "nodos explorados",lambda v: v['grid_size'],lambda v: v['nodes_explored'], lambda v:v['method'] == 'BFS' or v['method'] == 'DFS') # filter so the number of agents stays constant and the only variable is grid size
 
 if __name__ == "__main__":
     main()

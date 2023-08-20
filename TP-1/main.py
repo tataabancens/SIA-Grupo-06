@@ -20,10 +20,10 @@ def main():
     # 3 agents, 5x5 grid
 
     results = []
-    times = 3
+    times = 4
 
-    for n in [1,2,3,4]:
-        for size in [4,5,8,10]:
+    for n in [1,2,3]:
+        for size in [3,4,5,6,7,8,9]:
             for _ in range(times):
                 Agent.next_id = 1
                 grid = GridWorld.generate(size, n)
@@ -31,30 +31,24 @@ def main():
 
                 # Generate search tree
                 tree = SearchTree(Node(grid, None, 1))
-                # bfs_results = BFS().search(tree)
-                # print("BFS:", bfs_results)
+                # bfs_results = BFS('BFS').search(tree)
+                # results.append(bfs_results)
 
-                # dfs_results = DFS().search(tree)
-                # print("DFS:", dfs_results)
-                # print(tree)
+                # dfs_results = DFS('DFS').search(tree)
+                # results.append(dfs_results)
 
                 global_greedy_manhattan_results = BFS('Global Greedy Manhattan',heuristic=Node.manhattan_distance_to_goal).search(tree)
                 print("Global Greedy Manhattan:", global_greedy_manhattan_results)
                 results.append(global_greedy_manhattan_results)
 
-                global_greedy_distance_squared = BFS('Global Greedy squared distance',heuristic=Node.distance_squared).search(tree)
-                print("Global Greedy distance:", global_greedy_distance_squared)
-                results.append(global_greedy_distance_squared)
+                global_greedy_x_diff = BFS('Global Greedy x-diff',heuristic=Node.x_diff_accum).search(tree)
+                print("Global Greedy X-diff:", global_greedy_x_diff)
 
-                # global_greedy_x_diff = BFS(heuristic=Node.x_diff_accum).search(tree)
-                # print("Global Greedy x_diff:", global_greedy_x_diff)
-                #
-                # global_greedy_y_diff = BFS(heuristic=Node.y_diff_accum).search(tree)
-                # print("Global Greedy y_diff:", global_greedy_y_diff)
+                results.append(global_greedy_x_diff)
 
-                # a_star_results = AStar('A* Manhattan', heuristic=Node.manhattan_distance_to_goal).search(tree)
-                # print("AStar Manhattan:", a_star_results)
-                # results.append(a_star_results)
+                a_star_results = AStar('A* Manhattan', heuristic=Node.manhattan_distance_to_goal).search(tree)
+                print("AStar Manhattan:", a_star_results)
+                results.append(a_star_results)
 
                 a_star_distance_results = AStar('A* euclidean distance',heuristic=Node.euclidean_distance).search(tree)
                 print("AStar Distance:", a_star_distance_results)
