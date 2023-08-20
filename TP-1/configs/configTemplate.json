@@ -1,0 +1,7 @@
+{
+    "agents": [2],
+    "obstacles_proportion": [0.1, 0.5],
+    "sizes": [4],
+    "iterations": 1,
+    "methods": ["BFS", "DFS", "AstartEuclidean", "GlobalGreedyManhattan", "GlobalGreedyDistance","AstartManhattan"]
+}

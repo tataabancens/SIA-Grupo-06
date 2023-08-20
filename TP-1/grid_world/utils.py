@@ -135,6 +135,7 @@ class Agent:
 class MapData:
     size: int = 2
     agents: List[List[int]] = [[0, 0]]
+    obstacle_proportion: float = 0.0
     map_data: List[List[int]] = [[0, 0], [3, 1]]
 
 
