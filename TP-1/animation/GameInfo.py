@@ -27,13 +27,13 @@ class GameInfo:
         return f"Game info"
 
     def next_turn(self):
-        return (self.turn + 1) % len(self.agents.values()) + 1
+        return (self.turn % len(self.agents)) + 1
 
 
 def load_map():
     game_info = GameInfo()
 
-    with open("map.json", "r") as map_file:
+    with open("output/map2.json", "r") as map_file:
         map_json = json.load(map_file)
 
         try:
