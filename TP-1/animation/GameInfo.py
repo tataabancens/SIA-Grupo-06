@@ -1,6 +1,7 @@
 from typing import List, Dict
 from grid_world.utils import Agent, Position
 import json
+from search_tree.node import Node
 
 
 class AgentData(Agent):
@@ -22,22 +23,37 @@ class GameInfo:
     size = 2
     agents: Dict[int, AgentData] = [AgentData(target_position=Position(1, 1), positions=[Position(0, 0)])]
     turn: int = 1
+    method: str = "BFS"
+    done_set: set[AgentData] = set()
 
     def __str__(self):
         return f"Game info"
 
     def next_turn(self):
-        return (self.turn + 1) % len(self.agents.values()) + 1
+        return (self.turn % len(self.agents)) + 1
+
+    def reset(self):
+        self.turn = 1
+        self.done_set.clear()
+        for agent in self.agents.values():
+            agent.current_position = 0
+
+    def finish_agent(self, agent: AgentData):
+        self.done_set.add(agent)
 
 
 def load_map():
     game_info = GameInfo()
 
-    with open("map.json", "r") as map_file:
+    with open("output/map2.json", "r") as map_file:
         map_json = json.load(map_file)
 
         try:
             game_info.size = map_json["size"]
+        except KeyError:
+            pass
+        try:
+            game_info.method = map_json["method"]
         except KeyError:
             pass
         try:

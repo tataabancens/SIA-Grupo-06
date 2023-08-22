@@ -152,10 +152,11 @@ class GridWorld:
                     0, size - 1), random.randint(0, size - 1))
                 target_position = Position(random.randint(
                     0, size - 1), random.randint(0, size - 1))
-                agent_position_empty = grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(
-                    agent_position)
-                target_position_empty = grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and not grid_world.is_agent_occupying(
-                    target_position)
+                agent_position_empty = grid_world.grid[agent_position.y][agent_position.x] == CellType.EMPTY and \
+                                       not agent_position in [agent.position for agent in agents.values()]
+
+                target_position_empty = grid_world.grid[target_position.y][target_position.x] == CellType.EMPTY and \
+                                        not target_position in [agent.position for agent in agents.values()]
 
                 if agent_position_empty and target_position_empty and agent_position != target_position:
                     agent = Agent.create(

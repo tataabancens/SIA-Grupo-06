@@ -1,5 +1,5 @@
 import time
-
+from enum import Enum
 import arcade
 from arcade import Sprite, Scene, PhysicsEnginePlatformer, Camera, csscolor
 from pyglet.math import Vec2
@@ -7,6 +7,12 @@ from GameInfo import GameInfo, load_map
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE,\
     TILE_SCALING, CHARACTER_SCALING, COIN_SCALING, AGENT_LIST_NAME,\
     TARGET_LIST_NAME, FLOOR_LIST_NAME, PLAYER_MOVEMENT_SPEED, PLAYER_JUMP_SPEED, GRAVITY, CELL_LIST_NAME
+
+
+class GameState(Enum):
+    OPEN = 0
+    STARTED = 1
+    FINISHED = 2
 
 
 class MyGame(arcade.Window):
@@ -21,20 +27,21 @@ class MyGame(arcade.Window):
 
         self.camera: Camera | None = None
 
-        self.game_info: GameInfo = GameInfo()
-
         self.gui_camera: Camera | None = None
 
         self.time_elapsed = 0
-        self.action_interval = 1
+        self.action_interval = 0.35
+
+        self.game_state: GameState | None = None
 
         # Set up the game here. Call on restart
     def setup(self):
 
         self.camera = Camera(self.width, self.height)
         self.gui_camera = Camera(self.width, self.height)
-
+        self.game_state = GameState.OPEN
         self.scene = arcade.Scene()
+        game_info.reset()
 
         self.setup_floor()
         self.setup_cells()
@@ -72,24 +79,36 @@ class MyGame(arcade.Window):
             agent_sprite.center_y = agent.position.y * 64
             agent_sprite.properties["id"] = agent.id
             self.scene.add_sprite(AGENT_LIST_NAME, agent_sprite)
-            
+
+    def on_key_press(self, symbol: int, modifiers: int):
+        if symbol == arcade.key.SPACE:
+            self.game_state = GameState.STARTED
+        if symbol == arcade.key.ENTER:
+            self.setup()
+            self.game_state = GameState.OPEN
 
     def on_update(self, delta_time: float):
         self.center_camera_to_player()
 
-        self.time_elapsed += delta_time
-        if self.time_elapsed >= self.action_interval:
-            self.time_elapsed = 0
-            self.update_agent()
+        if self.game_state == GameState.STARTED:
+            self.time_elapsed += delta_time
+            if self.time_elapsed >= self.action_interval:
+                self.time_elapsed = 0
+                self.update_agent()
 
     def update_agent(self):
         agent = game_info.agents[game_info.turn]
         for sprite in self.scene.get_sprite_list(AGENT_LIST_NAME):
             if sprite.properties['id'] == agent.id:
-                if agent.has_next_position():
+                game_info.turn = game_info.next_turn()
+                if agent not in game_info.done_set and agent.has_next_position():
                     next_pos = agent.next_position()
                     sprite.center_x = next_pos.x * 64
                     sprite.center_y = next_pos.y * 64
+                else:
+                    game_info.finish_agent(agent)
+                    if len(game_info.done_set) == len(game_info.agents):
+                        self.game_state = GameState.FINISHED
 
     def center_camera_to_player(self):
         screen_center_x = game_info.size * 0.5 * 64 - (self.camera.viewport_width * 0.5)
@@ -115,6 +134,21 @@ class MyGame(arcade.Window):
                              font_size=20, anchor_x="center")
 
         self.gui_camera.use()
+        arcade.draw_text(game_info.method, (self.gui_camera.viewport_width / 2),
+                         self.gui_camera.viewport_height - 100, arcade.color.WHITE,
+                         font_size=30, anchor_x="center")
+        agent_turn_text = f"Agent turn: {game_info.turn}"
+        arcade.draw_text(agent_turn_text, (self.gui_camera.viewport_width / 2) - 215,
+                         self.gui_camera.viewport_height - 130, arcade.color.WHITE,
+                         font_size=15)
+
+        if self.game_state == GameState.OPEN:
+            arcade.draw_text("Press SPACE to start", (self.gui_camera.viewport_width / 2) - 30,
+                             30, arcade.color.WHITE, font_size=30, anchor_x="center")
+
+        if self.game_state in [GameState.STARTED, GameState.FINISHED]:
+            arcade.draw_text("Press ENTER to reset", (self.gui_camera.viewport_width / 2) - 30, 30, arcade.color.WHITE,
+                             font_size=30, anchor_x="center")
 
 
 def main():

@@ -28,7 +28,7 @@ def load_config(config_path: str) -> MapData:
 
 
 if __name__ == "__main__":
-    config = load_config("configs/test1.json")
+    config = load_config("input/test1.json")
 
     grid = GridWorld.generate_from_map_data(config)
     print(grid)
