@@ -1,2 +1,6 @@
 arcade
 matplotlib
+argparse
+pathlib
+typing
+json

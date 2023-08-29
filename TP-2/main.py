@@ -3,17 +3,37 @@
 """
 import os
 from config import load_config
+from pathlib import Path
+import argparse
+from argparse import Namespace
+
+
+def __parse_args() -> Namespace:
+    parser = argparse.ArgumentParser(
+        prog='G06-TP2',
+        description='Program to maximize a RPG with Genetic Algorithms'
+    )
+    parser.add_argument('-c', '--config',
+                        type=str,
+                        required=False,
+                        nargs='?',
+                        help='Path to the json configuration file',
+                        dest='config',
+                        action='store',
+                        default=None)
+    return parser.parse_args()
 
 
 def main():
     """
         Main function
     """
-    if len(os.sys.argv) < 2:
-        print("Please provide a config file path as an argument")
-        return
+    args = __parse_args()
+    config_path = Path(args.config)
+    if config_path is None:
+        print("Config path not selected, using default")
 
-    config = load_config(os.sys.argv[1])
+    config = load_config(config_path)
     print(config)
 
 

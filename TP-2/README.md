@@ -9,6 +9,6 @@ pip install -r requirements.txt
 The main.py file contains the code to run the program. It can be run with the following command:
 
 ```
-python main.py <path_to_config>
+python main.py [<path_to_config>]
 ```
 
