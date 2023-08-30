@@ -6,7 +6,7 @@ from config import load_config
 from pathlib import Path
 import argparse
 from argparse import Namespace
-from role import ItemStats, Role, RoleType
+from role import ItemStats, Stats, RoleType
 from agent import Agent
 
 
@@ -47,6 +47,13 @@ def main():
 
     agent = Agent(role, items)
     print(agent.compute_performance(1.5))
+
+    # Compute item stats from random weights
+    computed_stats = ItemStats.from_weights(
+        Stats(strength=45, agility=33.4, proficiency=12.3, toughness=1, health=9.6)
+    )
+    print(computed_stats)
+    print(sum([computed_stats.strength, computed_stats.agility, computed_stats.proficiency, computed_stats.toughness, computed_stats.health]))
 
 
 if __name__ == "__main__":

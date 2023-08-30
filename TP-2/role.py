@@ -23,6 +23,21 @@ class ItemStats(Stats):
         if not math.isclose(stats_sum, self.__target, abs_tol=0.01):
             raise f"Item stats do not sum up to target of {self.__target}. Sum is {stats_sum}"
 
+    @classmethod
+    def from_weights(cls, weights: Stats) -> 'ItemStats':
+        weights_list = [weights.strength, weights.agility, weights.proficiency, weights.toughness, weights.health]
+        max_weight = max(weights_list)
+        normalized_weights = list(map(lambda x: x / max_weight, weights_list))
+        weight_sum = sum(normalized_weights)
+        final_values = list(map(lambda x: (150 / weight_sum) * x, normalized_weights))
+        return ItemStats(
+            strength=final_values[0],
+            agility=final_values[1],
+            proficiency=final_values[2],
+            toughness=final_values[3],
+            health=final_values[4]
+        )
+
 
 class CharacterStats(Stats):
 
