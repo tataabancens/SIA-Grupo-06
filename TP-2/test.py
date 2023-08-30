@@ -3,6 +3,7 @@ from time import time
 from typing import Optional, List
 from math import isclose
 from statistics import mean
+from partition import normalize_partition
 
 
 def normalize_partition_galar(weights_list: List[float], target: float) -> List[float]:
@@ -12,7 +13,8 @@ def normalize_partition_galar(weights_list: List[float], target: float) -> List[
     return list(map(lambda x: (target / weight_sum) * x, normalized_weights))
 
 
-def partition_test(partition_method: "(List[float], float) => List[float]", sum_target: float, iterations: int = 1_000) -> Optional[float]:
+def partition_test(partition_method: "(List[float], float) => List[float]",
+                   sum_target: float, iterations: int = 1_000) -> Optional[float]:
     weights = []
     times = []
     for i in range(0, 5):
@@ -31,6 +33,7 @@ def partition_test(partition_method: "(List[float], float) => List[float]", sum_
 
 def main():
     print(partition_test(normalize_partition_galar, 150.0, 1_000_000))
+    print(partition_test(normalize_partition, 150.0, 1_000_000))
 
 
 if __name__ == "__main__":

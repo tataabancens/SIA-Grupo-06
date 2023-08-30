@@ -5,3 +5,7 @@ TP-1/.idea/
 __pycache__/
 .vscode
 ./*.json
+
+TP-1/animation/output/videos/
+
+TP-2/.idea/
