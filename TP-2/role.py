@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import math
 from enum import Enum
 from typing import Optional
-
+from partition import normalize_partition
 
 @dataclass
 class Stats:
@@ -26,10 +26,7 @@ class ItemStats(Stats):
     @classmethod
     def from_weights(cls, weights: Stats) -> 'ItemStats':
         weights_list = [weights.strength, weights.agility, weights.proficiency, weights.toughness, weights.health]
-        max_weight = max(weights_list)
-        normalized_weights = list(map(lambda x: x / max_weight, weights_list))
-        weight_sum = sum(normalized_weights)
-        final_values = list(map(lambda x: (ItemStats.__target / weight_sum) * x, normalized_weights))
+        final_values = normalize_partition(weights_list, ItemStats.__target)
         return ItemStats(
             strength=final_values[0],
             agility=final_values[1],
