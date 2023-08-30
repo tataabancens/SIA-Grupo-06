@@ -1,7 +1,6 @@
 """
     Main file for the TP-2
 """
-import os
 from config import load_config
 from pathlib import Path
 import argparse
