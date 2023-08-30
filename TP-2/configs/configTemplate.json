@@ -1,3 +1,10 @@
 {
-    "field": "Hello World"
+    "role": "Fighter",
+    "items": {
+        "strength": 15,
+        "agility": 10,
+        "proficiency": 15,
+        "toughness": 30,
+        "health": 80
+    }
 }

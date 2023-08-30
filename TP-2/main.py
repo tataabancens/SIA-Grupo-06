@@ -6,6 +6,8 @@ from config import load_config
 from pathlib import Path
 import argparse
 from argparse import Namespace
+from role import ItemStats, Role, RoleType
+from agent import Agent
 
 
 def __parse_args() -> Namespace:
@@ -35,6 +37,16 @@ def main():
 
     config = load_config(config_path)
     print(config)
+    items = ItemStats(
+        strength=config.items['strength'],
+        agility=config.items['agility'],
+        proficiency=config.items['proficiency'],
+        toughness=config.items['toughness'],
+        health=config.items['health'])
+    role = RoleType.get_instance_from_name(config.role_name)
+
+    agent = Agent(role, items)
+    print(agent.compute_performance(1.5))
 
 
 if __name__ == "__main__":

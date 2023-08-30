@@ -1,7 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 import json
+from collections import defaultdict
 
 
 _DEFAULT_PATH = Path("./configs/configTemplate.json")
@@ -9,7 +10,14 @@ _DEFAULT_PATH = Path("./configs/configTemplate.json")
 
 @dataclass
 class ConfigData:
-    field: str = ""
+    role_name: str = field(default="fighter")
+    items: Dict[str, float] = field(default_factory=lambda: {
+        "strength": 15,
+        "agility": 10,
+        "proficiency": 15,
+        "toughness": 30,
+        "health": 80
+    })
 
 
 def load_config(config_path: Optional[Path]) -> ConfigData:
@@ -22,9 +30,12 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
     with open(path, "r", encoding="utf-8") as config_f:
         json_config = json.load(config_f)
 
-        # With default values
         try:
-            config_data.field = json_config["field"]
+            config_data.role_name = json_config["role"]
+        except KeyError:
+            pass
+        try:
+            config_data.items = json_config["items"]
         except KeyError:
             pass
 
