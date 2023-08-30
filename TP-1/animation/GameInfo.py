@@ -45,7 +45,7 @@ class GameInfo:
 def load_map():
     game_info = GameInfo()
 
-    with open("output/map2.json", "r") as map_file:
+    with open("output/map3.json", "r") as map_file:
         map_json = json.load(map_file)
 
         try:

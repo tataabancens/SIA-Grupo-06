@@ -135,11 +135,11 @@ class MyGame(arcade.Window):
 
         self.gui_camera.use()
         arcade.draw_text(game_info.method, (self.gui_camera.viewport_width / 2),
-                         self.gui_camera.viewport_height - 100, arcade.color.WHITE,
+                         self.gui_camera.viewport_height - 30, arcade.color.WHITE,
                          font_size=30, anchor_x="center")
         agent_turn_text = f"Agent turn: {game_info.turn}"
         arcade.draw_text(agent_turn_text, (self.gui_camera.viewport_width / 2) - 215,
-                         self.gui_camera.viewport_height - 130, arcade.color.WHITE,
+                         self.gui_camera.viewport_height - 60, arcade.color.WHITE,
                          font_size=15)
 
         if self.game_state == GameState.OPEN:

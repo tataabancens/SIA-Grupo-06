@@ -37,14 +37,14 @@ def node_to_json_map(search_info: SearchInfo):
         "map": map_array
     }
 
-    filename = "output/map2.json"
+    filename = "output/map3.json"
     with open(filename, "w") as archivo_json:
         json.dump(data, archivo_json, indent=4)
 
 
 if __name__ == "__main__":
     grid = GridWorld.generate(
-        6, 3, 0.15)
+        8, 6, 0.15)
 
     # config = load_config("input/test1.json")
     #
