@@ -29,7 +29,7 @@ class ItemStats(Stats):
         max_weight = max(weights_list)
         normalized_weights = list(map(lambda x: x / max_weight, weights_list))
         weight_sum = sum(normalized_weights)
-        final_values = list(map(lambda x: (150 / weight_sum) * x, normalized_weights))
+        final_values = list(map(lambda x: (ItemStats.__target / weight_sum) * x, normalized_weights))
         return ItemStats(
             strength=final_values[0],
             agility=final_values[1],
