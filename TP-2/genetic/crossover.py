@@ -1,6 +1,9 @@
 from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Optional
+from numpy import random, concatenate
+from agent import Agent
+from role import RoleType
 
 
 class Crossover(ABC):
@@ -9,7 +12,7 @@ class Crossover(ABC):
     """
 
     @abstractmethod
-    def cross(self, parents):
+    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
@@ -21,11 +24,27 @@ class OnePoint(Crossover):
         One point crossover method
     """
 
-    def cross(self, parents):
+    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
-        pass
+
+        s = len(parents[0].cromosome)
+        p = random.default_rng().integers(0, s)
+
+        children_cromosomes = []
+        children_cromosomes[0] = concatenate(
+            (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
+        children_cromosomes[1] = concatenate(
+            (parents[1].cromosome[0:p], parents[0].cromosome[p:s]), axis=0)
+
+        # TODO: Create children agents
+        return (
+            Agent(role=RoleType.get_instance_from_name("Defence"),
+                  cromosome=children_cromosomes[0]),
+            Agent(role=RoleType.get_instance_from_name("Defence"),
+                  cromosome=children_cromosomes[0])
+        )
 
 
 class TwoPoint(Crossover):
@@ -33,11 +52,26 @@ class TwoPoint(Crossover):
         Two point crossover method
     """
 
-    def cross(self, parents):
+    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
-        pass
+        s = len(parents[0].cromosome)
+        p_1, p_2 = random.default_rng().integers(0, s, size=2)
+
+        children_cromosomes = []
+        children_cromosomes[0] = concatenate(
+            (parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2]), axis=0)
+        children_cromosomes[1] = concatenate(
+            (parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2]), axis=0)
+
+        # TODO: Create children agents
+        return (
+            Agent(role=RoleType.get_instance_from_name("Defence"),
+                  cromosome=children_cromosomes[0]),
+            Agent(role=RoleType.get_instance_from_name("Defence"),
+                  cromosome=children_cromosomes[0])
+        )
 
 
 class Uniform(Crossover):
@@ -45,11 +79,21 @@ class Uniform(Crossover):
         Uniform crossover method
     """
 
-    def cross(self, parents):
+    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
-        pass
+        p_s = random.default_rng().uniform(
+            0, 1, size=len(parents[0].cromosome))
+
+        children_cromosomes = []
+        for i in range(len(parents[0].cromosome)):
+            if p_s[i] < 0.5:
+                children_cromosomes[0][i] = parents[0].cromosome[i]
+                children_cromosomes[1][i] = parents[1].cromosome[i]
+            else:
+                children_cromosomes[0][i] = parents[1].cromosome[i]
+                children_cromosomes[1][i] = parents[0].cromosome[i]
 
 
 class Anular(Crossover):
@@ -57,11 +101,11 @@ class Anular(Crossover):
         Anular crossover method
     """
 
-    def cross(self, parents):
+    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
-        pass
+        return TwoPoint().cross(parents)  # 🤐🤐🤐🤐🤐
 
 
 class CrossoverOptions(Enum):
