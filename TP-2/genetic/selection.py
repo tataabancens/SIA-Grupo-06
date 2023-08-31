@@ -5,6 +5,11 @@ from agent import Agent
 import numpy as np
 
 
+class SelectionStrategy(Enum):
+    YOUNG_BIAS = "young"
+    TRADITIONAL = "traditional"
+
+
 class Selection(ABC):
     """
         Selection method abstract class
