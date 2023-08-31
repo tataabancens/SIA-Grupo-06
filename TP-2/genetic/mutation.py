@@ -1,6 +1,8 @@
 from enum import Enum
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
+from agent import Agent
+from numpy import random
 
 
 class Mutation(ABC):
@@ -9,23 +11,31 @@ class Mutation(ABC):
     """
 
     @abstractmethod
-    def mutate(self, population, p_m):
+    def mutate(self, agent: Agent, p_m: float) -> None:
         """
-            Mutate the individuals from the population
+            Mutate the individuals from the agent. Returns the index of the mutated genes
         """
-        pass
 
 
-class Gen(Mutation):
+class OneGen(Mutation):
     """
-        Se altera un solo gen con una probabilidad P_m
+        Se altera un solo gen con una probabilidad P_m.
     """
 
-    def mutate(self, population, p_m):
+    def mutate(self, agent: Agent, p_m: float) -> None | List[int]:
         """
-            Mutate the individuals from the population
+            Mutate the individuals from the agent
         """
-        pass
+        cromosome_amount = len(agent.cromosome)
+        cromosome_to_mutate = random.default_rng().integers(
+            0, cromosome_amount)
+
+        mutate_probability = random.default_rng().uniform(0, 1)
+        if mutate_probability <= p_m:
+            agent.cromosome[cromosome_to_mutate] = random.default_rng().uniform(
+                0, 1)
+            return list(cromosome_to_mutate)
+        return None
 
 
 class LimitedMultiGen(Mutation):
@@ -33,11 +43,28 @@ class LimitedMultiGen(Mutation):
         Se selecciona una cantidad [1,M] (azarosa) de genes para mutar, con probabilidad P_m
     """
 
-    def mutate(self, population, p_m):
+    def mutate(self, agent: Agent, p_m: float) -> None | List[int]:
         """
-            Mutate the individuals from the population
+            Mutate the individuals from the agent. Returns the index of the mutated genes
         """
-        pass
+        cromosome_amount = len(agent.cromosome)
+
+        cromosome_to_mutate_amount = random.default_rng().integers(
+            1, cromosome_amount)
+
+        cromosome_to_mutate = random.default_rng().integers(
+            0, cromosome_amount, size=cromosome_to_mutate_amount)
+
+        mutated_genes = []
+
+        for _ in range(cromosome_to_mutate_amount):
+            mutate_probability = random.default_rng().uniform(0, 1)
+            if mutate_probability <= p_m:
+                agent.cromosome[cromosome_to_mutate] = random.default_rng().uniform(
+                    0, 1)
+                mutated_genes.append(cromosome_to_mutate)
+
+        return mutated_genes if len(mutated_genes) > 0 else None
 
 
 class UniformMultiGen(Mutation):
@@ -45,11 +72,22 @@ class UniformMultiGen(Mutation):
          Cada gen tiene una probabilidad P_m de ser mutado
     """
 
-    def mutate(self, population, p_m):
+    def mutate(self, agent: Agent, p_m: float) -> None | List[int]:
         """
-            Mutate the individuals from the population
+            Mutate the individuals from the agent. Returns the index of the mutated genes
         """
-        pass
+        cromosome_amount = len(agent.cromosome)
+
+        mutated_genes = []
+
+        for i in range(cromosome_amount):
+            mutate_probability = random.default_rng().uniform(0, 1)
+            if mutate_probability <= p_m:
+                agent.cromosome[i] = random.default_rng().uniform(
+                    0, 1)
+                mutated_genes.append(i)
+
+        return mutated_genes if len(mutated_genes) > 0 else None
 
 
 class Complete(Mutation):
@@ -57,18 +95,30 @@ class Complete(Mutation):
         Con una probabilidad P_m se mutan todos los genes del individuo, acorde a la función de mutación definida para cada gen
     """
 
-    def mutate(self, population, p_m):
+    def mutate(self, agent: Agent, p_m: float) -> None | List[int]:
         """
-            Mutate the individuals from the population
+            Mutate the individuals from the agent. Returns the index of the mutated genes
         """
-        pass
+        cromosome_amount = len(agent.cromosome)
+
+        mutated_genes = []
+
+        mutate_probability = random.default_rng().uniform(0, 1)
+
+        for i in range(cromosome_amount):
+            if mutate_probability <= p_m:
+                agent.cromosome[i] = random.default_rng().uniform(
+                    0, 1)
+                mutated_genes.append(i)
+
+        return mutated_genes if len(mutated_genes) > 0 else None
 
 
 class MutationOptions(Enum):
     """
         Selection options enum
     """
-    GEN = "Gen"
+    ONE_GEN = "OneGen"
     LIMITED_MULTI_GEN = "LimitedMultiGen"
     UNIFORM_MULTI_GEN = "UniformMultiGen"
     COMPLETE = "Complete"
