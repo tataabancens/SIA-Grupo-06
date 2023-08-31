@@ -1,6 +1,12 @@
 from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Optional
+from enum import Enum
+
+
+class SelectionStrategy(Enum):
+    YOUNG_BIAS = "young"
+    TRADITIONAL = "traditional"
 
 
 class Selection(ABC):

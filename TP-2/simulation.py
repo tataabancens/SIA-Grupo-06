@@ -1,36 +1,29 @@
 from typing import List, Tuple, Callable
 from agent import Agent
 from role import Role
-from abc import ABC, abstractmethod
-from enum import Enum
-
-
-# class SelectionStrategy(ABC):
-#
-#     @abstractmethod
-#     def merge_population(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
-#         raise NotImplementedError()
-#
-#
-# class YoungBias(SelectionStrategy):
-#
-#     def __init__(self, k: int):
-#         self.k = k
-#
-#     def merge_population(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
-#         if len(children) > self.k:
-#             return children[0:self.k]
-#         return children[0:self.k] + parents[]
-
-
-class SelectionStrategy(Enum):
-    YOUNG_BIAS = "young"
-    TRADITIONAL = "traditional"
+from genetic.selection import SelectionStrategy
 
 
 class Simulation:
 
     def __init__(self, *args, **kwargs):
+        """
+        Method description
+
+        :param args: Variable length argument list.
+        :param kwargs: Arbitrary keyword arguments.
+            :key gen_0 (List[Agent]): Initial population of agents
+            :key crossovers (Tuple[Crossover]): Crossover methods for agent breeding
+            :key selections (Tuple[Selection]): Selection methods for agent filtering
+            :key mutation (Mutation): Mutation function for agents.
+            :key selection_strategy (str): The selection strategy parsed from a string.
+            :key crossover_proportion (float): Proportion of agents used for crossovers.
+            :key selection_proportion (float): Proportion of agents retained after selection.
+            :key k (int): Amount of agents to select in each iteration.
+            :key role (Role): The role to test in the simulation.
+
+        :raises ValueError: If selection_proportion is not within the range [0, 1].
+        """
         self.population: List[Agent] = kwargs["gen_0"]
         self.crossovers: Tuple[Callable[[Agent, Agent], Tuple[Agent, Agent]]] = kwargs["crossovers"]
         self.selections: Tuple[Callable[[List[Agent], int], List[Agent]]] = kwargs["selections"]
@@ -42,7 +35,7 @@ class Simulation:
         if not (0 <= self.selection_proportion <= 1):
             raise ValueError("Selection proportion is not in the range [0,1]")
         self.k: int = kwargs["k"]
-        self.role = kwargs["role"]
+        self.role: Role = kwargs["role"]
 
     def end_condition(self) -> bool:
         return False
