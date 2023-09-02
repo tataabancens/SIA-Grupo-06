@@ -6,6 +6,8 @@ from genetic.selection import SelectionStrategy
 
 class Simulation:
 
+    iteration = 0
+
     def __init__(self, *args, **kwargs):
         """
         Method description
@@ -22,22 +24,33 @@ class Simulation:
             :key k (int): Amount of agents to select in each iteration.
             :key role (Role): The role to test in the simulation.
 
+            :key max_iterations (int): Maximum amount of iterations to run the simulation.
+
+
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
         self.population: List[Agent] = kwargs["gen_0"]
-        self.crossovers: Tuple[Callable[[Agent, Agent], Tuple[Agent, Agent]]] = kwargs["crossovers"]
-        self.selections: Tuple[Callable[[List[Agent], int], List[Agent]]] = kwargs["selections"]
-        self.mutation: Callable[[List[Agent]], List[Agent]] = kwargs["mutation"]
+        self.crossovers: Tuple[Callable[[Agent, Agent],
+                                        Tuple[Agent, Agent]]] = kwargs["crossovers"]
+        self.selections: Tuple[Callable[[List[Agent],
+                                         int], List[Agent]]] = kwargs["selections"]
+        self.mutation: Callable[[List[Agent]],
+                                List[Agent]] = kwargs["mutation"]
         # The parameter is a string that is parsed here
-        self.selection_strategy: SelectionStrategy = SelectionStrategy(kwargs["selection_strategy"])
+        self.selection_strategy: SelectionStrategy = SelectionStrategy(
+            kwargs["selection_strategy"])
         self.crossover_proportion: float = kwargs["crossover_proportion"]
         self.selection_proportion: float = kwargs["selection_proportion"]
         if not (0 <= self.selection_proportion <= 1):
             raise ValueError("Selection proportion is not in the range [0,1]")
         self.k: int = kwargs["k"]
         self.role: Role = kwargs["role"]
+        self.max_iterations: int = kwargs["max_iterations"]
 
     def end_condition(self) -> bool:
+        if self.iteration >= self.max_iterations:
+            return True
+
         return False
 
     def run(self):
@@ -47,7 +60,10 @@ class Simulation:
     def iterate(self):
         children = self.crossover(self.crossover_proportion)
         children = self.mutation(children)
-        self.population = self.population = self.selection(children, self.population)
+        self.population = self.population = self.selection(
+            children, self.population)
+
+        self.iteration += 1
         # Reemplazo, quién te conoce??
 
     def selection(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
@@ -68,15 +84,22 @@ class Simulation:
 
             selected = children
             parents_to_select_amount: int = pop_size - children_amount
-            method_a_proportion = int(parents_to_select_amount * self.selection_proportion)
-            selected = selected + self.selections[0](parents, method_a_proportion)
-            selected = selected + self.selections[1](parents, parents_to_select_amount - method_a_proportion)
+            method_a_proportion = int(
+                parents_to_select_amount * self.selection_proportion)
+            selected = selected + \
+                self.selections[0](parents, method_a_proportion)
+            selected = selected + \
+                self.selections[1](
+                    parents, parents_to_select_amount - method_a_proportion)
             return selected
         else:
             raise "WTF"
 
-        selected = selected + self.selections[0](population_to_select, method_a_proportion)
-        selected = selected + self.selections[1](population_to_select, self.k - method_a_proportion)
+        selected = selected + \
+            self.selections[0](population_to_select, method_a_proportion)
+        selected = selected + \
+            self.selections[1](population_to_select,
+                               self.k - method_a_proportion)
 
         return selected
 
@@ -90,14 +113,16 @@ class Simulation:
 
         # Cross populations
         children: List[Agent] = []
-        children = children + self.__crossover_with_method(self.crossovers[0], a_population)
-        children = children + self.__crossover_with_method(self.crossovers[1], b_population)
+        children = children + \
+            self.__crossover_with_method(self.crossovers[0], a_population)
+        children = children + \
+            self.__crossover_with_method(self.crossovers[1], b_population)
 
         return children
 
     @staticmethod
     def __crossover_with_method(method: Callable[[Agent, Agent], Tuple[Agent, Agent]], population: List[Agent]) -> List[
-        Agent]:
+            Agent]:
         children: List[Agent] = []
         population_amount = len(population)
         for i in range(1, population_amount, 2):
@@ -108,7 +133,7 @@ class Simulation:
         return children
 
     @staticmethod
-    def __selection_with_method(method: Callable[[List[Agent], Int], List[Agent]], population: List[Agent],k :int)->List[Agent]:
+    def __selection_with_method(method: Callable[[List[Agent], Int], List[Agent]], population: List[Agent], k: int) -> List[Agent]:
         return method(population, k)
 
 
