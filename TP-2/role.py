@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Optional
 from partition import normalize_partition
 
+
 @dataclass
 class Stats:
     strength: float     # Fuerza
@@ -19,14 +20,14 @@ class ItemStats(Stats):
     __target: float = field(init=False, default=150.0)
 
     def __post_init__(self) -> None:
-        stats_sum: float = self.strength + self.agility + self.proficiency + self.toughness + self.health
+        stats_sum: float = self.strength + self.agility + \
+            self.proficiency + self.toughness + self.health
         if not math.isclose(stats_sum, self.__target, abs_tol=0.01):
             raise f"Item stats do not sum up to target of {self.__target}. Sum is {stats_sum}"
 
     @classmethod
-    def from_weights(cls, weights: Stats) -> 'ItemStats':
-        weights_list = [weights.strength, weights.agility, weights.proficiency, weights.toughness, weights.health]
-        final_values = normalize_partition(weights_list, ItemStats.__target)
+    def from_weights(cls, weights: list[float]) -> 'ItemStats':
+        final_values = normalize_partition(weights, ItemStats.__target)
         return ItemStats(
             strength=final_values[0],
             agility=final_values[1],
@@ -45,11 +46,17 @@ class CharacterStats(Stats):
         self.toughness = math.tanh(0.01 * items.toughness)
         self.health = 100 * math.tanh(0.01 * items.health)
 
+    def __eq__(self, __value: object) -> bool:
+        return super().__eq__(__value)
+
 
 class Role(ABC):
     @abstractmethod
     def compute_performance(self, attack: float, defense: float) -> float:
         raise NotImplementedError()
+
+    def __eq__(self, __value: object) -> bool:
+        return super().__eq__(__value)
 
 
 class Fighter(Role):

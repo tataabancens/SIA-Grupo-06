@@ -7,6 +7,8 @@ from genetic.selection import SelectionStrategy
 class Simulation:
 
     iteration = 0
+    iteration_without_improvement = 0
+    iteration_max_performance = 0
 
     def __init__(self, *args, **kwargs):
         """
@@ -25,6 +27,7 @@ class Simulation:
             :key role (Role): The role to test in the simulation.
 
             :key max_iterations (int): Maximum amount of iterations to run the simulation.
+            :key max_generations_without_improvement (int): Maximum amount of generations without improvement to run the simulation.
 
 
         :raises ValueError: If selection_proportion is not within the range [0, 1].
@@ -46,10 +49,23 @@ class Simulation:
         self.k: int = kwargs["k"]
         self.role: Role = kwargs["role"]
         self.max_iterations: int = kwargs["max_iterations"]
+        self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
 
     def end_condition(self) -> bool:
         if self.iteration >= self.max_iterations:
             return True
+
+        if self.iteration_without_improvement >= self.max_generations_without_improvement:
+            return True
+
+        max_performance = self.population.sort(
+            key=lambda agent: agent.compute_performance())[0]
+
+        if self.iteration_max_performance == max_performance:
+            self.iteration_without_improvement += 1
+        else:
+            self.iteration_without_improvement = 0
+            self.iteration_max_performance = max_performance
 
         return False
 

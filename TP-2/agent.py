@@ -22,3 +22,11 @@ class Agent:
         attack: float = get_attack(self.stats, modifiers)
         defense: float = get_defense(self.stats, modifiers)
         return self.role.compute_performance(attack, defense)
+
+    def __str__(self):
+        return f"Agent({self.role.name}, {self.height}, {self.stats})"
+
+    def __eq__(self, __value: object) -> bool:
+        if not isinstance(__value, Agent):
+            return False
+        return self.role == __value.role and self.height == __value.height and self.stats == __value.stats
