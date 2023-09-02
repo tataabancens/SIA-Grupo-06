@@ -72,6 +72,7 @@ class Simulation:
     def run(self):
         while not self.end_condition():
             self.iterate()
+            self.iteration += 1
 
     def iterate(self):
         children = self.crossover(self.crossover_proportion)
@@ -79,7 +80,6 @@ class Simulation:
         self.population = self.population = self.selection(
             children, self.population)
 
-        self.iteration += 1
         # Reemplazo, quién te conoce??
 
     def selection(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
