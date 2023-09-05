@@ -6,6 +6,7 @@ from typing import Optional
 from partition import normalize_partition
 
 
+
 @dataclass
 class Stats:
     strength: float     # Fuerza
@@ -13,7 +14,8 @@ class Stats:
     proficiency: float  # Pericia
     toughness: float    # Resistencia
     health: float       # Vida
-
+    def get_as_list(self):
+        return [self.strength,self.agility,self.proficiency,self.toughness,self.health]
 
 @dataclass
 class ItemStats(Stats):
@@ -26,8 +28,8 @@ class ItemStats(Stats):
             raise f"Item stats do not sum up to target of {self.__target}. Sum is {stats_sum}"
 
     @classmethod
-    def from_weights(cls, weights: list[float]) -> 'ItemStats':
-        final_values = normalize_partition(weights, ItemStats.__target)
+    def from_weights(cls, weights: Stats) -> 'ItemStats':
+        final_values = normalize_partition(weights.get_as_list(), ItemStats.__target)
         return ItemStats(
             strength=final_values[0],
             agility=final_values[1],
@@ -36,7 +38,13 @@ class ItemStats(Stats):
             health=final_values[4]
         )
 
-
+@dataclass
+class Cromosome:
+    stats: ItemStats
+    height: float
+    def get_as_list(self):
+        stats = self.stats
+        return [stats.strength,stats.agility,stats.proficiency,stats.toughness,stats.health,self.height]
 class CharacterStats(Stats):
 
     def __init__(self, items: ItemStats):

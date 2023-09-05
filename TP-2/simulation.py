@@ -149,7 +149,7 @@ class Simulation:
         return children
 
     @staticmethod
-    def __selection_with_method(method: Callable[[List[Agent], Int], List[Agent]], population: List[Agent], k: int) -> List[Agent]:
+    def __selection_with_method(method: Callable[[List[Agent], int], List[Agent]], population: List[Agent], k: int) -> List[Agent]:
         return method(population, k)
 
 

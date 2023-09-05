@@ -5,7 +5,7 @@ from config import load_config
 from pathlib import Path
 import argparse
 from argparse import Namespace
-from role import ItemStats, Stats, RoleType
+from role import ItemStats, Stats, RoleType, Cromosome
 from agent import Agent
 
 
@@ -30,12 +30,11 @@ def main():
         Main function
     """
     args = __parse_args()
-    config_path = Path(args.config)
+    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 
     config = load_config(config_path)
-    print(config)
     items = ItemStats(
         strength=config.items['strength'],
         agility=config.items['agility'],
@@ -43,9 +42,9 @@ def main():
         toughness=config.items['toughness'],
         health=config.items['health'])
     role = RoleType.get_instance_from_name(config.role_name)
-
-    agent = Agent(role, items)
-    print(agent.compute_performance(1.5))
+    cromosome = Cromosome(items, 1.5)
+    agent = Agent(role, cromosome)
+    print(agent.compute_performance())
 
     # Compute item stats from random weights
     computed_stats = ItemStats.from_weights(

@@ -13,7 +13,7 @@ def normalize_partition_galar(weights_list: List[float], target: float) -> List[
     return list(map(lambda x: (target / weight_sum) * x, normalized_weights))
 
 
-def partition_test(partition_method: "(List[float], float) => List[float]",
+def partition_test(partition_method: "(List[float], float) -> List[float]",
                    sum_target: float, iterations: int = 1_000) -> Optional[float]:
     weights = []
     times = []

@@ -1,18 +1,18 @@
-from role import CharacterStats, Role, ItemStats, Modifiers, get_attack, get_defense
+from role import CharacterStats, Role, ItemStats, Modifiers, Cromosome, get_attack, get_defense
 
 
 class Agent:
     role: Role
     stats: CharacterStats
     height: float
-    cromosome: list[float]
+    cromosome: ItemStats
 
-    def __init__(self, role: Role, cromosome: list):
+    def __init__(self, role: Role, cromosome: Cromosome):
         self.cromosome = cromosome
-        items = ItemStats.from_weights(cromosome[0:-1])
-        self.height = cromosome[-1]
+        # items = ItemStats.from_weights(cromosome[0:-1])
+        self.height = cromosome.height
         self.role = role
-        self.stats = CharacterStats(items)
+        self.stats = CharacterStats(cromosome.stats)
 
     def compute_performance(self) -> float:
         """
