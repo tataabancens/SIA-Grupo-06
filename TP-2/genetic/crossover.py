@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from numpy import random, concatenate
 from agent import Agent
-from role import RoleType
+from role import RoleType, Cromosome
 
 
 class Crossover(ABC):
@@ -24,26 +24,28 @@ class OnePoint(Crossover):
         One point crossover method
     """
 
-    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
+    @classmethod
+    def cross(cls, parents: tuple[Agent,Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """
 
         s = len(parents[0].cromosome)
-        p = random.default_rng().integers(0, s)
+        p = random.default_rng().integers(s)
+        print(p)
 
-        children_cromosomes = []
-        children_cromosomes[0] = concatenate(
+        children_cromosome_1 = concatenate(
             (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
-        children_cromosomes[1] = concatenate(
+        children_cromosome_2 =  concatenate(
             (parents[1].cromosome[0:p], parents[0].cromosome[p:s]), axis=0)
-
-        # TODO: Create children agents
+        # TODO: normalize weights
+        role=parents[0].role
         return (
-            Agent(role=RoleType.get_instance_from_name("Defence"),
-                  cromosome=children_cromosomes[0]),
-            Agent(role=RoleType.get_instance_from_name("Defence"),
-                  cromosome=children_cromosomes[0])
+            Agent(role=role,
+                  cromosome=Cromosome.from_list(children_cromosome_1)),
+
+            Agent(role=role,
+                  cromosome=Cromosome.from_list(children_cromosome_2))
         )
 
 
@@ -51,8 +53,8 @@ class TwoPoint(Crossover):
     """
         Two point crossover method
     """
-
-    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
+    @classmethod
+    def cross(cls, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """
@@ -78,8 +80,8 @@ class Uniform(Crossover):
     """
         Uniform crossover method
     """
-
-    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
+    @classmethod
+    def cross(cls, parents: tuple[Agent,Agent]) -> tuple[Agent,Agent]:
         """
             Crossover the individuals from the population
         """
@@ -100,8 +102,8 @@ class Anular(Crossover):
     """
         Anular crossover method
     """
-
-    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
+    @classmethod
+    def cross(cls, parents: tuple[Agent]) -> tuple[Agent]:
         """
             Crossover the individuals from the population
         """

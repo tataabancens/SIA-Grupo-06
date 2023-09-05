@@ -2,20 +2,21 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import math
 from enum import Enum
-from typing import Optional
+from typing import Optional, Sequence
 from partition import normalize_partition
-
 
 
 @dataclass
 class Stats:
-    strength: float     # Fuerza
-    agility: float      # Agilidad
+    strength: float  # Fuerza
+    agility: float  # Agilidad
     proficiency: float  # Pericia
-    toughness: float    # Resistencia
-    health: float       # Vida
+    toughness: float  # Resistencia
+    health: float  # Vida
+
     def get_as_list(self):
-        return [self.strength,self.agility,self.proficiency,self.toughness,self.health]
+        return [self.strength, self.agility, self.proficiency, self.toughness, self.health]
+
 
 @dataclass
 class ItemStats(Stats):
@@ -23,7 +24,7 @@ class ItemStats(Stats):
 
     def __post_init__(self) -> None:
         stats_sum: float = self.strength + self.agility + \
-            self.proficiency + self.toughness + self.health
+                           self.proficiency + self.toughness + self.health
         if not math.isclose(stats_sum, self.__target, abs_tol=0.01):
             raise f"Item stats do not sum up to target of {self.__target}. Sum is {stats_sum}"
 
@@ -38,13 +39,23 @@ class ItemStats(Stats):
             health=final_values[4]
         )
 
+
 @dataclass
 class Cromosome:
     stats: ItemStats
     height: float
-    def get_as_list(self):
-        stats = self.stats
-        return [stats.strength,stats.agility,stats.proficiency,stats.toughness,stats.health,self.height]
+    as_list: Sequence = field(init=False)
+
+    def __init__(self, stats: ItemStats, height: float):
+        self.height = height
+        self.stats = stats
+        self.as_list = [stats.strength, stats.agility, stats.proficiency, stats.toughness, stats.health, self.height]
+
+    @classmethod
+    def from_list(cls, cromosome: Sequence):
+        return cls(ItemStats(cromosome[0], cromosome[1], cromosome[2], cromosome[3], cromosome[4]), cromosome[5])
+
+
 class CharacterStats(Stats):
 
     def __init__(self, items: ItemStats):
@@ -122,8 +133,8 @@ class Modifiers:
             self.attack = 1
             self.defense = 1
             return
-        fourth_pow_term = (3 * height - 5)**4
-        second_pow_term = (3 * height - 5)**2
+        fourth_pow_term = (3 * height - 5) ** 4
+        second_pow_term = (3 * height - 5) ** 2
         half_height = height / 2
         self.attack = 0.5 - fourth_pow_term + second_pow_term + half_height
         self.defense = 2 + fourth_pow_term - second_pow_term - half_height

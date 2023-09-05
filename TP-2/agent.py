@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from role import CharacterStats, Role, ItemStats, Modifiers, Cromosome, get_attack, get_defense
 
 
@@ -5,10 +7,11 @@ class Agent:
     role: Role
     stats: CharacterStats
     height: float
-    cromosome: ItemStats
+    cromosome: Sequence
+
 
     def __init__(self, role: Role, cromosome: Cromosome):
-        self.cromosome = cromosome
+        self.cromosome = cromosome.as_list
         # items = ItemStats.from_weights(cromosome[0:-1])
         self.height = cromosome.height
         self.role = role

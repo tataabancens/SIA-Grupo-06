@@ -142,7 +142,7 @@ class Simulation:
         children: List[Agent] = []
         population_amount = len(population)
         for i in range(1, population_amount, 2):
-            children = children + list(method(population[-1], population[0]))
+            children = children + list(method(population[i-1], population[i]))
 
         if population_amount % 2 != 0:
             children = children + list(method(population[-1], population[0]))
