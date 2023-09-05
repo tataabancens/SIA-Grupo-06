@@ -51,6 +51,7 @@ class Cromosome:
         self.stats = stats
         self.as_list = [stats.strength, stats.agility, stats.proficiency, stats.toughness, stats.health, self.height]
 
+
     @classmethod
     def from_list(cls, cromosome: Sequence):
         return cls(ItemStats(cromosome[0], cromosome[1], cromosome[2], cromosome[3], cromosome[4]), cromosome[5])

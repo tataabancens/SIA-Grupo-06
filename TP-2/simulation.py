@@ -1,10 +1,10 @@
 import random
 from typing import List, Tuple, Callable
 from agent import Agent
-from genetic.mutation import MutationOptions
+from genetic.mutation import MutationOptions, Mutation
 from partition import random_partition
 from role import Role, RoleType, Cromosome, ItemStats
-from genetic.selection import SelectionStrategy, SelectionOptions
+from genetic.selection import SelectionStrategy, SelectionOptions, Selection
 from genetic.crossover import CrossoverOptions, Crossover
 
 
@@ -38,10 +38,8 @@ class Simulation:
         """
         self.population: List[Agent] = kwargs["gen_0"]
         self.crossovers: Tuple[Crossover] = kwargs["crossovers"]
-        self.selections: Tuple[Callable[[List[Agent],
-                                         int], List[Agent]]] = kwargs["selections"]
-        self.mutation: Callable[[List[Agent]],
-                                List[Agent]] = kwargs["mutation"]
+        self.selections: Tuple[Selection] = kwargs["selections"]
+        self.mutation_method: Mutation = kwargs["mutation"]
         # The parameter is a string that is parsed here
         self.selection_strategy: SelectionStrategy = SelectionStrategy(
             kwargs["selection_strategy"])
@@ -64,6 +62,8 @@ class Simulation:
         self.population.sort(key=lambda agent: agent.compute_performance())
         max_performance = self.population[0]
 
+        print(max_performance.compute_performance())   # TODO: Sacar esto de aca
+
         if self.iteration_max_performance == max_performance:
             self.iteration_without_improvement += 1
         else:
@@ -84,6 +84,16 @@ class Simulation:
             children, self.population)
 
         # Reemplazo, quién te conoce??
+
+    def mutation(self, children: List[Agent]) -> List[Agent]:
+        for child in children:
+            gens_mutated: list[int] | None = self.mutation_method.mutate(child, 0.1)
+            if gens_mutated:
+                for gen in gens_mutated:
+                    if gen != 5:
+                        child.cromosome = Cromosome.from_unnormalized_list(child.cromosome).as_list
+                        break
+        return children
 
     def selection(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
         # N -> individuos de la población
@@ -106,18 +116,18 @@ class Simulation:
             method_a_proportion = int(
                 parents_to_select_amount * self.selection_proportion)
             selected = selected + \
-                self.selections[0](parents, method_a_proportion)
+                self.selections[0].select(parents, method_a_proportion)
             selected = selected + \
-                self.selections[1](
+                self.selections[1].select(
                     parents, parents_to_select_amount - method_a_proportion)
             return selected
         else:
             raise "WTF"
 
         selected = selected + \
-            self.selections[0](population_to_select, method_a_proportion)
+            self.selections[0].select(population_to_select, method_a_proportion)
         selected = selected + \
-            self.selections[1](population_to_select,
+            self.selections[1].select(population_to_select,
                                self.k - method_a_proportion)
 
         return selected
@@ -187,7 +197,7 @@ def main():
                    SelectionOptions.get_instance_from_name("Roulette"))
 
     mutation = MutationOptions.get_instance_from_name("OneGen")
-    selection_strategy = "young"
+    selection_strategy = SelectionStrategy.TRADITIONAL
     a, b = 0.5, 0.5
     max_iter, max_iter_without, k = 10, 5, 20
 

@@ -4,6 +4,8 @@ from typing import List, Optional
 from agent import Agent
 from numpy import random
 
+from role import Cromosome
+
 
 class Mutation(ABC):
     """
@@ -34,7 +36,7 @@ class OneGen(Mutation):
         if mutate_probability <= p_m:
             agent.cromosome[cromosome_to_mutate] = random.default_rng().uniform(
                 0, 1)
-            return list(cromosome_to_mutate)
+            return [cromosome_to_mutate]
         return None
 
 

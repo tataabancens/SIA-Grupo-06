@@ -32,7 +32,6 @@ class OnePoint(Crossover):
 
         s = len(parents[0].cromosome)
         p = random.default_rng().integers(s)
-        print(p)
 
         children_cromosome_1 = concatenate(
             (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
@@ -81,7 +80,7 @@ class Uniform(Crossover):
         Uniform crossover method
     """
     @classmethod
-    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent,Agent]:
+    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """
@@ -103,7 +102,7 @@ class Anular(Crossover):
         Anular crossover method
     """
     @classmethod
-    def cross(cls, parents: tuple[Agent]) -> tuple[Agent]:
+    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """

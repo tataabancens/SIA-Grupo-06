@@ -9,7 +9,6 @@ class Agent:
     height: float
     cromosome: Sequence
 
-
     def __init__(self, role: Role, cromosome: Cromosome):
         self.cromosome = cromosome.as_list
         # items = ItemStats.from_weights(cromosome[0:-1])
