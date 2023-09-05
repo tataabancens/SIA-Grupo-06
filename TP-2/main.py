@@ -5,9 +5,11 @@ from config import load_config
 from pathlib import Path
 import argparse
 from argparse import Namespace
+
 from role import ItemStats, Stats, RoleType, Cromosome
 from agent import Agent
 from genetic import crossover
+from simulation import Simulation
 
 
 def __parse_args() -> Namespace:
@@ -27,6 +29,20 @@ def __parse_args() -> Namespace:
 
 
 def main():
+    args = __parse_args()
+    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
+    if config_path is None:
+        print("Config path not selected, using default")
+
+    config = load_config(config_path)
+    simulation = Simulation(n=config.N, crossovers=config.crossovers, selections=config.selections,
+                            mutation=config.mutation, selection_strategy=config.selection_strategy,
+                            crossover_proportion=config.A, selection_proportion=config.B, k=config.K, role=config.role,
+                            max_iterations=config.max_iterations,
+                            max_generations_without_improvement=config.max_iterations_without_change)
+    simulation.run()
+
+def main_deprecated():
     """
         Main function
     """
@@ -64,6 +80,7 @@ def main():
     print([1,2])
     for i in range(1, 5, 2):
         print(i)
+
 
 if __name__ == "__main__":
     main()

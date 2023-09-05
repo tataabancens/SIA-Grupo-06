@@ -4,13 +4,28 @@ from typing import Optional, Dict
 import json
 from collections import defaultdict
 
+from genetic.crossover import CrossoverOptions, Crossover, OnePoint, TwoPoint
+from genetic.mutation import Mutation, OneGen, MutationOptions
+from genetic.selection import SelectionOptions, Selection, Elite, Roulette, SelectionStrategy
+from role import Role, Fighter, RoleType
 
 _DEFAULT_PATH = Path("./configs/configTemplate.json")
 
 
 @dataclass
 class ConfigData:
-    role_name: str = field(default="fighter")
+    role: Role = Fighter
+    crossovers: tuple[Crossover] = (OnePoint, TwoPoint)
+    selections: tuple[Selection] = (Elite, Roulette)
+    mutation: Mutation = OneGen
+    selection_strategy: str = SelectionStrategy.TRADITIONAL
+    A: float = 0.5
+    B: float = 0.5
+    max_iterations: int = 10
+    max_iterations_without_change: int = 5
+    K: int = 20
+    seed: int = 0
+    N: int = 30
     items: Dict[str, float] = field(default_factory=lambda: {
         "strength": 15,
         "agility": 10,
@@ -31,11 +46,60 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
         json_config = json.load(config_f)
 
         try:
-            config_data.role_name = json_config["role"]
+            role_name = json_config["role"]
+            config_data.role = RoleType.get_instance_from_name(role_name)
         except KeyError:
             pass
         try:
-            config_data.items = json_config["items"]
+            cross_name_list = json_config["crossovers"]
+            config_data.crossovers = (
+                CrossoverOptions.get_instance_from_name(cross_name_list[0]),
+                CrossoverOptions.get_instance_from_name(cross_name_list[1])
+            )
+        except KeyError:
+            pass
+        try:
+            selections_name_list = json_config["selections"]
+            config_data.selections = (
+                SelectionOptions.get_instance_from_name(selections_name_list[0]),
+                SelectionOptions.get_instance_from_name(selections_name_list[1])
+            )
+        except KeyError:
+            pass
+        try:
+            config_data.mutation = MutationOptions.get_instance_from_name(json_config["mutation"])
+        except KeyError:
+            pass
+        try:
+            config_data.selection_strategy = json_config["selection_strategy"]
+        except KeyError:
+            pass
+        try:
+            config_data.A = json_config["A"]
+        except KeyError:
+            pass
+        try:
+            config_data.B = json_config["B"]
+        except KeyError:
+            pass
+        try:
+            config_data.max_iterations = json_config["max_iterations"]
+        except KeyError:
+            pass
+        try:
+            config_data.max_iterations_without_change = json_config["max_iterations_without_change"]
+        except KeyError:
+            pass
+        try:
+            config_data.K = json_config["K"]
+        except KeyError:
+            pass
+        try:
+            config_data.seed = json_config["seed"]
+        except KeyError:
+            pass
+        try:
+            config_data.N = json_config["N"]
         except KeyError:
             pass
 
