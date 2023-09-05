@@ -29,8 +29,8 @@ class ItemStats(Stats):
             raise f"Item stats do not sum up to target of {self.__target}. Sum is {stats_sum}"
 
     @classmethod
-    def from_weights(cls, weights: Stats) -> 'ItemStats':
-        final_values = normalize_partition(weights.get_as_list(), ItemStats.__target)
+    def from_weights(cls, weights: list) -> 'ItemStats':
+        final_values = normalize_partition(weights, ItemStats.__target)
         return ItemStats(
             strength=final_values[0],
             agility=final_values[1],
@@ -54,6 +54,12 @@ class Cromosome:
     @classmethod
     def from_list(cls, cromosome: Sequence):
         return cls(ItemStats(cromosome[0], cromosome[1], cromosome[2], cromosome[3], cromosome[4]), cromosome[5])
+
+    @classmethod
+    def from_unnormalized_list(cls, cromosome: Sequence):
+        stats = ItemStats.from_weights(cromosome[:-1])
+        height = cromosome[-1]
+        return cls(stats, height)
 
 
 class CharacterStats(Stats):

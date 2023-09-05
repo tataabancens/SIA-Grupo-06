@@ -27,7 +27,7 @@ class Agent:
         return self.role.compute_performance(attack, defense)
 
     def __str__(self):
-        return f"Agent({self.role.name}, {self.height}, {self.stats})"
+        return f"Agent({self.role}, {self.height}, {self.stats})"
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Agent):

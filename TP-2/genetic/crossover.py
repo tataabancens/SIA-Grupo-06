@@ -38,14 +38,13 @@ class OnePoint(Crossover):
             (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
         children_cromosome_2 =  concatenate(
             (parents[1].cromosome[0:p], parents[0].cromosome[p:s]), axis=0)
-        # TODO: normalize weights
         role=parents[0].role
         return (
             Agent(role=role,
-                  cromosome=Cromosome.from_list(children_cromosome_1)),
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosome_1)),
 
             Agent(role=role,
-                  cromosome=Cromosome.from_list(children_cromosome_2))
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosome_2))
         )
 
 

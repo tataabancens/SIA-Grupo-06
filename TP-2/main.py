@@ -57,7 +57,7 @@ def main():
     print(tuple_as_string)
     # Compute item stats from random weights
     computed_stats = ItemStats.from_weights(
-        Stats(strength=45, agility=33.4, proficiency=12.3, toughness=1, health=9.6)
+        Stats(strength=45, agility=33.4, proficiency=12.3, toughness=1, health=9.6).get_as_list()
     )
     print(computed_stats)
     print(sum([computed_stats.strength, computed_stats.agility, computed_stats.proficiency, computed_stats.toughness, computed_stats.health]))
