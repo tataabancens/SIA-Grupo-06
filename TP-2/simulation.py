@@ -1,7 +1,11 @@
+import random
 from typing import List, Tuple, Callable
 from agent import Agent
-from role import Role
-from genetic.selection import SelectionStrategy
+from genetic.mutation import MutationOptions
+from partition import random_partition
+from role import Role, RoleType, Cromosome, ItemStats
+from genetic.selection import SelectionStrategy, SelectionOptions
+from genetic.crossover import CrossoverOptions, Crossover
 
 
 class Simulation:
@@ -33,8 +37,7 @@ class Simulation:
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
         self.population: List[Agent] = kwargs["gen_0"]
-        self.crossovers: Tuple[Callable[[Agent, Agent],
-                                        Tuple[Agent, Agent]]] = kwargs["crossovers"]
+        self.crossovers: Tuple[Crossover] = kwargs["crossovers"]
         self.selections: Tuple[Callable[[List[Agent],
                                          int], List[Agent]]] = kwargs["selections"]
         self.mutation: Callable[[List[Agent]],
@@ -58,8 +61,8 @@ class Simulation:
         if self.iteration_without_improvement >= self.max_generations_without_improvement:
             return True
 
-        max_performance = self.population.sort(
-            key=lambda agent: agent.compute_performance())[0]
+        self.population.sort(key=lambda agent: agent.compute_performance())
+        max_performance = self.population[0]
 
         if self.iteration_max_performance == max_performance:
             self.iteration_without_improvement += 1
@@ -130,22 +133,24 @@ class Simulation:
         # Cross populations
         children: List[Agent] = []
         children = children + \
-            self.__crossover_with_method(self.crossovers[0], a_population)
+            self.__crossover_with_method(self.crossovers[0].cross, a_population)
         children = children + \
-            self.__crossover_with_method(self.crossovers[1], b_population)
+            self.__crossover_with_method(self.crossovers[1].cross, b_population)
 
         return children
 
     @staticmethod
-    def __crossover_with_method(method: Callable[[Agent, Agent], Tuple[Agent, Agent]], population: List[Agent]) -> List[
+    def __crossover_with_method(method: Callable[[Tuple[Agent, Agent]], Tuple[Agent, Agent]], population: List[Agent]) -> List[
             Agent]:
         children: List[Agent] = []
         population_amount = len(population)
         for i in range(1, population_amount, 2):
-            children = children + list(method(population[i-1], population[i]))
+            parents = (population[i-1], population[i])
+            children = children + list(method(parents))
 
         if population_amount % 2 != 0:
-            children = children + list(method(population[-1], population[0]))
+            parents = (population[-1], population[0])
+            children = children + list(method(parents))
         return children
 
     @staticmethod
@@ -153,8 +158,45 @@ class Simulation:
         return method(population, k)
 
 
+def generate_gen_0(n: int, min_height: float, max_height: float) -> list[Agent]:
+    agents: list[Agent] = []
+    for _ in range(n):
+        partition = random_partition(150, 5)
+
+        items = ItemStats(
+            strength=partition[0],
+            agility=partition[1],
+            proficiency=partition[2],
+            toughness=partition[3],
+            health=partition[4])
+
+        random_height = random.uniform(min_height, max_height)
+        role = RoleType.get_instance_from_name("Fighter")
+        cromosome = Cromosome(items, random_height)
+        agents.append(Agent(role, cromosome))
+    return agents
+
+
 def main():
-    print("Hello world")
+    n = 10
+    gen_0 = generate_gen_0(n, 1.3, 2.0)
+    crossovers = (CrossoverOptions.get_instance_from_name("OnePoint"),
+                  CrossoverOptions.get_instance_from_name("TwoPoint"))
+
+    selections = (SelectionOptions.get_instance_from_name("Elite"),
+                   SelectionOptions.get_instance_from_name("Roulette"))
+
+    mutation = MutationOptions.get_instance_from_name("OneGen")
+    selection_strategy = "young"
+    a, b = 0.5, 0.5
+    max_iter, max_iter_without, k = 10, 5, 20
+
+    role = RoleType.get_instance_from_name("Fighter")
+    simulation = Simulation(gen_0=gen_0, crossovers=crossovers, selections=selections,
+                            mutation=mutation, selection_strategy=selection_strategy,
+                            crossover_proportion=a, selection_proportion=b, k=k, role=role,
+                            max_iterations=max_iter, max_generations_without_improvement=max_iter_without)
+    simulation.run()
 
 
 if __name__ == '__main__':

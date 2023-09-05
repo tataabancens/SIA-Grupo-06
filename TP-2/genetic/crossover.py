@@ -12,7 +12,7 @@ class Crossover(ABC):
     """
 
     @abstractmethod
-    def cross(self, parents: tuple[Agent]) -> tuple[Agent]:
+    def cross(self, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """
@@ -25,7 +25,7 @@ class OnePoint(Crossover):
     """
 
     @classmethod
-    def cross(cls, parents: tuple[Agent,Agent]) -> tuple[Agent, Agent]:
+    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """
@@ -53,25 +53,26 @@ class TwoPoint(Crossover):
         Two point crossover method
     """
     @classmethod
-    def cross(cls, parents: tuple[Agent]) -> tuple[Agent]:
+    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
             Crossover the individuals from the population
         """
         s = len(parents[0].cromosome)
         p_1, p_2 = random.default_rng().integers(0, s, size=2)
+        if p_1 > p_2:
+            p_1, p_2 = p_2, p_1
 
-        children_cromosomes = []
-        children_cromosomes[0] = concatenate(
-            (parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2]), axis=0)
-        children_cromosomes[1] = concatenate(
-            (parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2]), axis=0)
+        children_cromosomes = [
+            concatenate((parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2], parents[0].cromosome[p_2:s]), axis=0),
+            concatenate((parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2], parents[1].cromosome[p_2:s]), axis=0)
+        ]
 
-        # TODO: Create children agents
+        role = parents[0].role
         return (
-            Agent(role=RoleType.get_instance_from_name("Defence"),
-                  cromosome=children_cromosomes[0]),
-            Agent(role=RoleType.get_instance_from_name("Defence"),
-                  cromosome=children_cromosomes[0])
+            Agent(role=role,
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[0])),
+            Agent(role=role,
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[1]))
         )
 
 
@@ -80,7 +81,7 @@ class Uniform(Crossover):
         Uniform crossover method
     """
     @classmethod
-    def cross(cls, parents: tuple[Agent,Agent]) -> tuple[Agent,Agent]:
+    def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent,Agent]:
         """
             Crossover the individuals from the population
         """
@@ -145,3 +146,7 @@ class CrossoverOptions(Enum):
         """
         selected_class = globals()[role_type.value]
         return selected_class()
+
+
+if __name__ == "__main__":
+    method = CrossoverOptions.get_instance_from_name("OnePoint")

@@ -1,5 +1,6 @@
 import math
 import random
+random.seed(0)
 
 
 def normalize_partition(partition, target_sum):
@@ -10,12 +11,12 @@ def normalize_partition(partition, target_sum):
     return normalized_partition
 
 
-def random_partition(n, k):
+def random_partition(target_sum, parts):
     partition = []
-    for _ in range(k - 1):
-        part = random.uniform(0.1, n - sum(partition) - (k - len(partition)) * 0.1)
+    for _ in range(parts - 1):
+        part = random.uniform(0.1, target_sum - sum(partition) - (parts - len(partition)) * 0.1)
         partition.append(part)
-    partition.append(n - sum(partition))
+    partition.append(target_sum - sum(partition))
     random.shuffle(partition)
     return partition
 
