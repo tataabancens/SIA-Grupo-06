@@ -35,9 +35,9 @@ class OnePoint(Crossover):
 
         children_cromosome_1 = concatenate(
             (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
-        children_cromosome_2 =  concatenate(
+        children_cromosome_2 = concatenate(
             (parents[1].cromosome[0:p], parents[0].cromosome[p:s]), axis=0)
-        role=parents[0].role
+        role = parents[0].role
         return (
             Agent(role=role,
                   cromosome=Cromosome.from_unnormalized_list(children_cromosome_1)),
@@ -51,6 +51,7 @@ class TwoPoint(Crossover):
     """
         Two point crossover method
     """
+
     @classmethod
     def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
@@ -62,8 +63,10 @@ class TwoPoint(Crossover):
             p_1, p_2 = p_2, p_1
 
         children_cromosomes = [
-            concatenate((parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2], parents[0].cromosome[p_2:s]), axis=0),
-            concatenate((parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2], parents[1].cromosome[p_2:s]), axis=0)
+            concatenate((parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2], parents[0].cromosome[p_2:s]),
+                        axis=0),
+            concatenate((parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2], parents[1].cromosome[p_2:s]),
+                        axis=0)
         ]
 
         role = parents[0].role
@@ -96,11 +99,20 @@ class Uniform(Crossover):
                 children_cromosomes[0][i] = parents[1].cromosome[i]
                 children_cromosomes[1][i] = parents[0].cromosome[i]
 
+        role = parents[0].role
+        return (
+            Agent(role=role,
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[0])),
+            Agent(role=role,
+                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[1]))
+        )
+
 
 class Anular(Crossover):
     """
         Anular crossover method
     """
+
     @classmethod
     def cross(cls, parents: tuple[Agent, Agent]) -> tuple[Agent, Agent]:
         """
