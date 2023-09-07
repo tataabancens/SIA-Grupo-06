@@ -56,10 +56,12 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
             pass
         try:
             selections_name_list = json_config["selections"]
-            config_data.selections = (
+            config_data.selections = [
                 SelectionOptions.get_instance_from_name(selections_name_list[0]),
-                SelectionOptions.get_instance_from_name(selections_name_list[1])
-            )
+                SelectionOptions.get_instance_from_name(selections_name_list[1]),
+                SelectionOptions.get_instance_from_name(selections_name_list[2]),
+                SelectionOptions.get_instance_from_name(selections_name_list[3])
+            ]
         except KeyError:
             pass
         try:

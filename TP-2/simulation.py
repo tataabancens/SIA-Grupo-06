@@ -125,49 +125,48 @@ class Simulation:
     def replacement(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
         # N -> individuos de la población
         # K -> individuos a seleccionar
-        pop_size: int = len(self.population)
         selected = []
-        method_b_proportion = int(self.k * self.selection_proportion)
-        population_to_select = []
 
         if self.selection_strategy == SelectionStrategy.TRADITIONAL:
             population_to_select = children + parents
+            pop_amount = len(population_to_select)
+            amount_to_select_1 = int(self.n * self.selection_proportion)
+            amount_to_select_2 = self.n - amount_to_select_1
+            pop_1_amount: int = int(pop_amount * self.selection_proportion)
 
-        elif self.selection_strategy == SelectionStrategy.YOUNG_BIAS:
-            children_amount = len(children)
-            if children_amount >= self.k:
-                return children
+            pop_1 = population_to_select[0:pop_1_amount]
+            pop_2 = population_to_select[pop_1_amount:pop_amount]
 
-            selected = children
-            parents_to_select_amount: int = pop_size - children_amount
-            method_b_proportion = int(
-                parents_to_select_amount * self.selection_proportion)
             selected = selected + \
-                self.selections[0].select(
-                    parents, method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
+                self.selections[2].select(pop_1, amount_to_select_1)
             selected = selected + \
-                self.selections[1].select(
-                    parents, parents_to_select_amount - method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
-            return selected
-        else:
-            raise "WTF"
+                self.selections[3].select(pop_2, amount_to_select_2)
 
-        selected = selected + \
-            self.selections[0].select(population_to_select, method_a_proportion)
-        selected = selected + \
-            self.selections[1].select(population_to_select,
-                               self.k - method_a_proportion)
-
+        # elif self.selection_strategy == SelectionStrategy.YOUNG_BIAS:
+        #     children_amount = len(children)
+        #     if children_amount >= self.k:
+        #         return children
+        #
+        #     selected = children
+        #     parents_to_select_amount: int = pop_size - children_amount
+        #     method_b_proportion = int(
+        #         parents_to_select_amount * self.selection_proportion)
+        #     selected = selected + \
+        #         self.selections[0].select(
+        #             parents, method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
+        #     selected = selected + \
+        #         self.selections[1].select(
+        #             parents, parents_to_select_amount - method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
+        #     return selected
+        # else:
+        #     raise "WTF"
         return selected
 
     def crossover(self, parents_to_cross: list[Agent]):
         # Cross populations
         children: List[Agent] = []
         children = children + \
-            self.__crossover_with_method(self.crossovers[0].cross, a_population)
-        children = children + \
-            self.__crossover_with_method(self.crossovers[1].cross, b_population)
-
+            self.__crossover_with_method(self.crossover_method.cross, parents_to_cross)
         return children
 
     @staticmethod
