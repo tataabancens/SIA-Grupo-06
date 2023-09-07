@@ -1,7 +1,11 @@
 from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Optional
+
+from partition import random_partition
+from role import Cromosome, ItemStats, RoleType
 from agent import Agent
+
 import numpy as np
 
 
@@ -278,3 +282,29 @@ class SelectionOptions(Enum):
         """
         selected_class = globals()[role_type.value]
         return selected_class()
+
+
+def test():
+    agents: list[Agent] = []
+    N = 10
+    for _ in range(N):
+        partition = random_partition(150, 5)
+
+        items = ItemStats(
+            strength=partition[0],
+            agility=partition[1],
+            proficiency=partition[2],
+            toughness=partition[3],
+            health=partition[4])
+
+        random_height = 1.3
+        role = RoleType.get_instance_from_name("Fighter")
+        cromosome = Cromosome(items, random_height)
+        agents.append(Agent(role, cromosome))
+
+    selection = SelectionOptions.get_instance_from_name("Elite")
+    print(selection.select(agents, 10), agents)
+
+
+if __name__ == "__main__":
+    test()
