@@ -38,6 +38,9 @@ class Elite(Selection):
         """
         population_lenght = len(population)
 
+        population.sort(
+            key=lambda agent: agent.compute_performance())
+
         if K <= population_lenght:
             return population[0:K]
 
