@@ -68,7 +68,7 @@ class SimulationData:
 
         De momento, la diversidad se calcula como un promedio de la diversidad de cada gen.
 
-        A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de histograma, que separa los valores en bins (con un tamaño que se puede configurar)
+        A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de clustering según un valor de proximidad que se puede definir
         """
         values_per_gene = [[], [], [], [], [], []]  # [strength, agility, proficiency, toughness, health, height]
         # Agrupo los valores de cada agente por gen
