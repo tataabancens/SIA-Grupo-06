@@ -42,7 +42,8 @@ def main():
                             max_generations_without_improvement=config.max_iterations_without_change,
                             bolzmann_temperature=config.bolzmann_temperature,
                             deterministic_tournament_m=config.deterministic_tournament_m,
-                            probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,)
+                            probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
+                            plot=config.plot, plot_batch_size=config.plot_batch_size)
     simulation.run()
 
 

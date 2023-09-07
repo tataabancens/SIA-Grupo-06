@@ -36,6 +36,8 @@ class ConfigData:
         "toughness": 30,
         "health": 80
     })
+    plot: bool = False
+    plot_batch_size: int = 10
 
 
 def load_config(config_path: Optional[Path]) -> ConfigData:
@@ -120,6 +122,14 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
         try:
             config_data.probabilistic_tournament_threshold = json_config[
                 "probabilistic_tournament_threshold"]
+        except KeyError:
+            pass
+        try:
+            config_data.plot = json_config["plot"]
+        except KeyError:
+            pass
+        try:
+            config_data.plot_batch_size = json_config["plot_batch_size"]
         except KeyError:
             pass
 

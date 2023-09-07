@@ -17,11 +17,31 @@ from statistics import mean
 
 class SimulationData:
 
-    def __init__(self, grouping_range: float = 0.0001):
+    def __init__(self, *args, **kwargs):
+        """
+        :param args: Variable length argument list.
+        :param kwargs: Keyword arguments.
+            :key batch_update_size (int): How many generations to cache before batch computation of data. Default is 10
+            :key grouping_delta (float): The delta value to group gene values in agent. It is used for the
+            diversity computation. Default is 0.001
+        """
+        try:
+            self.grouping_delta: float = kwargs["grouping_delta"]
+        except KeyError:
+            self.grouping_delta = 0.001
+        try:
+            self.batch_update_size = kwargs["batch_update_size"]
+        except KeyError:
+            self.batch_update_size = 10
+
+        self.performances: List[List[float]] = []
+        self.chromosomes: List[List[Sequence[float]]] = []
+        self.generations: List[int] = []
+        self.updates = 0
+
         self.data = DataFrame(columns=['fitness', 'diversity'])
         self.data.index.name = 'generation'
         self.last_gen: int = -1
-        self.grouping_range: float = grouping_range
 
     def __compute_diversity(self, population: List[Sequence]) -> float:
         """Está explicado en el Notion pero lo dejo acá tambien:
@@ -32,6 +52,8 @@ class SimulationData:
 
         A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de histograma, que separa los valores en bins (con un tamaño que se puede configurar)
         """
+        # TODO: optimize
+
         values_per_gene = [[], [], [], [], [], []]  # [strength, agility, proficiency, toughness, health, height]
         # Agrupo los valores de cada agente por gen
         for chromosome in population:
@@ -41,25 +63,39 @@ class SimulationData:
         # Calculo la diversidad por gen y hago el promedio
         diversities = []
         for values in values_per_gene[:-1]: # hay que tratar diferente a la altura
-            counts, _ = histogram(values, bins=int(150 / self.grouping_range)) # Como no puedo conseguir los pesos, tomo la diversidad sobre los stats
+            counts, _ = histogram(values, bins=int(150 / self.grouping_delta)) # Como no puedo conseguir los pesos, tomo la diversidad sobre los stats
             # La diversidad de un gen es la cantidad de bins con data adentro
             diversities.append(len(list(filter(lambda x: x != 0, counts))))
         # Diversidad de las alturas
-        counts, _ = histogram(values_per_gene[-1], bins=int((2 - 1.3) / self.grouping_range))  # La altura también está como valor y no como peso
+        counts, _ = histogram(values_per_gene[-1], bins=int((2 - 1.3) / self.grouping_delta))  # La altura también está como valor y no como peso
         # La diversidad de un gen es la cantidad de bins con data adentro
 
         return mean(diversities)
 
     def add(self, population: List[Agent], generation_number: int):
-        max_fitness: float = max(list(map(lambda x: x.compute_performance(), population)))
-        diversity: float = self.__compute_diversity(list(map(lambda x: x.chromosome, population)))
-        self.data.loc[generation_number] = [max_fitness, diversity]
+        self.performances.append(list(map(lambda x: x.compute_performance(), population)))
+        self.chromosomes.append(list(map(lambda x: x.chromosome, population)))
+        self.generations.append(generation_number)
+        self.updates += 1
+        if self.updates % self.batch_update_size == 0:
+            self.__do_add()
+
+    def __do_add(self):
+        for generation, performances, chromosomes in zip(self.generations, self.performances, self.chromosomes):
+            max_fitness: float = max(performances)
+            diversity: float = self.__compute_diversity(chromosomes)
+            self.data.loc[generation] = [max_fitness, diversity]
+        self.generations.clear()
+        self.performances.clear()
+        self.chromosomes.clear()
 
     def append(self, population: List[Agent]) -> None:
         self.last_gen += 1
         self.add(population, self.last_gen)
 
     def save_to_file(self, path='./out/simulation_data.csv') -> None:
+        if len(self.generations) != 0:
+            self.__do_add()
         self.data.to_csv(path)
 
 
@@ -71,8 +107,6 @@ class Simulation:
 
     def __init__(self, *args, **kwargs):
         """
-        Method description
-
         :param args: Variable length argument list.
         :param kwargs: Arbitrary keyword arguments.
             :key n (int): Population size.
@@ -84,10 +118,10 @@ class Simulation:
             :key selection_proportion (float): Proportion of agents used to select in replacement.
             :key k (int): Amount of children to generate in each iteration.
             :key role (Role): The role to test in the simulation.
-
             :key max_iterations (int): Maximum amount of iterations to run the simulation.
             :key max_generations_without_improvement (int): Maximum amount of generations without improvement to run the simulation.
-
+            :key plot (bool): if true then collect data for each iteration to build the plots
+            :key plot_batch_size (int): if plot is activated, selects the size of the batch computation to get the plot data
 
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
@@ -111,7 +145,8 @@ class Simulation:
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
 
-        self.data = SimulationData()
+        self.plot: bool = kwargs["plot"]
+        self.data = SimulationData(batch_update_size=kwargs["plot_batch_size"]) if self.plot else None
 
     def end_condition(self) -> bool:
         if self.iteration >= self.max_iterations:
@@ -138,14 +173,17 @@ class Simulation:
         while not self.end_condition():
             self.iterate()
             self.iteration += 1
-        self.data.save_to_file()
+        if self.plot:
+            self.data.save_to_file()
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
         children = self.crossover(parents_to_cross)
         children = self.mutation(children)
         self.population = self.replacement(children, self.population)
-        self.data.add(self.population, self.iteration)
+
+        if self.plot:
+            self.data.add(self.population, self.iteration)
 
     def select_parents_to_cross(self):
         parents_to_cross: list[Agent] = []
