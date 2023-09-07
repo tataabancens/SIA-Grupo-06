@@ -6,7 +6,7 @@ from pathlib import Path
 import argparse
 from argparse import Namespace
 
-from role import ItemStats, Stats, RoleType, Cromosome
+from role import ItemStats, Stats, RoleType, Chromosome
 from agent import Agent
 from genetic import crossover
 from simulation import Simulation
@@ -30,8 +30,7 @@ def __parse_args() -> Namespace:
 
 def main():
     args = __parse_args()
-    config_path = Path(
-        args.config if args.config is not None else './configs/configTemplate.json')
+    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 
@@ -52,8 +51,7 @@ def main_deprecated():
         Main function
     """
     args = __parse_args()
-    config_path = Path(
-        args.config if args.config is not None else './configs/configTemplate.json')
+    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 
@@ -71,9 +69,9 @@ def main_deprecated():
         toughness=config.items['health'],
         health=config.items['proficiency'])
     role = RoleType.get_instance_from_name(config.role_name)
-    cromosome = Cromosome(items, 1.5)
-    agent = Agent(role, cromosome)
-    agent2 = Agent(role, Cromosome(items2, 1.9))
+    chromosome = Chromosome(items, 1.5)
+    agent = Agent(role, chromosome)
+    agent2 = Agent(role, Chromosome(items2, 1.9))
     my_tuple = crossover.OnePoint.cross((agent, agent2))
     tuple_as_string = ", ".join(str(item) for item in my_tuple)
     print(tuple_as_string)

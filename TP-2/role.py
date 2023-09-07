@@ -41,7 +41,7 @@ class ItemStats(Stats):
 
 
 @dataclass
-class Cromosome:
+class Chromosome:
     stats: ItemStats
     height: float
     as_list: Sequence = field(init=False)
@@ -53,13 +53,13 @@ class Cromosome:
 
 
     @classmethod
-    def from_list(cls, cromosome: Sequence):
-        return cls(ItemStats(cromosome[0], cromosome[1], cromosome[2], cromosome[3], cromosome[4]), cromosome[5])
+    def from_list(cls, chromosome: Sequence):
+        return cls(ItemStats(chromosome[0], chromosome[1], chromosome[2], chromosome[3], chromosome[4]), chromosome[5])
 
     @classmethod
-    def from_unnormalized_list(cls, cromosome: Sequence):
-        stats = ItemStats.from_weights(cromosome[:-1])
-        height = cromosome[-1]
+    def from_unnormalized_list(cls, chromosome: Sequence):
+        stats = ItemStats.from_weights(chromosome[:-1])
+        height = chromosome[-1]
         return cls(stats, height)
 
 

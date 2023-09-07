@@ -1,11 +1,66 @@
 import random
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Optional, Sequence
 from agent import Agent
 from genetic.mutation import MutationOptions, Mutation
 from partition import random_partition
-from role import Role, RoleType, Cromosome, ItemStats
+from role import Role, RoleType, Chromosome, ItemStats
 from genetic.selection import SelectionStrategy, SelectionOptions, Selection
 from genetic.crossover import CrossoverOptions, Crossover
+from pandas import DataFrame
+from numpy import histogram
+from statistics import mean
+
+# Gráficos
+#   - fitness(generación)
+#   - diversidad(generación)
+
+
+class SimulationData:
+
+    def __init__(self, grouping_range: float = 0.0001):
+        self.data = DataFrame(columns=['fitness', 'diversity'])
+        self.data.index.name = 'generation'
+        self.last_gen: int = -1
+        self.grouping_range: float = grouping_range
+
+    def __compute_diversity(self, population: List[Sequence]) -> float:
+        """Está explicado en el Notion pero lo dejo acá tambien:
+        # Diversidad
+        Todavía está por definir, hay que probar qué nos conviene
+
+        De momento, la diversidad se calcula como un promedio de la diversidad de cada gen.
+
+        A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de histograma, que separa los valores en bins (con un tamaño que se puede configurar)
+        """
+        values_per_gene = [[], [], [], [], [], []]  # [strength, agility, proficiency, toughness, health, height]
+        # Agrupo los valores de cada agente por gen
+        for chromosome in population:
+            for i, gene_value in enumerate(chromosome):
+                values_per_gene[i].append(gene_value)
+
+        # Calculo la diversidad por gen y hago el promedio
+        diversities = []
+        for values in values_per_gene[:-1]: # hay que tratar diferente a la altura
+            counts, _ = histogram(values, bins=int(150 / self.grouping_range)) # Como no puedo conseguir los pesos, tomo la diversidad sobre los stats
+            # La diversidad de un gen es la cantidad de bins con data adentro
+            diversities.append(len(list(filter(lambda x: x != 0, counts))))
+        # Diversidad de las alturas
+        counts, _ = histogram(values_per_gene[-1], bins=int((2 - 1.3) / self.grouping_range))  # La altura también está como valor y no como peso
+        # La diversidad de un gen es la cantidad de bins con data adentro
+
+        return mean(diversities)
+
+    def add(self, population: List[Agent], generation_number: int):
+        max_fitness: float = max(list(map(lambda x: x.compute_performance(), population)))
+        diversity: float = self.__compute_diversity(list(map(lambda x: x.chromosome, population)))
+        self.data.loc[generation_number] = [max_fitness, diversity]
+
+    def append(self, population: List[Agent]) -> None:
+        self.last_gen += 1
+        self.add(population, self.last_gen)
+
+    def save_to_file(self, path='./out/simulation_data.csv') -> None:
+        self.data.to_csv(path)
 
 
 class Simulation:
@@ -37,7 +92,7 @@ class Simulation:
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
         self.n = kwargs["n"]
-        self.population: List[Agent] = self.generate_gen_0(1.3, 2.0)
+        self.population: List[Agent] = self.generate_gen_0(0,1)
         self.crossover_method: Crossover = kwargs["crossover"]
         self.selections: List[Selection] = kwargs["selections"]
         self.mutation_method: Mutation = kwargs["mutation"]
@@ -56,6 +111,8 @@ class Simulation:
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
 
+        self.data = SimulationData()
+
     def end_condition(self) -> bool:
         if self.iteration >= self.max_iterations:
             return True
@@ -67,7 +124,7 @@ class Simulation:
         max_performance = self.population[0]
 
         # TODO: Sacar esto de aca
-        print(max_performance.compute_performance())
+        print('Max performance:', max_performance.compute_performance())
 
         if self.iteration_max_performance == max_performance:
             self.iteration_without_improvement += 1
@@ -81,14 +138,15 @@ class Simulation:
         while not self.end_condition():
             self.iterate()
             self.iteration += 1
+        self.data.save_to_file()
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
         children = self.crossover(parents_to_cross)
         children = self.mutation(children)
         self.population = self.replacement(children, self.population)
+        self.data.add(self.population, self.iteration)
 
-        # Reemplazo, quién te conoce??
     def select_parents_to_cross(self):
         parents_to_cross: list[Agent] = []
 
@@ -115,13 +173,11 @@ class Simulation:
 
     def mutation(self, children: List[Agent]) -> List[Agent]:
         for child in children:
-            gens_mutated: list[int] | None = self.mutation_method.mutate(
-                child, 0.1)
+            gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, 0.1)
             if gens_mutated:
                 for gen in gens_mutated:
                     if gen != 5:
-                        child.cromosome = Cromosome.from_unnormalized_list(
-                            child.cromosome).as_list
+                        child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
                         break
         return children
 
@@ -197,8 +253,8 @@ class Simulation:
 
             random_height = random.uniform(min_height, max_height)
             role = RoleType.get_instance_from_name("Fighter")
-            cromosome = Cromosome(items, random_height)
-            agents.append(Agent(role, cromosome))
+            chromosome = Chromosome(items, random_height)
+            agents.append(Agent(role, chromosome))
         return agents
 
 

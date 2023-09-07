@@ -3,3 +3,6 @@ matplotlib
 argparse
 pathlib
 typing
+pandas
+plotly
+numpy

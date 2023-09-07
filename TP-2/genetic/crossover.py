@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from numpy import random, concatenate
 from agent import Agent
-from role import RoleType, Cromosome
+from role import RoleType, Chromosome
 
 
 class Crossover(ABC):
@@ -30,20 +30,20 @@ class OnePoint(Crossover):
             Crossover the individuals from the population
         """
 
-        s = len(parents[0].cromosome)
+        s = len(parents[0].chromosome)
         p = random.default_rng().integers(s)
 
-        children_cromosome_1 = concatenate(
-            (parents[0].cromosome[0:p], parents[1].cromosome[p:s]), axis=0)
-        children_cromosome_2 = concatenate(
-            (parents[1].cromosome[0:p], parents[0].cromosome[p:s]), axis=0)
+        children_chromosome_1 = concatenate(
+            (parents[0].chromosome[0:p], parents[1].chromosome[p:s]), axis=0)
+        children_chromosome_2 = concatenate(
+            (parents[1].chromosome[0:p], parents[0].chromosome[p:s]), axis=0)
         role = parents[0].role
         return (
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosome_1)),
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosome_1)),
 
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosome_2))
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosome_2))
         )
 
 
@@ -57,24 +57,22 @@ class TwoPoint(Crossover):
         """
             Crossover the individuals from the population
         """
-        s = len(parents[0].cromosome)
+        s = len(parents[0].chromosome)
         p_1, p_2 = random.default_rng().integers(0, s, size=2)
         if p_1 > p_2:
             p_1, p_2 = p_2, p_1
 
-        children_cromosomes = [
-            concatenate((parents[0].cromosome[0:p_1], parents[1].cromosome[p_1:p_2], parents[0].cromosome[p_2:s]),
-                        axis=0),
-            concatenate((parents[1].cromosome[0:p_1], parents[0].cromosome[p_1:p_2], parents[1].cromosome[p_2:s]),
-                        axis=0)
+        children_chromosomes = [
+            concatenate((parents[0].chromosome[0:p_1], parents[1].chromosome[p_1:p_2], parents[0].chromosome[p_2:s]), axis=0),
+            concatenate((parents[1].chromosome[0:p_1], parents[0].chromosome[p_1:p_2], parents[1].chromosome[p_2:s]), axis=0)
         ]
 
         role = parents[0].role
         return (
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[0])),
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosomes[0])),
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[1]))
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosomes[1]))
         )
 
 
@@ -88,23 +86,23 @@ class Uniform(Crossover):
             Crossover the individuals from the population
         """
         p_s = random.default_rng().uniform(
-            0, 1, size=len(parents[0].cromosome))
+            0, 1, size=len(parents[0].chromosome))
 
-        children_cromosomes = []
-        for i in range(len(parents[0].cromosome)):
+        children_chromosomes = []
+        for i in range(len(parents[0].chromosome)):
             if p_s[i] < 0.5:
-                children_cromosomes[0][i] = parents[0].cromosome[i]
-                children_cromosomes[1][i] = parents[1].cromosome[i]
+                children_chromosomes[0][i] = parents[0].chromosome[i]
+                children_chromosomes[1][i] = parents[1].chromosome[i]
             else:
-                children_cromosomes[0][i] = parents[1].cromosome[i]
-                children_cromosomes[1][i] = parents[0].cromosome[i]
+                children_chromosomes[0][i] = parents[1].chromosome[i]
+                children_chromosomes[1][i] = parents[0].chromosome[i]
 
         role = parents[0].role
         return (
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[0])),
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosomes[0])),
             Agent(role=role,
-                  cromosome=Cromosome.from_unnormalized_list(children_cromosomes[1]))
+                  chromosome=Chromosome.from_unnormalized_list(children_chromosomes[1]))
         )
 
 

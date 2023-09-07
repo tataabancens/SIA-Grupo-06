@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from partition import random_partition
-from role import Cromosome, ItemStats, RoleType
+from role import Chromosome, ItemStats, RoleType
 from agent import Agent
 
 import numpy as np
@@ -302,8 +302,8 @@ def test():
 
         random_height = 1.3
         role = RoleType.get_instance_from_name("Fighter")
-        cromosome = Cromosome(items, random_height)
-        agents.append(Agent(role, cromosome))
+        chromosome = Chromosome(items, random_height)
+        agents.append(Agent(role, chromosome))
 
     selection = SelectionOptions.get_instance_from_name("Elite")
     print(selection.select(agents, 10), agents)
