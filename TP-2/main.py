@@ -35,7 +35,7 @@ def main():
         print("Config path not selected, using default")
 
     config = load_config(config_path)
-    simulation = Simulation(n=config.N, crossovers=config.crossovers, selections=config.selections,
+    simulation = Simulation(n=config.N, crossover=config.crossover, selections=config.selections,
                             mutation=config.mutation, selection_strategy=config.selection_strategy,
                             crossover_proportion=config.A, selection_proportion=config.B, k=config.K, role=config.role,
                             max_iterations=config.max_iterations,

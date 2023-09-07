@@ -1,20 +1,19 @@
 {
     "role": "Fighter",
-    "crossovers": [
-        "OnePoint",
-        "TwoPoint"
-    ],
+    "crossover": "OnePoint",
     "selections": [
+        "Elite",
+        "Roulette",
         "Elite",
         "Roulette"
     ],
     "mutation": "OneGen",
     "selection_strategy": "traditional",
-    "A": 0.5,
+    "A": 0.25,
     "B": 0.5,
-    "max_iterations": 10,
+    "max_iterations": 100,
     "max_iterations_without_change": 5,
     "K": 20,
     "seed": 0,
-    "N": 30
+    "N": 100
 }

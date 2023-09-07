@@ -20,14 +20,14 @@ class Simulation:
 
         :param args: Variable length argument list.
         :param kwargs: Arbitrary keyword arguments.
-            :key gen_0 (List[Agent]): Initial population of agents
-            :key crossovers (Tuple[Crossover]): Crossover methods for agent breeding
-            :key selections (Tuple[Selection]): Selection methods for agent filtering
+            :key n (int): Population size.
+            :key crossover_method (Crossover): Crossover method for agent breeding
+            :key selections (List[Selection]): Selection methods for agent filtering
             :key mutation (Mutation): Mutation function for agents.
             :key selection_strategy (str): The selection strategy parsed from a string.
-            :key crossover_proportion (float): Proportion of agents used for crossovers.
-            :key selection_proportion (float): Proportion of agents retained after selection.
-            :key k (int): Amount of agents to select in each iteration.
+            :key crossover_proportion (float): Proportion of agents used for parent_to_cross selection.
+            :key selection_proportion (float): Proportion of agents used to select in replacement.
+            :key k (int): Amount of children to generate in each iteration.
             :key role (Role): The role to test in the simulation.
 
             :key max_iterations (int): Maximum amount of iterations to run the simulation.
@@ -38,8 +38,8 @@ class Simulation:
         """
         self.n = kwargs["n"]
         self.population: List[Agent] = self.generate_gen_0(1.3, 2.0)
-        self.crossovers: Tuple[Crossover] = kwargs["crossovers"]
-        self.selections: Tuple[Selection] = kwargs["selections"]
+        self.crossover_method: Crossover = kwargs["crossover"]
+        self.selections: List[Selection] = kwargs["selections"]
         self.mutation_method: Mutation = kwargs["mutation"]
         # The parameter is a string that is parsed here
         self.selection_strategy: SelectionStrategy = SelectionStrategy(
@@ -79,12 +79,32 @@ class Simulation:
             self.iteration += 1
 
     def iterate(self):
-        children = self.crossover(self.crossover_proportion)
+        parents_to_cross = self.select_parents_to_cross()
+        children = self.crossover(parents_to_cross)
         children = self.mutation(children)
-        self.population = self.population = self.selection(
-            children, self.population)
+        self.population = self.replacement(children, self.population)
 
         # Reemplazo, quién te conoce??
+    def select_parents_to_cross(self):
+        parents_to_cross: list[Agent] = []
+
+        # Get populations
+        k1 = int(self.k * self.crossover_proportion)
+        k2 = self.k - k1
+        population_amount: int = len(self.population)
+        population_1_amount: int = int(population_amount * self.crossover_proportion)
+
+        population_1 = self.population[0:population_1_amount]
+        population_2 = self.population[population_1_amount:population_amount]
+
+        # Select parents to cross
+        parents_to_cross_1 = self.selections[0].select(population_1, k1)
+        parents_to_cross = parents_to_cross + parents_to_cross_1
+
+        parents_to_cross = parents_to_cross + \
+            self.selections[1].select(population_2, k2)
+
+        return parents_to_cross
 
     def mutation(self, children: List[Agent]) -> List[Agent]:
         for child in children:
@@ -96,12 +116,12 @@ class Simulation:
                         break
         return children
 
-    def selection(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
+    def replacement(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
         # N -> individuos de la población
         # K -> individuos a seleccionar
         pop_size: int = len(self.population)
         selected = []
-        method_a_proportion = int(self.k * self.selection_proportion)
+        method_b_proportion = int(self.k * self.selection_proportion)
         population_to_select = []
 
         if self.selection_strategy == SelectionStrategy.TRADITIONAL:
@@ -114,40 +134,28 @@ class Simulation:
 
             selected = children
             parents_to_select_amount: int = pop_size - children_amount
-            method_a_proportion = int(
+            method_b_proportion = int(
                 parents_to_select_amount * self.selection_proportion)
             selected = selected + \
-                self.selections[0].select(parents, method_a_proportion)
+                self.selections[2].select(parents, method_b_proportion)
             selected = selected + \
-                self.selections[1].select(
-                    parents, parents_to_select_amount - method_a_proportion)
+                self.selections[3].select(
+                    parents, parents_to_select_amount - method_b_proportion)
             return selected
         else:
             raise "WTF"
 
         selected = selected + \
-            self.selections[0].select(population_to_select, method_a_proportion)
+            self.selections[2].select(population_to_select, method_b_proportion)
         selected = selected + \
-            self.selections[1].select(population_to_select,
-                               self.k - method_a_proportion)
+            self.selections[3].select(population_to_select,
+                               self.k - method_b_proportion)
 
         return selected
 
-    def crossover(self, method_a_proportion: float):
-        # Get populations
-        population_amount: int = len(self.population)
-        a_population_amount: int = int(population_amount * method_a_proportion)
-        b_population_amount: int = population_amount - a_population_amount
-        a_population = self.population[0:a_population_amount]
-        b_population = self.population[0:b_population_amount]
-
+    def crossover(self, parents_to_cross: list[Agent]):
         # Cross populations
-        children: List[Agent] = []
-        children = children + \
-            self.__crossover_with_method(self.crossovers[0].cross, a_population)
-        children = children + \
-            self.__crossover_with_method(self.crossovers[1].cross, b_population)
-
+        children = self.__crossover_with_method(self.crossover_method.cross, parents_to_cross)
         return children
 
     @staticmethod

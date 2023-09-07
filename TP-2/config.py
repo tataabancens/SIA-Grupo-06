@@ -15,7 +15,7 @@ _DEFAULT_PATH = Path("./configs/configTemplate.json")
 @dataclass
 class ConfigData:
     role: Role = Fighter
-    crossovers: tuple[Crossover] = (OnePoint, TwoPoint)
+    crossover: Crossover = OnePoint
     selections: tuple[Selection] = (Elite, Roulette)
     mutation: Mutation = OneGen
     selection_strategy: str = SelectionStrategy.TRADITIONAL
@@ -51,11 +51,7 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
         except KeyError:
             pass
         try:
-            cross_name_list = json_config["crossovers"]
-            config_data.crossovers = (
-                CrossoverOptions.get_instance_from_name(cross_name_list[0]),
-                CrossoverOptions.get_instance_from_name(cross_name_list[1])
-            )
+            config_data.crossover = CrossoverOptions.get_instance_from_name(json_config["crossover"])
         except KeyError:
             pass
         try:
