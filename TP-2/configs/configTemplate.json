@@ -2,20 +2,22 @@
     "role": "Fighter",
     "crossover": "OnePoint",
     "selections": [
-        "ProbabilisticTournament",
-        "Ranking",
+        "Universal",
+        "Elite",
         "Roulette",
-        "Boltzmann"
+        "Universal"
     ],
-    "mutation": "OneGen",
+    "mutation": "Complete",
     "selection_strategy": "traditional",
-    "A": 0.5,
+    "A": 0.75,
     "B": 0.5,
     "max_iterations": 10000,
     "max_iterations_without_change": 20,
     "K": 20,
     "seed": 0,
     "N": 100,
+
+    "plot": false,
 
     "bolzmann_temperature" : 1,
     "deterministic_tournament_m" : 5,
