@@ -7,12 +7,30 @@ from role import Role, RoleType, Chromosome, ItemStats
 from genetic.selection import SelectionStrategy, SelectionOptions, Selection
 from genetic.crossover import CrossoverOptions, Crossover
 from pandas import DataFrame
-from numpy import histogram
 from statistics import mean
 
 # Gráficos
 #   - fitness(generación)
 #   - diversidad(generación)
+
+
+# https://stackoverflow.com/a/68271073
+def _cluster(points: List[float], epsilon: float = 0.0001) -> List[List[float]]:
+    clusters = []
+    points_sorted = sorted(points)
+    current_point = points_sorted[0]
+    current_cluster = [current_point]
+    for point in points_sorted[1:]:
+        if point <= current_point + epsilon:
+            current_cluster.append(point)
+        else:
+            clusters.append(current_cluster)
+            current_cluster = [point]
+        current_point = point
+    clusters.append(current_cluster)
+    print('values:', clusters)
+    print('clusters:', list(map(lambda x: mean(x), clusters)))
+    return clusters
 
 
 class SimulationData:
@@ -52,8 +70,6 @@ class SimulationData:
 
         A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de histograma, que separa los valores en bins (con un tamaño que se puede configurar)
         """
-        # TODO: optimize
-
         values_per_gene = [[], [], [], [], [], []]  # [strength, agility, proficiency, toughness, health, height]
         # Agrupo los valores de cada agente por gen
         for chromosome in population:
@@ -61,16 +77,10 @@ class SimulationData:
                 values_per_gene[i].append(gene_value)
 
         # Calculo la diversidad por gen y hago el promedio
-        diversities = []
-        for values in values_per_gene[:-1]: # hay que tratar diferente a la altura
-            counts, _ = histogram(values, bins=int(150 / self.grouping_delta)) # Como no puedo conseguir los pesos, tomo la diversidad sobre los stats
-            # La diversidad de un gen es la cantidad de bins con data adentro
-            diversities.append(len(list(filter(lambda x: x != 0, counts))))
-        # Diversidad de las alturas
-        counts, _ = histogram(values_per_gene[-1], bins=int((2 - 1.3) / self.grouping_delta))  # La altura también está como valor y no como peso
-        # La diversidad de un gen es la cantidad de bins con data adentro
+        return mean(list(map(lambda values: self.__compute_gene_diversity(values), values_per_gene)))
 
-        return mean(diversities)
+    def __compute_gene_diversity(self, gene_values: List[float]):
+        return len(_cluster(gene_values, self.grouping_delta))
 
     def add(self, population: List[Agent], generation_number: int):
         self.performances.append(list(map(lambda x: x.compute_performance(), population)))
@@ -159,7 +169,7 @@ class Simulation:
         max_performance = self.population[0]
 
         # TODO: Sacar esto de aca
-        print('Max performance:', max_performance.compute_performance())
+        # print('Max performance:', max_performance.compute_performance())
 
         if self.iteration_max_performance == max_performance:
             self.iteration_without_improvement += 1

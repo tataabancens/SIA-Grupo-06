@@ -6,3 +6,4 @@ typing
 pandas
 plotly
 numpy
+scikit-learn
