@@ -39,7 +39,7 @@ class Elite(Selection):
         population_lenght = len(population)
 
         population.sort(
-            key=lambda agent: agent.compute_performance())
+            key=lambda agent: agent.compute_performance(), reverse=True)
 
         if K <= population_lenght:
             return population[0:K]
@@ -234,7 +234,7 @@ class Ranking(Selection):
             Selects the individuals from the population
         """
         population.sort(
-            key=lambda agent: agent.compute_performance())
+            key=lambda agent: agent.compute_performance(), reverse=True)
 
         population_lenght = len(population)
         fitness_per_agent = []
@@ -242,9 +242,6 @@ class Ranking(Selection):
         for rank in range(1, population_lenght + 1):
             fitness_per_agent.append(
                 (population_lenght - rank) / population_lenght)
-
-        population.sort(
-            key=lambda agent: agent.compute_performance())
 
         return Roulette().roulette_with_give_fitness(population, K, fitness_per_agent)
 
