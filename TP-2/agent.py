@@ -20,6 +20,9 @@ class Agent:
         self.role = role
         self.stats = CharacterStats(chromosome.stats)
 
+    def __repr__(self):
+        return f"Agent perf: {self.compute_performance()}"
+
     def compute_performance(self) -> float:
         """
             fitness function

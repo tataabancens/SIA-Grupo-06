@@ -48,6 +48,7 @@ class Elite(Selection):
         for i in range(K):
             population_with_repetition.append(
                 population[i % population_lenght])
+        return population_with_repetition
 
 
 class Roulette(Selection):
@@ -306,7 +307,7 @@ def test():
         agents.append(Agent(role, chromosome))
 
     selection = SelectionOptions.get_instance_from_name("Elite")
-    print(selection.select(agents, 10), agents)
+    print(selection.select(agents, 20), agents)
 
 
 if __name__ == "__main__":
