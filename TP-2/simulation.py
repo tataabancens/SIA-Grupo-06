@@ -96,17 +96,20 @@ class Simulation:
         k1 = int(self.k * self.crossover_proportion)
         k2 = self.k - k1
         population_amount: int = len(self.population)
-        population_1_amount: int = int(population_amount * self.crossover_proportion)
+        population_1_amount: int = int(
+            population_amount * self.crossover_proportion)
 
         population_1 = self.population[0:population_1_amount]
         population_2 = self.population[population_1_amount:population_amount]
 
         # Select parents to cross
-        parents_to_cross_1 = self.selections[0].select(population_1, k1)
+        parents_to_cross_1 = self.selections[0].select(
+            population_1, k1, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
         parents_to_cross = parents_to_cross + parents_to_cross_1
 
         parents_to_cross = parents_to_cross + \
-            self.selections[1].select(population_2, k2)
+            self.selections[1].select(population_2, k2, T=self.bolzmann_temperature,
+                                      M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
 
         return parents_to_cross
 
@@ -138,9 +141,11 @@ class Simulation:
             pop_2 = population_to_select[pop_1_amount:pop_amount]
 
             selected = selected + \
-                self.selections[2].select(pop_1, amount_to_select_1)
+                self.selections[2].select(pop_1, amount_to_select_1, T=self.bolzmann_temperature,
+                                          M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
             selected = selected + \
-                self.selections[3].select(pop_2, amount_to_select_2)
+                self.selections[3].select(pop_2, amount_to_select_2, T=self.bolzmann_temperature,
+                                          M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
 
         # elif self.selection_strategy == SelectionStrategy.YOUNG_BIAS:
         #     children_amount = len(children)
@@ -166,7 +171,8 @@ class Simulation:
         # Cross populations
         children: List[Agent] = []
         children = children + \
-            self.__crossover_with_method(self.crossover_method.cross, parents_to_cross)
+            self.__crossover_with_method(
+                self.crossover_method.cross, parents_to_cross)
         return children
 
     @staticmethod

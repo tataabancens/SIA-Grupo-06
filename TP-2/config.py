@@ -26,6 +26,9 @@ class ConfigData:
     K: int = 20
     seed: int = 0
     N: int = 30
+    bolzmann_temperature: float = 0.5
+    deterministic_tournament_m: int = 3
+    probabilistic_tournament_threshold: float = 0.5
     items: Dict[str, float] = field(default_factory=lambda: {
         "strength": 15,
         "agility": 10,
@@ -51,21 +54,27 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
         except KeyError:
             pass
         try:
-            config_data.crossover = CrossoverOptions.get_instance_from_name(json_config["crossover"])
+            config_data.crossover = CrossoverOptions.get_instance_from_name(
+                json_config["crossover"])
         except KeyError:
             pass
         try:
             selections_name_list = json_config["selections"]
             config_data.selections = [
-                SelectionOptions.get_instance_from_name(selections_name_list[0]),
-                SelectionOptions.get_instance_from_name(selections_name_list[1]),
-                SelectionOptions.get_instance_from_name(selections_name_list[2]),
-                SelectionOptions.get_instance_from_name(selections_name_list[3])
+                SelectionOptions.get_instance_from_name(
+                    selections_name_list[0]),
+                SelectionOptions.get_instance_from_name(
+                    selections_name_list[1]),
+                SelectionOptions.get_instance_from_name(
+                    selections_name_list[2]),
+                SelectionOptions.get_instance_from_name(
+                    selections_name_list[3])
             ]
         except KeyError:
             pass
         try:
-            config_data.mutation = MutationOptions.get_instance_from_name(json_config["mutation"])
+            config_data.mutation = MutationOptions.get_instance_from_name(
+                json_config["mutation"])
         except KeyError:
             pass
         try:
@@ -98,6 +107,19 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
             pass
         try:
             config_data.N = json_config["N"]
+        except KeyError:
+            pass
+        try:
+            config_data.bolzmann_temperature = json_config["bolzmann_temperature"]
+        except KeyError:
+            pass
+        try:
+            config_data.deterministic_tournament_m = json_config["deterministic_tournament_m"]
+        except KeyError:
+            pass
+        try:
+            config_data.probabilistic_tournament_threshold = json_config[
+                "probabilistic_tournament_threshold"]
         except KeyError:
             pass
 

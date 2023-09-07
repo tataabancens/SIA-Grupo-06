@@ -73,7 +73,7 @@ class Roulette(Selection):
 
         selected_agents = []
         for random_number in random_numbers:
-            for i in range(len(cumulative_fitness)):
+            for i in range(1, len(cumulative_fitness) + 1):
                 if cumulative_fitness[i-1] < random_number <= cumulative_fitness[i]:
                     selected_agents.append(population[i])
                     break
@@ -94,7 +94,7 @@ class Roulette(Selection):
 
         selected_agents = []
         for random_number in random_numbers:
-            for i in range(len(cumulative_fitness)):
+            for i in range(1, len(cumulative_fitness) + 1):
                 if cumulative_fitness[i-1] < random_number <= cumulative_fitness[i]:
                     selected_agents.append(population[i])
                     break
@@ -230,7 +230,7 @@ class Ranking(Selection):
         """
             Selects the individuals from the population
         """
-        ordered_by_fitness = population.sort(
+        population.sort(
             key=lambda agent: agent.compute_performance())
 
         population_lenght = len(population)
@@ -240,7 +240,10 @@ class Ranking(Selection):
             fitness_per_agent.append(
                 (population_lenght - rank) / population_lenght)
 
-        return Roulette().roulette_with_give_fitness(ordered_by_fitness, K, fitness_per_agent)
+        population.sort(
+            key=lambda agent: agent.compute_performance())
+
+        return Roulette().roulette_with_give_fitness(population, K, fitness_per_agent)
 
 
 class SelectionOptions(Enum):

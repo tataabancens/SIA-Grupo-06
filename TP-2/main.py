@@ -30,7 +30,8 @@ def __parse_args() -> Namespace:
 
 def main():
     args = __parse_args()
-    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
+    config_path = Path(
+        args.config if args.config is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 
@@ -40,17 +41,19 @@ def main():
                             crossover_proportion=config.A, selection_proportion=config.B, k=config.K, role=config.role,
                             max_iterations=config.max_iterations,
                             max_generations_without_improvement=config.max_iterations_without_change,
-                            bolzmann_temperature=0.5,
-                            deterministic_tournament_m=5,
-                            probabilistic_tournament_threshold=0.5)
+                            bolzmann_temperature=config.bolzmann_temperature,
+                            deterministic_tournament_m=config.deterministic_tournament_m,
+                            probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,)
     simulation.run()
+
 
 def main_deprecated():
     """
         Main function
     """
     args = __parse_args()
-    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
+    config_path = Path(
+        args.config if args.config is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 
@@ -70,17 +73,19 @@ def main_deprecated():
     role = RoleType.get_instance_from_name(config.role_name)
     cromosome = Cromosome(items, 1.5)
     agent = Agent(role, cromosome)
-    agent2 = Agent(role, Cromosome(items2,1.9))
+    agent2 = Agent(role, Cromosome(items2, 1.9))
     my_tuple = crossover.OnePoint.cross((agent, agent2))
     tuple_as_string = ", ".join(str(item) for item in my_tuple)
     print(tuple_as_string)
     # Compute item stats from random weights
     computed_stats = ItemStats.from_weights(
-        Stats(strength=45, agility=33.4, proficiency=12.3, toughness=1, health=9.6).get_as_list()
+        Stats(strength=45, agility=33.4, proficiency=12.3,
+              toughness=1, health=9.6).get_as_list()
     )
     print(computed_stats)
-    print(sum([computed_stats.strength, computed_stats.agility, computed_stats.proficiency, computed_stats.toughness, computed_stats.health]))
-    print([1,2])
+    print(sum([computed_stats.strength, computed_stats.agility,
+          computed_stats.proficiency, computed_stats.toughness, computed_stats.health]))
+    print([1, 2])
     for i in range(1, 5, 2):
         print(i)
 
