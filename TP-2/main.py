@@ -39,7 +39,10 @@ def main():
                             mutation=config.mutation, selection_strategy=config.selection_strategy,
                             crossover_proportion=config.A, selection_proportion=config.B, k=config.K, role=config.role,
                             max_iterations=config.max_iterations,
-                            max_generations_without_improvement=config.max_iterations_without_change)
+                            max_generations_without_improvement=config.max_iterations_without_change,
+                            bolzmann_temperature=0.5,
+                            deterministic_tournament_m=5,
+                            probabilistic_tournament_threshold=0.5)
     simulation.run()
 
 def main_deprecated():
