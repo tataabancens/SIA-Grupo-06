@@ -122,45 +122,36 @@ class Simulation:
                         break
         return children
 
-    def replacement(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
-        # N -> individuos de la población
-        # K -> individuos a seleccionar
-        selected = []
+    def selection_replacement(self, population_to_select: list[Agent], amount_to_select: int):
+        pop_amount = len(population_to_select)
+        amount_to_select_1 = int(amount_to_select * self.selection_proportion)
+        amount_to_select_2 = amount_to_select_1 - amount_to_select_1
+        pop_1_amount: int = int(pop_amount * self.selection_proportion)
 
+        pop_1 = population_to_select[0:pop_1_amount]
+        pop_2 = population_to_select[pop_1_amount:pop_amount]
+
+        return self.selections[2].select(pop_1, amount_to_select_1,
+                                         T=self.bolzmann_temperature, M=self.deterministic_tournament_m,
+                                         Threshold=self.probabilistic_tournament_threshold) + \
+            self.selections[3].select(pop_2, amount_to_select_2,
+                                      T=self.bolzmann_temperature, M=self.deterministic_tournament_m,
+                                      Threshold=self.probabilistic_tournament_threshold)
+
+    def replacement(self, children: List[Agent], parents: List[Agent]) -> List[Agent]:
         if self.selection_strategy == SelectionStrategy.TRADITIONAL:
             population_to_select = children + parents
-            pop_amount = len(population_to_select)
-            amount_to_select_1 = int(self.n * self.selection_proportion)
-            amount_to_select_2 = self.n - amount_to_select_1
-            pop_1_amount: int = int(pop_amount * self.selection_proportion)
+            return self.selection_replacement(population_to_select, self.n)
 
-            pop_1 = population_to_select[0:pop_1_amount]
-            pop_2 = population_to_select[pop_1_amount:pop_amount]
+        elif self.selection_strategy == SelectionStrategy.YOUNG_BIAS:
+            children_amount = len(children)
+            if children_amount >= self.n:
+                return self.selection_replacement(children, self.n)
 
-            selected = selected + \
-                self.selections[2].select(pop_1, amount_to_select_1)
-            selected = selected + \
-                self.selections[3].select(pop_2, amount_to_select_2)
-
-        # elif self.selection_strategy == SelectionStrategy.YOUNG_BIAS:
-        #     children_amount = len(children)
-        #     if children_amount >= self.k:
-        #         return children
-        #
-        #     selected = children
-        #     parents_to_select_amount: int = pop_size - children_amount
-        #     method_b_proportion = int(
-        #         parents_to_select_amount * self.selection_proportion)
-        #     selected = selected + \
-        #         self.selections[0].select(
-        #             parents, method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
-        #     selected = selected + \
-        #         self.selections[1].select(
-        #             parents, parents_to_select_amount - method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
-        #     return selected
-        # else:
-        #     raise "WTF"
-        return selected
+            parents_selected = self.selection_replacement(parents, self.n - len(children))
+            return children + parents_selected
+        else:
+            raise "WTF"
 
     def crossover(self, parents_to_cross: list[Agent]):
         # Cross populations
