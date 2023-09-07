@@ -21,7 +21,7 @@ class Agent:
         self.stats = CharacterStats(chromosome.stats)
 
     def __repr__(self):
-        return f"Agent perf: {self.compute_performance()}"
+        return f"Agent perf: {self.compute_performance()} Chromosome: {self.chromosome}"
 
     def compute_performance(self) -> float:
         """

@@ -120,7 +120,7 @@ class Simulation:
         if self.iteration_without_improvement >= self.max_generations_without_improvement:
             return True
 
-        self.population.sort(key=lambda agent: agent.compute_performance())
+        self.population.sort(key=lambda agent: agent.compute_performance(), reverse=True)
         max_performance = self.population[0]
 
         # TODO: Sacar esto de aca
