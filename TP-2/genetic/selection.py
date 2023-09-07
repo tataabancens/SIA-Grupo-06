@@ -16,7 +16,7 @@ class Selection(ABC):
     """
 
     @abstractmethod
-    def select(self, population: list[Agent], K: int) -> list[Agent]:
+    def select(self, population: list[Agent], K: int, **kargs) -> list[Agent]:
         """
             Selects the individuals from the population
         """
@@ -28,7 +28,7 @@ class Elite(Selection):
         Elite selection method
     """
 
-    def select(self, population: list[Agent], K: int) -> list[Agent]:
+    def select(self, population: list[Agent], K: int, **kargs) -> list[Agent]:
         """
             Selects the individuals from the population
         """
@@ -48,7 +48,7 @@ class Roulette(Selection):
         Roulette selection method
     """
 
-    def select(self, population: list[Agent], K: int) -> list[Agent]:
+    def select(self, population: list[Agent], K: int, **kargs) -> list[Agent]:
         """
             Selects the individuals from the population
         """
@@ -83,7 +83,7 @@ class Roulette(Selection):
         fitness_sum = np.sum(fitness_per_agent)
 
         relative_fitness = np.array(
-            [fitness / fitness_sum for fitness in fitness_per_agent])
+            list(fitness / fitness_sum for fitness in fitness_per_agent))
         cumulative_fitness = np.cumsum(relative_fitness)
 
         random_numbers = np.random.uniform(0, 1, K)
@@ -103,7 +103,7 @@ class Universal(Selection):
         Universal selection method
     """
 
-    def select(self, population: list[Agent], K: int) -> list[Agent]:
+    def select(self, population: list[Agent], K: int, **kargs) -> list[Agent]:
         """
             Selects the individuals from the population
         """
@@ -122,10 +122,10 @@ class Boltzmann(Selection):
         """
             Selects the individuals from the population
         """
-        if kargs.get["T"] is None:
+        if kargs.get("T") is None:
             raise Exception("T is required")
 
-        T = kargs.get["T"]
+        T = kargs.get("T")
 
         relative_fitness = np.array(
             np.exp([agent.compute_performance() / T for agent in population]))
@@ -133,7 +133,7 @@ class Boltzmann(Selection):
         fitness_avr = np.average(relative_fitness)
 
         fitness_per_agent = np.array(
-            fitness/fitness_avr for fitness in relative_fitness)
+            [fitness/fitness_avr for fitness in relative_fitness])
 
         return Roulette().roulette_with_give_fitness(population, K, fitness_per_agent)
 
@@ -148,10 +148,10 @@ class ProbabilisticTournament(Selection):
             Selects the individuals from the population
         """
 
-        if kargs.get["Threshold"] is None:
+        if kargs.get("Threshold") is None:
             raise Exception("Threshold is required")
 
-        threshold = kargs.get["Threshold"]
+        threshold = kargs.get("Threshold")
 
         selected_agents = []
 
@@ -177,6 +177,8 @@ class ProbabilisticTournament(Selection):
                 else:
                     selected_agents.append(taken_agents_to_fight_for_life[0])
 
+        return selected_agents
+
 
 class DeterministicTournament(Selection):
     """
@@ -188,25 +190,27 @@ class DeterministicTournament(Selection):
             Selects the individuals from the population
         """
 
-        if kargs.get["M"] is None:
+        if kargs["M"] is None:
             raise Exception("M is required")
 
-        M = kargs.get["M"]
+        M = kargs["M"]
 
         selected_agents = []
 
         for _ in range(K):
             random_taken_agents = np.random.default_rng().integers(
-                0, len(population), size=M)  # TODO: SE PUEDE REPETIR:?????????
+                0, len(population), size=M)  # SE PUEDE REPETIR.
 
             taken_agents = [population[i] for i in random_taken_agents]
 
             taken_agents_fitness = np.array(
-                agent.compute_performance() for agent in taken_agents)
+                [agent.compute_performance() for agent in taken_agents])
 
             best_agent_index = np.argmax(taken_agents_fitness)
 
             selected_agents.append(taken_agents[best_agent_index])
+
+        return selected_agents
 
 # 0.4, 0.5, 1 population
 # 1, 0.5, 0.4 ordered
@@ -218,7 +222,7 @@ class Ranking(Selection):
         Ranking selection method
     """
 
-    def select(self, population: list[Agent], K: int) -> list[Agent]:
+    def select(self, population: list[Agent], K: int, **kargs) -> list[Agent]:
         """
             Selects the individuals from the population
         """
