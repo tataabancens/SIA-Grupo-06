@@ -49,6 +49,9 @@ class Simulation:
         if not (0 <= self.selection_proportion <= 1):
             raise ValueError("Selection proportion is not in the range [0,1]")
         self.k: int = kwargs["k"]
+        self.bolzmann_temperature: float = kwargs["bolzmann_temperature"]
+        self.deterministic_tournament_m: int = kwargs["deterministic_tournament_m"]
+        self.probabilistic_tournament_threshold: float = kwargs["probabilistic_tournament_threshold"]
         self.role: Role = kwargs["role"]
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
@@ -63,7 +66,8 @@ class Simulation:
         self.population.sort(key=lambda agent: agent.compute_performance())
         max_performance = self.population[0]
 
-        print(max_performance.compute_performance())   # TODO: Sacar esto de aca
+        # TODO: Sacar esto de aca
+        print(max_performance.compute_performance())
 
         if self.iteration_max_performance == max_performance:
             self.iteration_without_improvement += 1
@@ -88,11 +92,13 @@ class Simulation:
 
     def mutation(self, children: List[Agent]) -> List[Agent]:
         for child in children:
-            gens_mutated: list[int] | None = self.mutation_method.mutate(child, 0.1)
+            gens_mutated: list[int] | None = self.mutation_method.mutate(
+                child, 0.1)
             if gens_mutated:
                 for gen in gens_mutated:
                     if gen != 5:
-                        child.cromosome = Cromosome.from_unnormalized_list(child.cromosome).as_list
+                        child.cromosome = Cromosome.from_unnormalized_list(
+                            child.cromosome).as_list
                         break
         return children
 
@@ -117,19 +123,21 @@ class Simulation:
             method_a_proportion = int(
                 parents_to_select_amount * self.selection_proportion)
             selected = selected + \
-                self.selections[0].select(parents, method_a_proportion)
+                self.selections[0].select(
+                    parents, method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
             selected = selected + \
                 self.selections[1].select(
-                    parents, parents_to_select_amount - method_a_proportion)
+                    parents, parents_to_select_amount - method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
             return selected
         else:
             raise "WTF"
 
         selected = selected + \
-            self.selections[0].select(population_to_select, method_a_proportion)
+            self.selections[0].select(
+                population_to_select, method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
         selected = selected + \
             self.selections[1].select(population_to_select,
-                               self.k - method_a_proportion)
+                                      self.k - method_a_proportion, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
 
         return selected
 
@@ -144,9 +152,11 @@ class Simulation:
         # Cross populations
         children: List[Agent] = []
         children = children + \
-            self.__crossover_with_method(self.crossovers[0].cross, a_population)
+            self.__crossover_with_method(
+                self.crossovers[0].cross, a_population)
         children = children + \
-            self.__crossover_with_method(self.crossovers[1].cross, b_population)
+            self.__crossover_with_method(
+                self.crossovers[1].cross, b_population)
 
         return children
 
@@ -192,18 +202,25 @@ def main():
     crossovers = (CrossoverOptions.get_instance_from_name("OnePoint"),
                   CrossoverOptions.get_instance_from_name("TwoPoint"))
 
-    selections = (SelectionOptions.get_instance_from_name("Elite"),
-                   SelectionOptions.get_instance_from_name("Roulette"))
+    selections = (SelectionOptions.get_instance_from_name("DeterministicTournament"),
+                  SelectionOptions.get_instance_from_name("ProbabilisticTournament"))
 
     mutation = MutationOptions.get_instance_from_name("OneGen")
     selection_strategy = SelectionStrategy.TRADITIONAL
     a, b = 0.5, 0.5
-    max_iter, max_iter_without, k = 10, 5, 20
+    max_iter, max_iter_without, k = 2000, 5, 20
+
+    bolzmann_temperature = 0.5
+    deterministic_tournament_m = 5
+    probabilistic_tournament_threshold = 0.5
 
     role = RoleType.get_instance_from_name("Fighter")
     simulation = Simulation(n=n, crossovers=crossovers, selections=selections,
                             mutation=mutation, selection_strategy=selection_strategy,
                             crossover_proportion=a, selection_proportion=b, k=k, role=role,
+                            bolzmann_temperature=bolzmann_temperature,
+                            deterministic_tournament_m=deterministic_tournament_m,
+                            probabilistic_tournament_threshold=probabilistic_tournament_threshold,
                             max_iterations=max_iter, max_generations_without_improvement=max_iter_without)
     simulation.run()
 
