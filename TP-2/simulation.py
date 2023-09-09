@@ -1,3 +1,4 @@
+import os
 import random
 from typing import List, Tuple, Callable, Optional, Sequence
 from agent import Agent
@@ -104,6 +105,9 @@ class SimulationData:
         self.add(population, self.last_gen)
 
     def save_to_file(self, path='./out/simulation_data.csv') -> None:
+        directory_path = os.path.dirname(path)
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
         if len(self.generations) != 0:
             self.__do_add()
         self.data.to_csv(path)
