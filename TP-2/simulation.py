@@ -28,6 +28,7 @@ def calculate_file_identifier(file_path):
 
     return f"{role}_{hash_obj.hexdigest()}_{time}"
 
+
 # Gráficos
 #   - fitness(generación)
 #   - diversidad(generación)
@@ -122,8 +123,6 @@ class SimulationData:
     def append(self, population: List[Agent]) -> None:
         self.last_gen += 1
         self.add(population, self.last_gen)
-
-
 
     def save_to_file(self) -> None:
 
