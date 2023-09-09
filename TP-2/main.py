@@ -46,7 +46,7 @@ def main():
                             bolzmann_temperature=config.bolzmann_temperature,
                             deterministic_tournament_m=config.deterministic_tournament_m,
                             probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
-                            plot=config.plot, plot_batch_size=config.plot_batch_size)
+                            plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=config_path)
     simulation.run()
 
 

@@ -1,5 +1,8 @@
+import json
 import os
 import random
+import shutil
+from datetime import datetime
 from typing import List, Tuple, Callable, Optional, Sequence
 from agent import Agent
 from genetic.mutation import MutationOptions, Mutation
@@ -9,6 +12,21 @@ from genetic.selection import SelectionStrategy, SelectionOptions, Selection
 from genetic.crossover import CrossoverOptions, Crossover
 from pandas import DataFrame
 from statistics import mean
+import hashlib
+
+def calculate_file_identifier(file_path):
+    """Calculate the hash of a file's content."""
+
+    time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    hash_obj = hashlib.new("md5")
+
+    with open(file_path, 'rb') as file:
+        json_obj = json.load(file)
+        role = json_obj["role"]
+        del json_obj["role"]
+        hash_obj.update(json.dumps(json_obj).encode('utf-8'))
+
+    return f"{role}_{hash_obj.hexdigest()}_{time}"
 
 # Gráficos
 #   - fitness(generación)
@@ -44,6 +62,7 @@ class SimulationData:
             :key grouping_delta (float): The delta value to group gene values in agent. It is used for the
             diversity computation. Default is 0.001
         """
+        self.config_path = kwargs["config_path"]
         try:
             self.grouping_delta: float = kwargs["grouping_delta"]
         except KeyError:
@@ -104,17 +123,24 @@ class SimulationData:
         self.last_gen += 1
         self.add(population, self.last_gen)
 
-    def save_to_file(self, path='./out/simulation_data.csv') -> None:
+
+
+    def save_to_file(self) -> None:
+
+        identifier = calculate_file_identifier(self.config_path)
+        path = os.getcwd() + "/out" + "/output_" + identifier + ".csv"
         directory_path = os.path.dirname(path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
+        out_config_path = os.getcwd() + "/out" + "/input_" + identifier + ".json"
+        shutil.copy(self.config_path, out_config_path)
+
         if len(self.generations) != 0:
             self.__do_add()
         self.data.to_csv(path)
 
 
 class Simulation:
-
     iteration = 0
     iteration_without_improvement = 0
     iteration_max_performance = 0
@@ -140,7 +166,7 @@ class Simulation:
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
         self.n = kwargs["n"]
-        self.population: List[Agent] = self.generate_gen_0(0,1)
+        self.population: List[Agent] = self.generate_gen_0(0, 1)
         self.crossover_method: Crossover = kwargs["crossover"]
         self.selections: List[Selection] = kwargs["selections"]
         self.mutation_method: Mutation = kwargs["mutation"]
@@ -158,9 +184,8 @@ class Simulation:
         self.role: Role = kwargs["role"]
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
-
         self.plot: bool = kwargs["plot"]
-        self.data = SimulationData(batch_update_size=kwargs["plot_batch_size"]) if self.plot else None
+        self.data = SimulationData(batch_update_size=kwargs["plot_batch_size"], config_path = kwargs["config_path"]) if self.plot else None
 
     def end_condition(self) -> bool:
         if self.iteration >= self.max_iterations:
@@ -214,12 +239,14 @@ class Simulation:
 
         # Select parents to cross
         parents_to_cross_1 = self.selections[0].select(
-            population_1, k1, T=self.bolzmann_temperature, M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
+            population_1, k1, T=self.bolzmann_temperature, M=self.deterministic_tournament_m,
+            Threshold=self.probabilistic_tournament_threshold)
         parents_to_cross = parents_to_cross + parents_to_cross_1
 
         parents_to_cross = parents_to_cross + \
-            self.selections[1].select(population_2, k2, T=self.bolzmann_temperature,
-                                      M=self.deterministic_tournament_m, Threshold=self.probabilistic_tournament_threshold)
+                           self.selections[1].select(population_2, k2, T=self.bolzmann_temperature,
+                                                     M=self.deterministic_tournament_m,
+                                                     Threshold=self.probabilistic_tournament_threshold)
 
         return parents_to_cross
 
@@ -269,17 +296,18 @@ class Simulation:
         # Cross populations
         children: List[Agent] = []
         children = children + \
-            self.__crossover_with_method(
-                self.crossover_method.cross, parents_to_cross)
+                   self.__crossover_with_method(
+                       self.crossover_method.cross, parents_to_cross)
         return children
 
     @staticmethod
-    def __crossover_with_method(method: Callable[[Tuple[Agent, Agent]], Tuple[Agent, Agent]], population: List[Agent]) -> List[
-            Agent]:
+    def __crossover_with_method(method: Callable[[Tuple[Agent, Agent]], Tuple[Agent, Agent]],
+                                population: List[Agent]) -> List[
+        Agent]:
         children: List[Agent] = []
         population_amount = len(population)
         for i in range(1, population_amount, 2):
-            parents = (population[i-1], population[i])
+            parents = (population[i - 1], population[i])
             children = children + list(method(parents))
 
         if population_amount % 2 != 0:
@@ -288,7 +316,8 @@ class Simulation:
         return children
 
     @staticmethod
-    def __selection_with_method(method: Callable[[List[Agent], int], List[Agent]], population: List[Agent], k: int) -> List[Agent]:
+    def __selection_with_method(method: Callable[[List[Agent], int], List[Agent]], population: List[Agent], k: int) -> \
+            List[Agent]:
         return method(population, k)
 
     def generate_gen_0(self, min_height: float, max_height: float) -> list[Agent]:
