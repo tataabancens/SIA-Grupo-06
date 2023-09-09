@@ -1,0 +1,25 @@
+{
+    "role": "Fighter",
+    "crossover": "OnePoint",
+    "selections": [
+        "Universal",
+        "Elite",
+        "Roulette",
+        "Universal"
+    ],
+    "mutation": "Complete",
+    "selection_strategy": "traditional",
+    "A": 0.75,
+    "B": 0.5,
+    "max_iterations": 10000,
+    "max_iterations_without_change": 20,
+    "K": 20,
+    "seed": 0,
+    "N": 100,
+
+    "plot": true,
+
+    "bolzmann_temperature" : 1,
+    "deterministic_tournament_m" : 5,
+    "probabilistic_tournament_threshold" : 0.75
+}
