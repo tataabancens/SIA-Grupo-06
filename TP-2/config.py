@@ -26,6 +26,7 @@ class ConfigData:
     K: int = 20
     seed: int = 0
     N: int = 30
+    pm: float = 0.1
     bolzmann_temperature: float = 0.5
     deterministic_tournament_m: int = 3
     probabilistic_tournament_threshold: float = 0.5
@@ -105,6 +106,10 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
             pass
         try:
             config_data.seed = json_config["seed"]
+        except KeyError:
+            pass
+        try:
+            config_data.pm = json_config["pm"]
         except KeyError:
             pass
         try:

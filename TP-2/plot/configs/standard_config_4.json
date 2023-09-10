@@ -1,6 +1,6 @@
 {
     "role": "Fighter",
-    "crossover": "OnePoint",
+    "crossover": "Anular",
     "selections": [
         "Universal",
         "Elite",
@@ -8,6 +8,7 @@
         "Universal"
     ],
     "mutation": "Complete",
+    "pm": 0.1,
     "selection_strategy": "traditional",
     "A": 0.75,
     "B": 0.9,

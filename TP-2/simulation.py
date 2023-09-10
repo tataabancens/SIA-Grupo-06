@@ -169,6 +169,7 @@ class Simulation:
         self.crossover_method: Crossover = kwargs["crossover"]
         self.selections: List[Selection] = kwargs["selections"]
         self.mutation_method: Mutation = kwargs["mutation"]
+        self.pm = kwargs["pm"]
         # The parameter is a string that is parsed here
         self.selection_strategy: SelectionStrategy = SelectionStrategy(
             kwargs["selection_strategy"])
@@ -217,7 +218,7 @@ class Simulation:
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
         children = self.crossover(parents_to_cross)
-        children = self.mutation(children)
+        children = self.mutation(children, self.pm)
         self.population = self.replacement(children, self.population)
 
         if self.plot:
@@ -249,9 +250,9 @@ class Simulation:
 
         return parents_to_cross
 
-    def mutation(self, children: List[Agent]) -> List[Agent]:
+    def mutation(self, children: List[Agent], pm: float) -> List[Agent]:
         for child in children:
-            gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, 0.1)
+            gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, pm)
             if gens_mutated:
                 for gen in gens_mutated:
                     if gen != 5:

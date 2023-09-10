@@ -8,17 +8,16 @@
         "Universal"
     ],
     "mutation": "Complete",
+    "pm": 0.2,
     "selection_strategy": "traditional",
-    "A": 0.75,
-    "B": 0.5,
+    "A": 0.8,
+    "B": 0.2,
     "max_iterations": 10000,
     "max_iterations_without_change": 100,
     "K": 20,
     "seed": 0,
-    "N": 100,
-
+    "N": 200,
     "plot": true,
-
     "bolzmann_temperature" : 1,
     "deterministic_tournament_m" : 5,
     "probabilistic_tournament_threshold" : 0.75

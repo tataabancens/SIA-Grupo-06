@@ -8,6 +8,7 @@
         "Ranking"
     ],
     "mutation": "Complete",
+    "pm": 0.2,
     "selection_strategy": "young",
     "A": 0.75,
     "B": 0.5,
