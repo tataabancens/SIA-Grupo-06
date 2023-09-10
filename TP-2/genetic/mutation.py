@@ -34,8 +34,7 @@ class OneGen(Mutation):
 
         mutate_probability = random.default_rng().uniform(0, 1)
         if mutate_probability <= p_m:
-            agent.chromosome[chromosome_to_mutate] = random.default_rng().uniform(
-                0, 1)
+            agent.chromosome[chromosome_to_mutate] *= random.default_rng().uniform(0.5, 2)
             return [chromosome_to_mutate]
         return None
 
@@ -62,7 +61,7 @@ class LimitedMultiGen(Mutation):
         for i in range(chromosome_to_mutate_amount):
             mutate_probability = random.default_rng().uniform(0, 1)
             if mutate_probability <= p_m:
-                agent.chromosome[chromosomes_to_mutate[i]] = random.default_rng().uniform(
+                agent.chromosome[chromosomes_to_mutate[i]] *= random.default_rng().uniform(
                     0, 1)
                 mutated_genes.append(chromosomes_to_mutate[i])
 
