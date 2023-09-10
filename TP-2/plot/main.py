@@ -124,7 +124,7 @@ def run_simulations():
                                 plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path)
         simulation.run()
     for config_path in common_paths:
-        for role in ['Archer', 'Infiltrate', 'Defender', 'Fighter']:
+        for role in ['Archer']: #, 'Infiltrate', 'Defender', 'Fighter'
             path = os.getcwd() + '/configs/' + config_path
             with open(path, 'r') as file:
                 data = json.load(file)
