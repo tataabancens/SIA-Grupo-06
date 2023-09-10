@@ -17,7 +17,7 @@ import hashlib
 def calculate_file_identifier(file_path):
     """Calculate the hash of a file's content."""
 
-    time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    time = datetime.now()
     hash_obj = hashlib.new("md5")
 
     with open(file_path, 'rb') as file:
