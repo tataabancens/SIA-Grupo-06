@@ -42,7 +42,7 @@ class ConfigData:
 
 def load_config(config_path: Optional[Path]) -> ConfigData:
     """
-        Load the config data from the config file
+        Load the configs data from the configs file
     """
     config_data = ConfigData()
     path = config_path if config_path is not None else _DEFAULT_PATH

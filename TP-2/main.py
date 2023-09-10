@@ -20,12 +20,12 @@ def __parse_args() -> Namespace:
         prog='G06-TP2',
         description='Program to maximize a RPG with Genetic Algorithms'
     )
-    parser.add_argument('-c', '--config',
+    parser.add_argument('-c', '--configs',
                         type=str,
                         required=False,
                         nargs='?',
                         help='Path to the json configuration file',
-                        dest='config',
+                        dest='configs',
                         action='store',
                         default=None)
     return parser.parse_args()
@@ -33,7 +33,7 @@ def __parse_args() -> Namespace:
 
 def main():
     args = __parse_args()
-    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
+    config_path = Path(args.config if args.configs is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 

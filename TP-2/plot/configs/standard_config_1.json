@@ -10,7 +10,7 @@
     "mutation": "Complete",
     "selection_strategy": "traditional",
     "A": 0.75,
-    "B": 0.5,
+    "B": 0.4,
     "max_iterations": 10000,
     "max_iterations_without_change": 100,
     "K": 20,
