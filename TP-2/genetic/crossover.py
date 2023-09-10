@@ -63,8 +63,10 @@ class TwoPoint(Crossover):
             p_1, p_2 = p_2, p_1
 
         children_chromosomes = [
-            concatenate((parents[0].chromosome[0:p_1], parents[1].chromosome[p_1:p_2], parents[0].chromosome[p_2:s]), axis=0),
-            concatenate((parents[1].chromosome[0:p_1], parents[0].chromosome[p_1:p_2], parents[1].chromosome[p_2:s]), axis=0)
+            concatenate((parents[0].chromosome[0:p_1], parents[1].chromosome[p_1:p_2],
+                        parents[0].chromosome[p_2:s]), axis=0),
+            concatenate((parents[1].chromosome[0:p_1],
+                        parents[0].chromosome[p_1:p_2], parents[1].chromosome[p_2:s]), axis=0)
         ]
 
         role = parents[0].role
@@ -89,6 +91,10 @@ class Uniform(Crossover):
             0, 1, size=len(parents[0].chromosome))
 
         children_chromosomes = []
+
+        children_chromosomes.append([0] * len(parents[0].chromosome))
+        children_chromosomes.append([0] * len(parents[0].chromosome))
+
         for i in range(len(parents[0].chromosome)):
             if p_s[i] < 0.5:
                 children_chromosomes[0][i] = parents[0].chromosome[i]
