@@ -33,7 +33,7 @@ def plot_bars(role, y_value, y_label):
     for config_hash, vals in fitness_by_hash.items():
         if iters == 0:
             iters = len(vals)
-        labels.append(f"{config_hash[:3]}...{config_hash[-3:]}")
+        labels.append(f"{config_hash[:3]}")
 
         values.append(np.mean(vals))
         std_devs.append(np.std(vals))
@@ -99,7 +99,7 @@ def plot_lines(role, hash, y_value, y_label):  # misma configs o sea mismo hash 
     plt.xlabel("generación")
     plt.ylabel({y_label})
     plt.tight_layout()
-    plt.annotate(f"Hash de configuración: {hash}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10, color='gray')
+    plt.annotate(f"Hash de configuración: {hash[:3]}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10, color='gray')
     plt.show()
 
 
@@ -148,7 +148,7 @@ def run_simulations():
 def main():
     # for i in range(5):
     #     run_simulations()
-    plot_all_lines()
+    # plot_all_lines()
     plot_all_bars()
 
 
