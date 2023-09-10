@@ -84,8 +84,8 @@ class UniformMultiGen(Mutation):
         for i in range(chromosome_amount):
             mutate_probability = random.default_rng().uniform(0, 1)
             if mutate_probability <= p_m:
-                agent.chromosome[i] = random.default_rng().uniform(
-                    0, 1)
+                agent.chromosome[i] *= random.default_rng().uniform(
+                    0.5, 2)
                 mutated_genes.append(i)
 
         return mutated_genes if len(mutated_genes) > 0 else None
@@ -108,8 +108,8 @@ class Complete(Mutation):
 
         for i in range(chromosome_amount):
             if mutate_probability <= p_m:
-                agent.chromosome[i] = random.default_rng().uniform(
-                    0, 1)
+                agent.chromosome[i] *= random.default_rng().uniform(
+                    0.5, 2)
                 mutated_genes.append(i)
 
         return mutated_genes if len(mutated_genes) > 0 else None
