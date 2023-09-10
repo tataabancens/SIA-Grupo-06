@@ -17,7 +17,6 @@ import hashlib
 def calculate_file_identifier(file_path):
     """Calculate the hash of a file's content."""
 
-    time = datetime.now()
     hash_obj = hashlib.new("md5")
 
     with open(file_path, 'rb') as file:
@@ -26,7 +25,7 @@ def calculate_file_identifier(file_path):
         del json_obj["role"]
         hash_obj.update(json.dumps(json_obj).encode('utf-8'))
 
-    return f"{role}_{hash_obj.hexdigest()}_{time}"
+    return f"{role}_{hash_obj.hexdigest()}"
 
 
 # Gráficos
@@ -127,7 +126,7 @@ class SimulationData:
     def save_to_file(self) -> None:
 
         identifier = calculate_file_identifier(self.config_path)
-        path = os.getcwd() + "/out" + "/output_" + identifier + ".csv"
+        path = os.getcwd() + "/out" + "/output_" + identifier + f"_{datetime.now()}.csv"
         directory_path = os.path.dirname(path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
