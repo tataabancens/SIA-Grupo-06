@@ -1,3 +1,4 @@
+import json
 import os
 
 import pandas as pd
@@ -5,7 +6,8 @@ from matplotlib import pyplot as plt
 
 
 def plot_all_lines():
-    out_path = os.getcwd() + "/../out/"
+    out_path = os.getcwd() + "/out/"
+    print(out_path)
     roles = set()
     config_hashes = set()
     for filename in os.listdir(out_path):
@@ -17,8 +19,8 @@ def plot_all_lines():
             plot_lines(role, config_hash)
 
 
-def plot_lines(role, hash):  # misma config o sea mismo hash con dif fecha
-    out_path = os.getcwd() + "/../out/"
+def plot_lines(role, hash):  # misma configs o sea mismo hash con dif fecha
+    out_path = os.getcwd() + "/out/"
     output_files = []
     identifier = "output_" + role + "_" + hash
     for filename in os.listdir(out_path):
@@ -42,9 +44,6 @@ def plot_lines(role, hash):  # misma config o sea mismo hash con dif fecha
 
 
 def main():
-    role = "Fighter"
-    hash = "453bca740c30a03ac81476df14dbac9a"
-
     # plot_lines([out_path+"output_Fighter_453bca740c30a03ac81476df14dbac9a_2023-09-09-13-02-35.csv"])
     # print(output_files)
     plot_all_lines()
