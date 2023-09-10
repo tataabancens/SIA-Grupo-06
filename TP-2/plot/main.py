@@ -58,7 +58,7 @@ def plot_all_bars():
         parts = filename.split('_')
         roles.add(parts[1])
     for role in roles:
-        plot_bars(role, 'fitness','desmpeño')
+        plot_bars(role, 'fitness','desempeño')
     for role in roles:
         plot_bars(role, 'diversity','diversidad')
 
