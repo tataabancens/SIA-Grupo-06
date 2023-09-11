@@ -7,8 +7,8 @@
         "Roulette",
         "Universal"
     ],
-    "mutation": "Complete",
-    "pm": 0.2,
+    "mutation": "OneGen",
+    "pm": 0.4,
     "selection_strategy": "traditional",
     "A": 0.75,
     "B": 0.5,
