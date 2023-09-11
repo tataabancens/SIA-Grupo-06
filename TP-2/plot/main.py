@@ -58,9 +58,9 @@ def plot_all_bars():
         parts = filename.split('_')
         roles.add(parts[1])
     for role in roles:
-        plot_bars(role, 'fitness','desempeño')
+        plot_bars(role, 'fitness', 'desempeño')
     for role in roles:
-        plot_bars(role, 'diversity','diversidad')
+        plot_bars(role, 'diversity', 'diversidad')
 
 
 def plot_all_lines():
@@ -99,15 +99,17 @@ def plot_lines(role, hash, y_value, y_label):  # misma configs o sea mismo hash 
     plt.xlabel("generación")
     plt.ylabel(y_label)
     plt.tight_layout()
-    plt.annotate(f"Hash de configuración: {hash[:3]}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10, color='gray')
+    plt.annotate(f"Hash de configuración: {hash[:3]}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10,
+                 color='gray')
     plt.show()
 
 
 def run_simulations():
     config_paths = ['archer_config.json']
-                    # 'fighter_config.json', 'infiltrate_config.json', 'defender_config.json']
+    # 'fighter_config.json', 'infiltrate_config.json', 'defender_config.json']
     common_paths = ['standard_config_1.json', 'standard_config_2.json',
-                    'standard_config_3.json', 'standard_config_4.json']
+                    # 'standard_config_3.json', 'standard_config_4.json']
+                    'standard_config_3.json']
 
     for config_path in config_paths:
         path = os.getcwd() + '/configs/' + config_path
@@ -121,11 +123,12 @@ def run_simulations():
                                 bolzmann_temperature=config.bolzmann_temperature,
                                 deterministic_tournament_m=config.deterministic_tournament_m,
                                 probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
-                                plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path, pm=config.pm)
+                                plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path,
+                                pm=config.pm)
         simulation.run()
         print(f"finished {config_path}")
     for config_path in common_paths:
-        for role in ['Archer']: #, 'Infiltrate', 'Defender', 'Fighter'
+        for role in ['Archer']:  # , 'Infiltrate', 'Defender', 'Fighter'
             path = os.getcwd() + '/configs/' + config_path
             with open(path, 'r') as file:
                 data = json.load(file)
@@ -142,7 +145,8 @@ def run_simulations():
                                     bolzmann_temperature=config.bolzmann_temperature,
                                     deterministic_tournament_m=config.deterministic_tournament_m,
                                     probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
-                                    plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path,pm=config.pm)
+                                    plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path,
+                                    pm=config.pm)
             simulation.run()
             print(f"finished {config_path}")
 
@@ -150,7 +154,7 @@ def run_simulations():
 def main():
     # for i in range(15):
     #     run_simulations()
-    plot_all_lines()
+    # plot_all_lines()
     plot_all_bars()
 
 
