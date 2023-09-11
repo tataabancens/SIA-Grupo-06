@@ -33,7 +33,7 @@ def __parse_args() -> Namespace:
 
 def main():
     args = __parse_args()
-    config_path = Path(args.config if args.configs is not None else './configs/configTemplate.json')
+    config_path = Path(args.configs if args.configs is not None else './configs/configTemplate.json')
     if config_path is None:
         print("Config path not selected, using default")
 

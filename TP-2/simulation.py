@@ -164,6 +164,7 @@ class Simulation:
         :raises ValueError: If selection_proportion is not within the range [0, 1].
         """
         self.n = kwargs["n"]
+        self.role: Role = kwargs["role"]
         self.population: List[Agent] = self.generate_gen_0(0, 1)
         self.crossover_method: Crossover = kwargs["crossover"]
         self.selections: List[Selection] = kwargs["selections"]
@@ -180,7 +181,6 @@ class Simulation:
         self.bolzmann_temperature: float = kwargs["bolzmann_temperature"]
         self.deterministic_tournament_m: int = kwargs["deterministic_tournament_m"]
         self.probabilistic_tournament_threshold: float = kwargs["probabilistic_tournament_threshold"]
-        self.role: Role = kwargs["role"]
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
         self.plot: bool = kwargs["plot"]
@@ -213,6 +213,11 @@ class Simulation:
             self.iteration += 1
         if self.plot:
             self.data.save_to_file()
+        self.population.sort(key=lambda agent: agent.compute_performance(), reverse=True)
+        max_performance = self.population[0]
+        print(max_performance)
+        print(max_performance.compute_performance())
+        print(max_performance.chromosome)
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
@@ -332,9 +337,8 @@ class Simulation:
                 health=partition[4])
 
             random_height = random.uniform(min_height, max_height)
-            role = RoleType.get_instance_from_name("Fighter")
             chromosome = Chromosome(items, random_height)
-            agents.append(Agent(role, chromosome))
+            agents.append(Agent(self.role, chromosome))
         return agents
 
 
