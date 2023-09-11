@@ -1,23 +1,25 @@
 {
     "role": "Archer",
-    "crossover": "OnePoint",
+    "crossover": "Uniform",
     "selections": [
+        "Boltzmann",
+        "ProbabilisticTournament",
         "Universal",
-        "Universal",
-        "Universal",
-        "Universal"
+        "Ranking"
     ],
     "mutation": "Complete",
-    "pm": 0.3,
-    "selection_strategy": "traditional",
-    "A": 1,
-    "B": 1,
+    "pm": 0.2,
+    "selection_strategy": "young",
+    "A": 0.75,
+    "B": 0.75,
     "max_iterations": 10000,
-    "max_iterations_without_change": 100,
+    "max_iterations_without_change": 50,
     "K": 20,
     "seed": 0,
-    "N": 200,
-    "plot": true,
+    "N": 100,
+
+    "plot": false,
+
     "bolzmann_temperature" : 1,
     "deterministic_tournament_m" : 5,
     "probabilistic_tournament_threshold" : 0.75

@@ -3,6 +3,7 @@
 """
 import statistics
 import time
+import json
 
 from config import load_config
 from pathlib import Path
@@ -48,50 +49,13 @@ def main():
                             deterministic_tournament_m=config.deterministic_tournament_m,
                             probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
                             plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=config_path)
-    simulation.run()
-
-
-def main_deprecated():
-    """
-        Main function
-    """
-    args = __parse_args()
-    config_path = Path(args.config if args.config is not None else './configs/configTemplate.json')
-    if config_path is None:
-        print("Config path not selected, using default")
-
-    config = load_config(config_path)
-    items = ItemStats(
-        strength=config.items['strength'],
-        agility=config.items['agility'],
-        proficiency=config.items['proficiency'],
-        toughness=config.items['toughness'],
-        health=config.items['health'])
-    items2 = ItemStats(
-        strength=config.items['agility'],
-        agility=config.items['strength'],
-        proficiency=config.items['toughness'],
-        toughness=config.items['health'],
-        health=config.items['proficiency'])
-    role = RoleType.get_instance_from_name(config.role_name)
-    chromosome = Chromosome(items, 1.5)
-    agent = Agent(role, chromosome)
-    agent2 = Agent(role, Chromosome(items2, 1.9))
-    my_tuple = crossover.OnePoint.cross((agent, agent2))
-    tuple_as_string = ", ".join(str(item) for item in my_tuple)
-    print(tuple_as_string)
-    # Compute item stats from random weights
-    computed_stats = ItemStats.from_weights(
-        Stats(strength=45, agility=33.4, proficiency=12.3,
-              toughness=1, health=9.6).get_as_list()
-    )
-    print(computed_stats)
-    print(sum([computed_stats.strength, computed_stats.agility,
-          computed_stats.proficiency, computed_stats.toughness, computed_stats.health]))
-    print([1, 2])
-    for i in range(1, 5, 2):
-        print(i)
+    agent = simulation.run()
 
 
 if __name__ == "__main__":
+    start = time.time()
     main()
+    end = time.time()
+    tiempo_transcurrido = end - start
+
+    print(f"El programa tardó {tiempo_transcurrido} segundos en ejecutarse.")

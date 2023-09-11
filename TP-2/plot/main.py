@@ -152,28 +152,39 @@ def run_simulations():
 
 
 def main():
-
+    # hash_to_id =  {
+    #     "4f1fce139a92df545e983c172434654b": "OneGen",
+    #     "9630e8f07e0c2a30178eede1f1f089c7": "LimitedMultiGen",
+    #     "13818367a92e77616a785571dee792e3": "Complete",
+    #     "a4cc5591326b7195f3e8d291e98d0d8b": "UniformMultiGen",
+    # }
+    # x_label = "método de mutación"
+    # out_path = os.getcwd() + "/out_mutation_method_change/"
+    #
+    #
+    # hash_to_id =  {
+    #     "219c669ff7ea88fdef2f192aeac2470c": "0.1",
+    #     "624657b563f8bda4bf78a96c9cf23c56": "0.3",
+    #     "369310487c7fb606897d4521a1d4bc94": "0.9",
+    #     "af1e83991dd73f52b6f9a5338f37eadd": "0.5",
+    #     "f130edac4c72124a69d19906b10b27ba": "0.6"
+    # }
+    # x_label = "probabilidad de mutación"
+    # out_path = os.getcwd() + "/out_mutation_change/"
 
 
     hash_to_id =  {
-        "4f1fce139a92df545e983c172434654b": "OneGen",
-        "9630e8f07e0c2a30178eede1f1f089c7": "LimitedMultiGen",
-        "13818367a92e77616a785571dee792e3": "Complete",
-        "a4cc5591326b7195f3e8d291e98d0d8b": "UniformMultiGen",
+        "032a5af6ec39d3262c88837e3719e027": "config1",
+        "cfa7f58afa56cda28cfde484ad6c0e6d": "óptima",
+        "de2825ea4845e82a0025afbf7933c19c": "config4",
+        "e118d690c26241708b5e760069214796": "config2",
+        "f2197fa4fdff6e42277c2c725622b1e9": "config3"
     }
-    x_label = "método de mutación"
-    out_path = os.getcwd() + "/out_mutation_method_change/"
+    x_label = "configuración"
+    out_path = os.getcwd() + "/out/"
 
-
-    hash_to_id =  {
-        "219c669ff7ea88fdef2f192aeac2470c": "0.1",
-        "624657b563f8bda4bf78a96c9cf23c56": "0.3",
-        "369310487c7fb606897d4521a1d4bc94": "0.9",
-        "af1e83991dd73f52b6f9a5338f37eadd": "0.5",
-        "f130edac4c72124a69d19906b10b27ba": "0.6"
-    }
-    x_label = "probabilidad de mutación"
-    out_path = os.getcwd() + "/out_mutation_change/"
+    for i in range(5):
+        run_simulations()
 
     plot_all_lines(out_path,  hash_to_id)
 
