@@ -60,6 +60,10 @@ class Chromosome:
     def from_unnormalized_list(cls, chromosome: Sequence):
         stats = ItemStats.from_weights(chromosome[:-1])
         height = chromosome[-1]
+        if height > 1:
+            height = 1
+        if height < 0:
+            height = 0
         return cls(stats, height)
 
 
@@ -89,20 +93,32 @@ class Fighter(Role):
     def compute_performance(self, attack: float, defense: float) -> float:
         return 0.6 * attack + 0.4 * defense
 
+    def __str__(self):
+        return "Fighter"
+
 
 class Archer(Role):
     def compute_performance(self, attack: float, defense: float) -> float:
         return 0.9 * attack + 0.1 * defense
+
+    def __str__(self):
+        return "Archer"
 
 
 class Defender(Role):
     def compute_performance(self, attack: float, defense: float) -> float:
         return 0.1 * attack + 0.9 * defense
 
+    def __str__(self):
+        return "Defender"
+
 
 class Infiltrate(Role):
     def compute_performance(self, attack: float, defense: float) -> float:
         return 0.8 * attack + 0.3 * defense
+
+    def __str__(self):
+        return "Infiltrate"
 
 
 class RoleType(Enum):

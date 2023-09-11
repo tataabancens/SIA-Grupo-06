@@ -223,9 +223,16 @@ class Simulation:
         self.population.sort(
             key=lambda agent: agent.compute_performance(), reverse=True)
         max_performance = self.population[0]
+<<<<<<< HEAD
         print(Fore.GREEN + str(max_performance))
         print(Fore.MAGENTA + str(max_performance.compute_performance()))
         print(Fore.YELLOW + str(max_performance.chromosome))
+=======
+        print(max_performance)
+        print(max_performance.compute_performance())
+        print(max_performance.chromosome)
+        return max_performance
+>>>>>>> 8f657dae5191ce223d94680f098ac4de675fc01c
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
@@ -267,11 +274,15 @@ class Simulation:
             gens_mutated: Optional[List[int]
                                    ] = self.mutation_method.mutate(child, pm)
             if gens_mutated:
+<<<<<<< HEAD
                 for gen in gens_mutated:
                     if gen != 5:
                         child.chromosome = Chromosome.from_unnormalized_list(
                             child.chromosome).as_list
                         break
+=======
+                child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
+>>>>>>> 8f657dae5191ce223d94680f098ac4de675fc01c
         return children
 
     def selection_replacement(self, population_to_select: list[Agent], amount_to_select: int):
