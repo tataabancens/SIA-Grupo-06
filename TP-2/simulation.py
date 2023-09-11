@@ -224,10 +224,10 @@ class Simulation:
             key=lambda agent: agent.compute_performance(), reverse=True)
         max_performance = self.population[0]
 
-        print(max_performance)
-        print(max_performance.compute_performance())
-        print(max_performance.chromosome)
-        return max_performance
+        print(Fore.GREEN + str(max_performance))
+        print(Fore.MAGENTA + str(max_performance.compute_performance()))
+        print(Fore.YELLOW + str(max_performance.chromosome))
+
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
@@ -266,8 +266,7 @@ class Simulation:
 
     def mutation(self, children: List[Agent], pm: float) -> List[Agent]:
         for child in children:
-            gens_mutated: Optional[List[int]
-                                   ] = self.mutation_method.mutate(child, pm)
+            gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, pm)
             if gens_mutated:
                 child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
         return children
