@@ -45,7 +45,7 @@ def plot_bars(out_path, role, y_value, y_label, x_label, hash_to_id):
     plt.xticks(rotation=20, fontsize=10)
     plt.ylabel(y_label)
     plt.xlabel(x_label.capitalize())
-    plt.title(f"{y_label.capitalize()} / {x_label} para Fighter ({iters} iteraciones)")
+    plt.title(f"{y_label.capitalize()} / {x_label} para {role} ({iters} iteraciones)")
     plt.subplots_adjust(bottom=0.3)
 
     plt.show()
@@ -95,7 +95,7 @@ def plot_lines(out_path, role, hash, y_value, y_label,  hash_to_id):  # misma co
         ys = [csv_object.at[i, y_value] for i in range(csv_object.shape[0])]
         plt.errorbar(xs, ys, label=hash)
 
-    plt.title(f"{y_label.capitalize()} / generación para {len(output_files)} iteraciones")
+    plt.title(f"{y_label.capitalize()} / generación para {role} ({len(output_files)} iteraciones)")
     plt.xlabel("generación")
     plt.ylabel(y_label)
     plt.tight_layout()
@@ -105,7 +105,7 @@ def plot_lines(out_path, role, hash, y_value, y_label,  hash_to_id):  # misma co
 
 
 def run_simulations():
-    config_paths = ['fighter_config.json']
+    config_paths = ['infiltrate_config.json']
     # 'fighter_config.json', 'infiltrate_config.json', 'defender_config.json']
     common_paths = ['standard_config_1.json', 'standard_config_2.json',
                     'standard_config_3.json', 'standard_config_4.json']
@@ -128,7 +128,7 @@ def run_simulations():
         simulation.run()
         print(f"finished {config_path}")
     for config_path in common_paths:
-        for role in ['Fighter']:  # , 'Infiltrate', 'Defender', 'Fighter'
+        for role in ['Infiltrate']:  # , 'Infiltrate', 'Defender', 'Fighter'
             path = os.getcwd() + '/configs/' + config_path
             with open(path, 'r') as file:
                 data = json.load(file)
@@ -183,8 +183,8 @@ def main():
     x_label = "configuración"
     out_path = os.getcwd() + "/out/"
 
-    for i in range(5):
-        run_simulations()
+    # for i in range(15):
+    #     run_simulations()
 
     plot_all_lines(out_path,  hash_to_id)
 
