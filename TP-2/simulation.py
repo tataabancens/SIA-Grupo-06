@@ -13,6 +13,8 @@ from genetic.crossover import CrossoverOptions, Crossover
 from pandas import DataFrame
 from statistics import mean
 import hashlib
+from colorama import Fore, Style
+
 
 def calculate_file_identifier(file_path):
     """Calculate the hash of a file's content."""
@@ -90,7 +92,8 @@ class SimulationData:
 
         A su vez, la diversidad de un gen se calcula como la cantidad de grupos que quedan al aplicar una función de clustering según un valor de proximidad que se puede definir
         """
-        values_per_gene = [[], [], [], [], [], []]  # [strength, agility, proficiency, toughness, health, height]
+        values_per_gene = [[], [], [], [], [], [
+        ]]  # [strength, agility, proficiency, toughness, health, height]
         # Agrupo los valores de cada agente por gen
         for chromosome in population:
             for i, gene_value in enumerate(chromosome):
@@ -103,7 +106,8 @@ class SimulationData:
         return len(_cluster(gene_values, self.grouping_delta))
 
     def add(self, population: List[Agent], generation_number: int):
-        self.performances.append(list(map(lambda x: x.compute_performance(), population)))
+        self.performances.append(
+            list(map(lambda x: x.compute_performance(), population)))
         self.chromosomes.append(list(map(lambda x: x.chromosome, population)))
         self.generations.append(generation_number)
         self.updates += 1
@@ -126,7 +130,8 @@ class SimulationData:
     def save_to_file(self) -> None:
 
         identifier = calculate_file_identifier(self.config_path)
-        path = os.getcwd() + "/out" + "/output_" + identifier + f"_{datetime.now()}.csv"
+        path = os.getcwd() + "/out" + "/output_" + \
+            identifier + f"_{datetime.now()}.csv"
         directory_path = os.path.dirname(path)
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
@@ -184,7 +189,8 @@ class Simulation:
         self.max_iterations: int = kwargs["max_iterations"]
         self.max_generations_without_improvement: int = kwargs["max_generations_without_improvement"]
         self.plot: bool = kwargs["plot"]
-        self.data = SimulationData(batch_update_size=kwargs["plot_batch_size"], config_path = kwargs["config_path"]) if self.plot else None
+        self.data = SimulationData(
+            batch_update_size=kwargs["plot_batch_size"], config_path=kwargs["config_path"]) if self.plot else None
 
     def end_condition(self) -> bool:
         if self.iteration >= self.max_iterations:
@@ -193,7 +199,8 @@ class Simulation:
         if self.iteration_without_improvement >= self.max_generations_without_improvement:
             return True
 
-        self.population.sort(key=lambda agent: agent.compute_performance(), reverse=True)
+        self.population.sort(
+            key=lambda agent: agent.compute_performance(), reverse=True)
         max_performance = self.population[0]
 
         # TODO: Sacar esto de aca
@@ -213,11 +220,12 @@ class Simulation:
             self.iteration += 1
         if self.plot:
             self.data.save_to_file()
-        self.population.sort(key=lambda agent: agent.compute_performance(), reverse=True)
+        self.population.sort(
+            key=lambda agent: agent.compute_performance(), reverse=True)
         max_performance = self.population[0]
-        print(max_performance)
-        print(max_performance.compute_performance())
-        print(max_performance.chromosome)
+        print(Fore.GREEN + str(max_performance))
+        print(Fore.MAGENTA + str(max_performance.compute_performance()))
+        print(Fore.YELLOW + str(max_performance.chromosome))
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
@@ -248,19 +256,21 @@ class Simulation:
         parents_to_cross = parents_to_cross + parents_to_cross_1
 
         parents_to_cross = parents_to_cross + \
-                           self.selections[1].select(population_2, k2, T=self.bolzmann_temperature,
-                                                     M=self.deterministic_tournament_m,
-                                                     Threshold=self.probabilistic_tournament_threshold)
+            self.selections[1].select(population_2, k2, T=self.bolzmann_temperature,
+                                      M=self.deterministic_tournament_m,
+                                      Threshold=self.probabilistic_tournament_threshold)
 
         return parents_to_cross
 
     def mutation(self, children: List[Agent], pm: float) -> List[Agent]:
         for child in children:
-            gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, pm)
+            gens_mutated: Optional[List[int]
+                                   ] = self.mutation_method.mutate(child, pm)
             if gens_mutated:
                 for gen in gens_mutated:
                     if gen != 5:
-                        child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
+                        child.chromosome = Chromosome.from_unnormalized_list(
+                            child.chromosome).as_list
                         break
         return children
 
@@ -300,14 +310,14 @@ class Simulation:
         # Cross populations
         children: List[Agent] = []
         children = children + \
-                   self.__crossover_with_method(
-                       self.crossover_method.cross, parents_to_cross)
+            self.__crossover_with_method(
+                self.crossover_method.cross, parents_to_cross)
         return children
 
     @staticmethod
     def __crossover_with_method(method: Callable[[Tuple[Agent, Agent]], Tuple[Agent, Agent]],
                                 population: List[Agent]) -> List[
-        Agent]:
+            Agent]:
         children: List[Agent] = []
         population_amount = len(population)
         for i in range(1, population_amount, 2):
