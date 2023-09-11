@@ -218,6 +218,7 @@ class Simulation:
         print(max_performance)
         print(max_performance.compute_performance())
         print(max_performance.chromosome)
+        return max_performance
 
     def iterate(self):
         parents_to_cross = self.select_parents_to_cross()
@@ -258,10 +259,7 @@ class Simulation:
         for child in children:
             gens_mutated: Optional[List[int]] = self.mutation_method.mutate(child, pm)
             if gens_mutated:
-                for gen in gens_mutated:
-                    if gen != 5:
-                        child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
-                        break
+                child.chromosome = Chromosome.from_unnormalized_list(child.chromosome).as_list
         return children
 
     def selection_replacement(self, population_to_select: list[Agent], amount_to_select: int):
