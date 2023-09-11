@@ -97,7 +97,7 @@ def plot_lines(role, hash, y_value, y_label):  # misma configs o sea mismo hash 
 
     plt.title(f"{y_label.capitalize()} por generación para {len(output_files)} iteraciones")
     plt.xlabel("generación")
-    plt.ylabel({y_label})
+    plt.ylabel(y_label)
     plt.tight_layout()
     plt.annotate(f"Hash de configuración: {hash[:3]}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10, color='gray')
     plt.show()
@@ -123,6 +123,7 @@ def run_simulations():
                                 probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
                                 plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path, pm=config.pm)
         simulation.run()
+        print(f"finished {config_path}")
     for config_path in common_paths:
         for role in ['Archer']: #, 'Infiltrate', 'Defender', 'Fighter'
             path = os.getcwd() + '/configs/' + config_path
@@ -143,12 +144,13 @@ def run_simulations():
                                     probabilistic_tournament_threshold=config.probabilistic_tournament_threshold,
                                     plot=config.plot, plot_batch_size=config.plot_batch_size, config_path=path,pm=config.pm)
             simulation.run()
+            print(f"finished {config_path}")
 
 
 def main():
-    for i in range(5):
-        run_simulations()
-    # plot_all_lines()
+    # for i in range(15):
+    #     run_simulations()
+    plot_all_lines()
     plot_all_bars()
 
 

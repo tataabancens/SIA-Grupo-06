@@ -47,8 +47,8 @@ def _cluster(points: List[float], epsilon: float = 0.0001) -> List[List[float]]:
             current_cluster = [point]
         current_point = point
     clusters.append(current_cluster)
-    print('values:', clusters)
-    print('clusters:', list(map(lambda x: mean(x), clusters)))
+    # print('values:', clusters)
+    # print('clusters:', list(map(lambda x: mean(x), clusters)))
     return clusters
 
 
