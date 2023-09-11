@@ -62,7 +62,7 @@ class LimitedMultiGen(Mutation):
             mutate_probability = random.default_rng().uniform(0, 1)
             if mutate_probability <= p_m:
                 agent.chromosome[chromosomes_to_mutate[i]] *= random.default_rng().uniform(
-                    0, 1)
+                    0.5, 2)
                 mutated_genes.append(chromosomes_to_mutate[i])
 
         return mutated_genes if len(mutated_genes) > 0 else None

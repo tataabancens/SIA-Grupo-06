@@ -16,7 +16,7 @@
     "max_iterations_without_change": 100,
     "K": 20,
     "seed": 0,
-    "N": 200,
+    "N": 100,
     "plot": true,
     "bolzmann_temperature" : 1,
     "deterministic_tournament_m" : 5,

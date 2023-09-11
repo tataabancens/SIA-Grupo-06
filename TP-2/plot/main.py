@@ -13,10 +13,10 @@ from config import load_config
 from simulation import Simulation
 
 
-def plot_bars(role, y_value, y_label):
-    out_path = os.getcwd() + "/out/"
+def plot_bars(out_path, role, y_value, y_label, x_label, hash_to_id):
     identifier = "output_" + role
     fitness_by_hash: Dict[str, List] = {}
+
     for filename in os.listdir(out_path):
         file_path = os.path.join(out_path, filename)
         if os.path.isfile(file_path) and identifier in filename:
@@ -33,7 +33,7 @@ def plot_bars(role, y_value, y_label):
     for config_hash, vals in fitness_by_hash.items():
         if iters == 0:
             iters = len(vals)
-        labels.append(f"{config_hash[:3]}")
+        labels.append(hash_to_id.get(config_hash,f"{config_hash[:3]}"))
 
         values.append(np.mean(vals))
         std_devs.append(np.std(vals))
@@ -44,28 +44,29 @@ def plot_bars(role, y_value, y_label):
             ecolor="black", yerr=std_devs, capsize=5)
     plt.xticks(rotation=20, fontsize=10)
     plt.ylabel(y_label)
-    plt.xlabel(f"Configuración")
-    plt.title(f"{y_label.capitalize()} por configuración para {role} ({iters} iteraciones)")
+    plt.xlabel(x_label.capitalize())
+    plt.title(f"{y_label.capitalize()} / {x_label} para Fighter ({iters} iteraciones)")
     plt.subplots_adjust(bottom=0.3)
 
     plt.show()
 
 
-def plot_all_bars():
-    out_path = os.getcwd() + "/out/"
+def plot_all_bars(out_path, x_label, hash_to_id=None):
+    if hash_to_id is None:
+        hash_to_id = {}
     roles = set()
     for filename in os.listdir(out_path):
         parts = filename.split('_')
         roles.add(parts[1])
     for role in roles:
-        plot_bars(role, 'fitness', 'desempeño')
+        plot_bars(out_path, role, 'fitness', 'desempeño', x_label, hash_to_id)
     for role in roles:
-        plot_bars(role, 'diversity', 'diversidad')
+        plot_bars(out_path, role, 'diversity', 'diversidad', x_label, hash_to_id)
 
 
-def plot_all_lines():
-    out_path = os.getcwd() + "/out/"
-    print(out_path)
+def plot_all_lines(out_path,  hash_to_id=None):
+    if hash_to_id is None:
+        hash_to_id = {}
     roles = set()
     config_hashes = set()
     for filename in os.listdir(out_path):
@@ -74,12 +75,11 @@ def plot_all_lines():
         config_hashes.add(parts[2])
     for role in roles:
         for config_hash in config_hashes:
-            plot_lines(role, config_hash, 'diversity', 'diversidad')
-            plot_lines(role, config_hash, 'fitness', 'desempeño')
+            plot_lines(out_path, role, config_hash, 'diversity', 'diversidad', hash_to_id)
+            plot_lines(out_path, role, config_hash, 'fitness', 'desempeño', hash_to_id)
 
 
-def plot_lines(role, hash, y_value, y_label):  # misma configs o sea mismo hash con dif fecha
-    out_path = os.getcwd() + "/out/"
+def plot_lines(out_path, role, hash, y_value, y_label,  hash_to_id):  # misma configs o sea mismo hash con dif fecha
     output_files = []
     identifier = "output_" + role + "_" + hash
     for filename in os.listdir(out_path):
@@ -95,21 +95,21 @@ def plot_lines(role, hash, y_value, y_label):  # misma configs o sea mismo hash 
         ys = [csv_object.at[i, y_value] for i in range(csv_object.shape[0])]
         plt.errorbar(xs, ys, label=hash)
 
-    plt.title(f"{y_label.capitalize()} por generación para {len(output_files)} iteraciones")
+    plt.title(f"{y_label.capitalize()} / generación para {len(output_files)} iteraciones")
     plt.xlabel("generación")
     plt.ylabel(y_label)
     plt.tight_layout()
-    plt.annotate(f"Hash de configuración: {hash[:3]}", xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10,
+    plt.annotate(f"Configuración: {hash_to_id.get(hash,hash[:3])}", xy=(0.6, -0.15), xycoords='axes fraction', fontsize=10,
                  color='gray')
     plt.show()
 
 
 def run_simulations():
-    config_paths = ['archer_config.json']
+    config_paths = ['fighter_config.json']
     # 'fighter_config.json', 'infiltrate_config.json', 'defender_config.json']
     common_paths = ['standard_config_1.json', 'standard_config_2.json',
-                    # 'standard_config_3.json', 'standard_config_4.json']
-                    'standard_config_3.json']
+                    'standard_config_3.json', 'standard_config_4.json']
+
 
     for config_path in config_paths:
         path = os.getcwd() + '/configs/' + config_path
@@ -128,7 +128,7 @@ def run_simulations():
         simulation.run()
         print(f"finished {config_path}")
     for config_path in common_paths:
-        for role in ['Archer']:  # , 'Infiltrate', 'Defender', 'Fighter'
+        for role in ['Fighter']:  # , 'Infiltrate', 'Defender', 'Fighter'
             path = os.getcwd() + '/configs/' + config_path
             with open(path, 'r') as file:
                 data = json.load(file)
@@ -152,10 +152,32 @@ def run_simulations():
 
 
 def main():
-    # for i in range(15):
-    #     run_simulations()
-    # plot_all_lines()
-    plot_all_bars()
+
+
+
+    hash_to_id =  {
+        "4f1fce139a92df545e983c172434654b": "OneGen",
+        "9630e8f07e0c2a30178eede1f1f089c7": "LimitedMultiGen",
+        "13818367a92e77616a785571dee792e3": "Complete",
+        "a4cc5591326b7195f3e8d291e98d0d8b": "UniformMultiGen",
+    }
+    x_label = "método de mutación"
+    out_path = os.getcwd() + "/out_mutation_method_change/"
+
+
+    hash_to_id =  {
+        "219c669ff7ea88fdef2f192aeac2470c": "0.1",
+        "624657b563f8bda4bf78a96c9cf23c56": "0.3",
+        "369310487c7fb606897d4521a1d4bc94": "0.9",
+        "af1e83991dd73f52b6f9a5338f37eadd": "0.5",
+        "f130edac4c72124a69d19906b10b27ba": "0.6"
+    }
+    x_label = "probabilidad de mutación"
+    out_path = os.getcwd() + "/out_mutation_change/"
+
+    plot_all_lines(out_path,  hash_to_id)
+
+    plot_all_bars(out_path, x_label, hash_to_id)
 
 
 if __name__ == "__main__":
