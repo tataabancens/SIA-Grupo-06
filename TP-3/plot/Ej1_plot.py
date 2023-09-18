@@ -1,7 +1,5 @@
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objs as go
-from plotly.subplots import make_subplots
 import numpy as np
 import json
 
@@ -13,7 +11,7 @@ if __name__ == "__main__":
     false_points = json_data['false_points']
     animation_config = json_data['animation']
 
-    df_line = pd.read_csv('out/test_results.csv')
+    df_line = pd.read_csv('out/results.csv')
 
     # fig.show()
     frames = []
