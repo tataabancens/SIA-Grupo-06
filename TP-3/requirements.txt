@@ -1,0 +1,10 @@
+matplotlib
+argparse
+pathlib
+typing
+pandas
+plotly
+numpy
+scikit-learn
+colorama
+pandas
