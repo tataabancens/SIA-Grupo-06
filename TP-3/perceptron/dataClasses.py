@@ -23,3 +23,16 @@ class Ej1DataClass(DataClass):
         w0, w1, w2 = kwargs['weights']
         w = {"w0": w0, "w1": w1, "w2": w2}
         self.df.loc[len(self.df)] = w
+
+
+class Ej2DataClass(DataClass):
+    def __init__(self):
+        self.df = pd.DataFrame(columns=['w0', 'w1'])
+
+    def save_data_to_file(self, filepath: str):
+        self.df.to_csv(filepath, index=False)
+
+    def save_data(self, *args, **kwargs):
+        weights = kwargs['weights']
+        w = {f'w{i}': weight for i, weight in enumerate(weights)}
+        self.df.loc[len(self.df)] = w

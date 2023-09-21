@@ -1,9 +1,10 @@
 from perceptron.SimplePerceptron import SimplePerceptron
+from perceptron.dataClasses import Ej1DataClass
 
 
 def main():
-    perceptron = SimplePerceptron(3, 0.01,
-                                  weights=[-0.39044487483935164, -0.6999067286647687, 0.3982719977274254])
+    perceptron = SimplePerceptron(3, 0.01, Ej1DataClass(),
+                                  weights=[1.0, 1.0, 1.0])
 
     epoch = perceptron.train([[-1, -1], [-1, 1], [1, -1], [1, 1]], [-1, -1, -1, 1], 1000)
 

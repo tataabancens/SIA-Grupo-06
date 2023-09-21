@@ -1,7 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
-from perceptron.dataClasses import DataClass, Ej1DataClass
+from perceptron.dataClasses import DataClass
 
 
 class SimplePerceptron:

@@ -1,4 +1,4 @@
-from SimplePerceptron import SimplePerceptron
+from perceptron.SimplePerceptron import SimplePerceptron
 
 
 class LinealPerceptron(SimplePerceptron):
@@ -23,7 +23,8 @@ class LinealPerceptron(SimplePerceptron):
         return 1
 
     def save_data(self):
-        return
+        self.change = False
+        self.data.save_data(weights=self.weights)
 
 
 if __name__ == "__main__":
