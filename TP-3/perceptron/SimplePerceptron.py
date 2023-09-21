@@ -1,31 +1,41 @@
 import math
 import numpy as np
 import pandas as pd
+from perceptron.dataClasses import DataClass, Ej1DataClass
 
 
 class SimplePerceptron:
 
-    def __init__(self, weight_size, learning_rate: float, *args, **kwargs):
+    def __init__(self, weight_size, learning_rate: float, data: DataClass, *args, **kwargs):
         self.learning_rate = learning_rate
         try:
             self.weights = np.array(kwargs['weights'])
         except KeyError:
             self.weights = np.random.uniform(-1, 1, size=weight_size)
-        self.df = pd.DataFrame(columns=['w0', 'w1', 'w2'])
+
+        self.data: DataClass = data
         self.change = False
+
+    def save_data(self):
+        if len(self.weights) != 3:
+            raise Exception("Weights size must be 3 for printing data in this SimplePerceptron implementation")
+        if not self.change:
+            return
+        self.change = False
+        self.data.save_data(weights=self.weights)
 
     def train(self, data: list[list[float]], expected_outputs: list[float], epoch_limit: int):
         current_epoch = 0
         min_error = np.finfo(np.float64).max
+        best_w = np.array(self.weights)
 
-        while min_error > 0 and current_epoch < epoch_limit:
+        while min_error > self.get_tolerance() and current_epoch < epoch_limit:
             current_input, expected_output = self.random_np_input_from_list(data, expected_outputs)
 
             excitement = self.excitement(current_input)
             activation = self.activation(excitement)
 
-            delta_weights = self.learning_rate * (expected_output - activation) * current_input
-            self.weights += delta_weights
+            self.weights += self.compute_delta_weights(expected_output, activation, current_input)
 
             if activation != expected_output:
                 self.change = True
@@ -33,18 +43,18 @@ class SimplePerceptron:
             error = self.compute_error(data, expected_outputs)
             if error < min_error:
                 min_error = error
+                best_w = np.array(self.weights)
 
             current_epoch += 1
             self.save_data()
-        return current_epoch
+        return current_epoch, best_w
 
-    def save_data(self):
-        if not self.change:
-            return
-        self.change = False
-        w0, w1, w2 = self.weights
-        w = {"w0": w0, "w1": w1, "w2": w2}
-        self.df.loc[len(self.df)] = w
+    def compute_delta_weights(self, expected_output, activation, current_input):
+        return self.learning_rate * (expected_output - activation) * current_input
+
+    @staticmethod
+    def get_tolerance():
+        return 0
 
     def excitement(self, input_array: np.ndarray) -> float:
         return float(np.dot(input_array, self.weights))
@@ -89,16 +99,8 @@ class SimplePerceptron:
 
 
 if __name__ == "__main__":
-    perceptron = SimplePerceptron(3, 0.005, weights=[-0.39044487483935164, -0.6999067286647687, 0.3982719977274254])
-    # perceptron = SimplePerceptron(3, 0.01)
-
+    perceptron = SimplePerceptron(3, 0.01)
     epoch = perceptron.train([[-1, -1], [-1, 1], [1, -1], [1, 1]], [-1, -1, -1, 1], 1000)
-
     print(perceptron.calculate([-1, -1]))
-    print(perceptron.calculate([1, -1]))
-    print(perceptron.calculate([-1, 1]))
-    print(perceptron.calculate([1, 1]))
-    print(perceptron)
-    print(f"Epoch: {epoch}")
-    perceptron.df.to_csv('plot/out/results.csv', index=False)
+
 
