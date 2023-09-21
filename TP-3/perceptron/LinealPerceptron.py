@@ -1,18 +1,18 @@
-from SimplePerceptron import SimplePerceptron
+from perceptron.SimplePerceptron import SimplePerceptron
 
 
 class LinealPerceptron(SimplePerceptron):
 
     def __init__(self, weight_size, learning_rate: float, *args, **kwargs):
         super().__init__(weight_size, learning_rate, *args, **kwargs)
+        self.epsilon = kwargs['epsilon']
 
     @staticmethod
     def activation(excitement: float) -> float:
         return excitement
 
-    @staticmethod
-    def get_tolerance():
-        return 0.1
+    def get_tolerance(self):
+        return self.epsilon
 
     def compute_delta_weights(self, expected_output, activation, current_input):
         act_der = self.activation_derivative()
@@ -22,8 +22,9 @@ class LinealPerceptron(SimplePerceptron):
     def activation_derivative() -> float:
         return 1
 
-    def save_data(self):
-        return
+    def save_data(self, current_epoch, error):
+        self.change = False
+        self.data.save_data(weights=self.weights, error=error, current_epoch=current_epoch)
 
 
 if __name__ == "__main__":

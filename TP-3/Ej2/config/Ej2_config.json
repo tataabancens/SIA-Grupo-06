@@ -1,0 +1,7 @@
+{
+  "data_filename": "input/Ej2_dim1.csv",
+  "input_dimension": 1,
+  "learning_rate": 0.1,
+  "epsilon": 1,
+  "out_filename": "out/results"
+}
