@@ -11,6 +11,7 @@ class ConfigData:
     input_dimension: int = 0
     out_filename: str = "not a filename"
     learning_rate: float = 0.0
+    epsilon: float = 0.0
 
 
 def load_config(config_path: Optional[Path]) -> ConfigData:
@@ -37,6 +38,10 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
             pass
         try:
             config_data.learning_rate = json_config["learning_rate"]
+        except KeyError:
+            pass
+        try:
+            config_data.epsilon = json_config["epsilon"]
         except KeyError:
             pass
         return config_data

@@ -29,7 +29,8 @@ def main():
         print("Config path not selected, using default")
 
     config = load_config(config_path)
-    perceptron = LinealPerceptron(config.input_dimension + 1, config.learning_rate, Ej2DataClass())
+    perceptron = LinealPerceptron(config.input_dimension + 1, config.learning_rate,
+                                  Ej2DataClass(), epsilon=config.epsilon)
 
     dataset: Dataset = load_dataset(config.data_filename, config.input_dimension)
 

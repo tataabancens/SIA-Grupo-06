@@ -15,7 +15,7 @@ class SimplePerceptron:
         self.data: DataClass = data
         self.change = False
 
-    def save_data(self):
+    def save_data(self, current_epoch, error):
         if len(self.weights) != 3:
             raise Exception("Weights size must be 3 for printing data in this SimplePerceptron implementation")
         if not self.change:
@@ -45,7 +45,7 @@ class SimplePerceptron:
                 best_w = np.array(self.weights)
 
             current_epoch += 1
-            self.save_data()
+            self.save_data(current_epoch, error)
         return current_epoch, best_w
 
     def compute_delta_weights(self, expected_output, activation, current_input):
