@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from perceptron.network import train, predict
 from perceptron.dense import Dense
 from perceptron.activation_functions import Tanh
-from perceptron.errors import mean_squared, mean_squared_prime
+from perceptron.errors import MeanSquared
 
 
 X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
@@ -18,7 +18,7 @@ network = [
 ]
 
 # train
-train(network, mean_squared, mean_squared_prime,
+train(network, MeanSquared.eval, MeanSquared.eval_derivative,
       X, Y, epochs=10000, learning_rate=0.1)
 
 # decision boundary plot

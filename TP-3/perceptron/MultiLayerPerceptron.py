@@ -53,7 +53,7 @@ def main():
     print(p.predict([0, 1]))
     train_x = [[0, 0], [0, 1], [1, 0], [1, 1]]
     train_y = [[0], [1], [1], [0]]
-    p.train(MeanSquared(), train_x, train_y, MiniBatch(2), 20000, 0.01, False)
+    p.train(MeanSquared, train_x, train_y, MiniBatch(2), 20000, 0.01, False)
 
     print(p.predict([1, 1]))
 
