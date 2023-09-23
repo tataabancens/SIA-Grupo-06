@@ -1,6 +1,6 @@
 import numpy as np
-from layer import Layer
-from activation import Activation
+from perceptron.layer import Layer
+from perceptron.activation import Activation
 
 
 class Tanh(Activation):

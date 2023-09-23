@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Callable
-from layer import Layer
+from perceptron.layer import Layer
 
 
 class Activation(Layer):
