@@ -1,35 +1,58 @@
+from activation_functions import Activation, Sigmoid, Tanh
+from dense import Dense
+from typing import Type
+from errors import ErrorFunction,MeanSquared
 import numpy as np
-from Sigmoid import SigmoidFunction, SimpleFunction
 
 
 
 class MultiLayerPerceptron:
-    def __init__(self, perceptron_layers: list[int], input_size: int,sigmoid: SigmoidFunction) -> None:
-        self.layers = perceptron_layers
-        self.layer_count = len(perceptron_layers)
-        self.sigmoid = np.vectorize(sigmoid.eval)
-        self.biases = [np.ones(i) for i in perceptron_layers] # biases apply to each perceptron, not the input
-        self.weights = [np.ones(i) for i in [input_size] + perceptron_layers]
+    def __init__(self, layers: list[int], input_size: int, output_size: int,activation: Type[Activation]) -> None:
+        layers = [input_size] + layers + [output_size]
+        layer_list = []
+        i = 0
+        while i < (len(layers)-1):
+            counts = layers[i:i+2]
+            layer_list.append(Dense(counts[0],counts[1]))
+            layer_list.append(activation())
+            i += 1
 
-    def feed_forward(self, a: list[float]):
-        a = np.array(a)
-        if len(a) != self.weights[0].shape[0]:
-            raise ValueError("")
-        # check that length of 'a' is same as layers[0] 
-        for b, w in zip(self.biases, self.weights):
-            a = self.sigmoid(np.dot(w,a) + b)
-        return a
+        self.layers = layer_list
 
-    def compute_cost(self, a: list[float], expected: list[float]):
-        if len(a) != self.weights[0].shape[0] or len(a) != len(expected):
-            raise ValueError("")
-        activations = self.feed_forward(a)
-        return 0.5 * np.linalg.norm(activations - expected)**2
+
+    def predict(self, input):
+        output = np.array([input]).T if isinstance(input, (list)) else input
+        for layer in self.layers:
+            output = layer.forward(output)
+        return output
+
+    def train(self, error_func: ErrorFunction, x_train, y_train, epochs = 1000, learning_rate = 0.01, verbose = True):
+        for e in range(epochs):
+            error = 0
+            for x, y in zip(x_train, y_train):
+                output = self.predict(x)
+
+                error += error_func.eval(y, output)
+
+                # backward
+                grad = error_func.eval_derivative(y, output)
+                for layer in reversed(self.layers):
+                    grad = layer.backward(grad, learning_rate)
+
+            error /= len(x_train)
+            if verbose:
+                print(f"{e + 1}/{epochs}, error={error}")
+
 
         
 def main():
-    p = MultiLayerPerceptron([4,3,3], 4, SimpleFunction)
-    print(p.feed_forward([1,2,3,4]))
+    p = MultiLayerPerceptron([3], 2, 1,Sigmoid)
+    print(p.predict([0,1]))
+    train_x = np.reshape([[0,0],[0,1],[1,0],[1,1]],(4,2,1))
+    train_y = np.reshape([[0],[1],[1],[0]],(4,1,1))
+    p.train(MeanSquared, train_x, train_y, 20000, 0.01, False)
+    print(p.predict([0,1]))
+    
 
     
 if __name__ == "__main__":
