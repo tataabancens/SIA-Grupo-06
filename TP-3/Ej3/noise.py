@@ -1,4 +1,3 @@
-import scipy.signal
 
 # def noisify(vector):
 #     # Sample binary vector
@@ -41,7 +40,7 @@ def noisify(vector, intensity=0.1):
 
 
 
-def print_number(data):
+def print_number(number, data):
     # Sample 2D list
     # Convert the list of lists to a numpy array
     array_data = np.array(data).reshape(7,5)
@@ -49,6 +48,7 @@ def print_number(data):
     # Display the data as an image
     plt.imshow(array_data, cmap='gray_r')  # 'gray_r' is reversed grayscale: 0=white, 1=black
     plt.axis('off')  # Turn off axis numbers and ticks
+    plt.savefig(f'plot{number}.png', dpi=300, bbox_inches='tight')  # Adjust dpi and bbox as needed
     plt.show()
 
 

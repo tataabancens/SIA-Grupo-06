@@ -23,7 +23,7 @@ def main():
     for idx,val in enumerate(noisified_x):
         guess = np.argmax(p.predict(val))
         print(guess)
-        print_number(val)
+        print_number(idx, val)
         if y_train[idx][guess] == 1:
             correct += 1
 
