@@ -4,10 +4,12 @@ from typing import Type
 from perceptron.errors import ErrorFunction, MeanSquared
 import numpy as np
 from perceptron.trainer import Trainer, Batch, MiniBatch, Online
+from perceptron.optimizer import Optimizer, GradientDescent, Adam
 
 
 class MultiLayerPerceptron:
-    def __init__(self, layers: list[int], input_size: int, output_size: int, activation: Type[Activation]) -> None:
+    def __init__(self, layers: list[int], input_size: int, output_size: int, activation: Type[Activation],
+                 optimizer: Optimizer = GradientDescent()) -> None:
         layers = [input_size] + layers + [output_size]
         self.input_size = input_size
         self.output_size = output_size
@@ -15,7 +17,7 @@ class MultiLayerPerceptron:
         i = 0
         while i < (len(layers) - 1):
             counts = layers[i:i + 2]
-            layer_list.append(Dense(counts[0], counts[1]))
+            layer_list.append(Dense(counts[0], counts[1], optimizer.get_one()))
             layer_list.append(activation())
             i += 1
 
@@ -49,13 +51,13 @@ class MultiLayerPerceptron:
 
 
 def main():
-    p = MultiLayerPerceptron([4], 2, 1, Sigmoid)
+    p = MultiLayerPerceptron([4], 2, 1, Sigmoid, Adam())
     print(p.predict([0, 1]))
     train_x = [[0, 0], [0, 1], [1, 0], [1, 1]]
     train_y = [[0], [1], [1], [0]]
-    p.train(MeanSquared, train_x, train_y, MiniBatch(2), 20000, 0.01, False)
+    p.train(MeanSquared, train_x, train_y, Batch(), 30000, 0.005, False)
 
-    print(p.predict([1, 1]))
+    print(p.predict([0, 1]))
 
 
 if __name__ == "__main__":
