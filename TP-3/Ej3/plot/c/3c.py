@@ -52,7 +52,7 @@ def run_simulations(intensities, iterations, opt_method):
         intensity_obj["accuracy"] = np.mean(accuracies)
         json_result["values"].append(intensity_obj)
 
-    with open('result.json', 'w') as json_file:
+    with open('../result.json', 'w') as json_file:
         json.dump(json_result, json_file)
 
 

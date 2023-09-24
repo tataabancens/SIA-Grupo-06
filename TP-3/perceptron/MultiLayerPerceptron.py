@@ -36,7 +36,7 @@ class MultiLayerPerceptron:
         return output
 
     def train(self, error_func: ErrorFunction, x, y, training_method: Trainer, epochs=1000,
-              learning_rate=0.01, verbose=True, training_proportion=1.0, output=False):
+              learning_rate=0.01, verbose=True, training_proportion=1.0, output_file=False):
         training_qty = int(len(x) * training_proportion)
         if training_qty == len(x) and training_proportion < 1.0:
             training_qty -= 1
@@ -102,7 +102,7 @@ class MultiLayerPerceptron:
             if verbose:
                 print(f"{e + 1}/{epochs}, error={error}, error_test={error_test}")
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
-        if output:
+        if output_file:
             with open(f'{os.getcwd()}/{hash_value}_{timestamp}.json', 'w') as json_file:
                 json.dump(stats, json_file)
 
