@@ -12,5 +12,8 @@ class Activation(Layer):
         self.input = input
         return self.activation(self.input)
 
+    def update(self):
+        pass
+
     def backward(self, output_gradient: list[float], learning_rate: float):
         return np.multiply(output_gradient, self.activation_prime(self.input))

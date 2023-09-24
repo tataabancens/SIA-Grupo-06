@@ -11,6 +11,9 @@ class Optimizer:
     def get_one(self) -> 'Optimizer':
         pass
 
+    def __str__(self):
+        pass
+
 
 class GradientDescent(Optimizer):
     def __init__(self):
@@ -21,6 +24,8 @@ class GradientDescent(Optimizer):
 
     def get_one(self):
         return GradientDescent()
+    def __str__(self):
+        return 'Gradient Descent'
 
 
 class Adam(Optimizer):
@@ -36,6 +41,8 @@ class Adam(Optimizer):
     def get_one(self):
         return Adam(self.beta1, self.beta2, self.epsilon)
 
+    def __str__(self):
+        return 'Adam'
     def adjust(self, gradient, learning_rate):
         if self.m is None or self.v is None:
             self.m = np.zeros_like(gradient)
