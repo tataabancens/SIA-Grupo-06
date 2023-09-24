@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
+
 class Trainer(ABC):
-    
+
     @abstractmethod
     def iterator(self, x_train, y_train, iters) -> Iterator:
         pass
@@ -11,6 +12,9 @@ class Trainer(ABC):
 class Batch(Trainer):
     def __init__(self):
         self.idx = 0
+
+    def __str__(self):
+        return "Batch"
 
     def iterator(self, x_train, y_train, iters) -> Iterator:
         class CustomIterator:
@@ -29,12 +33,16 @@ class Batch(Trainer):
                     return zip(self.x_train, self.y_train)
                 else:
                     raise StopIteration
+
         return CustomIterator(x_train, y_train, iters)
 
-   
+
 class MiniBatch(Trainer):
     def __init__(self, batch_size: int):
         self.batch_size = batch_size
+
+    def __str__(self):
+        return f"MiniBatch({self.batch_size})"
 
     def iterator(self, x_train, y_train, iters) -> Iterator:
         class CustomIterator:
@@ -60,12 +68,12 @@ class MiniBatch(Trainer):
                 self.counter += 1
                 return zip(self.x_train[start:end], self.y_train[start:end])
 
-
         return CustomIterator(x_train, y_train, iters, self.batch_size)
 
+
 class Online(Trainer):
+    def __str__(self):
+        return "Online"
 
     def iterator(self, x_train, y_train, iters) -> Iterator:
-           return MiniBatch(1).iterator(x_train, y_train, iters) 
-
-
+        return MiniBatch(1).iterator(x_train, y_train, iters)

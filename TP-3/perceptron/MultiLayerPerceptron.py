@@ -8,6 +8,7 @@ from perceptron.optimizer import Optimizer, GradientDescent, Adam
 from datetime import datetime
 import json
 import os
+import hashlib
 
 class MultiLayerPerceptron:
     def __init__(self, layers: list[int], input_size: int, output_size: int, activation: Type[Activation],
@@ -15,6 +16,9 @@ class MultiLayerPerceptron:
         layers = [input_size] + layers + [output_size]
         self.input_size = input_size
         self.output_size = output_size
+        self.optimizer = optimizer
+        self.activation = activation
+        self.layer_config = layers
         layer_list = []
         i = 0
         while i < (len(layers) - 1):
@@ -44,8 +48,20 @@ class MultiLayerPerceptron:
         y_test = np.reshape(y[training_qty:], (testing_qty, self.output_size, 1)) if training_qty < len(x) else []
         stats = {
             "proportion": training_proportion,
-            "data": []
+            "optimizer": self.optimizer.__str__(),
+            "data": [],
+            "trainer": training_method.__str__(),
+            "activation": self.activation().__str__(),
+            "layers": f"{self.layer_config}",
         }
+        json_string = json.dumps(stats)
+        stats["learning_rate"] = learning_rate
+
+    # Step 2: Calculate the hash of the JSON string
+        hash_obj = hashlib.sha256(json_string.encode())  # You can use other hash algorithms as needed
+
+        # Step 3: Get the hexadecimal representation of the hash
+        hash_value = hash_obj.hexdigest()
         first_time = True
         for e, dataset in enumerate(training_method.iterator(x_train, y_train, epochs)):
             error = 0
@@ -74,34 +90,31 @@ class MultiLayerPerceptron:
             for layer in reversed(self.layers):
                 layer.update()
 
-            if first_time or e - prev_printed == 100:
+            if first_time or e - prev_printed == epochs/100:
                 stats["data"].append({
                     "error": error,
                     "error_test": error_test,
                     "epoch": e
                 })
                 first_time = False
-                prev_printed = e if e - prev_printed == 100 else 0
+                prev_printed = e if e - prev_printed == epochs/100 else 0
 
             if verbose:
                 print(f"{e + 1}/{epochs}, error={error}, error_test={error_test}")
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
         if output:
-            with open(f'{os.getcwd()}/{timestamp}.json', 'w') as json_file:
+            with open(f'{os.getcwd()}/{hash_value}_{timestamp}.json', 'w') as json_file:
                 json.dump(stats, json_file)
 
 
 def main():
-    p = MultiLayerPerceptron([4], 2, 1, Sigmoid, Adam())
-    print(p.predict([0, 0]))
-    train_x = [[0, 0], [0, 1], [1, 0], [1, 1]]
-    train_y = [[0], [1], [1], [0]]
-    p.train(MeanSquared, train_x, train_y, Batch(), 10000, 0.1, False, 0.8, True)
-
-    print(p.predict([0, 0]))
-    print(p.predict([0, 1]))
-    print(p.predict([1, 0]))
-    print(p.predict([1,1]))
+    seed_value = 42
+    for learning_rate in [0.01,0.001,0.0001]:
+         np.random.seed(seed_value)
+         p = MultiLayerPerceptron([4], 2, 1, Tanh, Adam())
+         train_x = [[0, 0], [0, 1], [1, 0], [1, 1]]
+         train_y = [[0], [1], [1], [0]]
+         p.train(MeanSquared, train_x, train_y, Batch(), 20000, 0.001,True, 0.5, True)
 
 
 if __name__ == "__main__":
