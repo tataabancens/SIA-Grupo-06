@@ -35,17 +35,26 @@ class MultiLayerPerceptron:
             output = layer.forward(output)
         return output
 
-    def train(self, error_func: ErrorFunction, x, y, training_method: Trainer, epochs=1000,
-              learning_rate=0.01, verbose=True, training_proportion=1.0, output_file=False):
-        training_qty = int(len(x) * training_proportion)
-        if training_qty == len(x) and training_proportion < 1.0:
-            training_qty -= 1
-        testing_qty = len(x) - training_qty
+    def train(self, error_func: ErrorFunction, x_train, y_train, training_method: Trainer, epochs=1000,
+              learning_rate=0.01, verbose=True, x_test=None, y_test=None, output_file=False):
+        if y_test is None:
+            y_test = []
+        if x_test is None:
+            x_test = []
+        # training_qty = int(len(x) * training_proportion)
+        # if training_qty == len(x) and training_proportion < 1.0:
+        #     training_qty -= 1
+        # testing_qty = len(x) - training_qty
+        # x_train = np.reshape(x[:training_qty], (training_qty, self.input_size, 1))
+        # y_train = np.reshape(y[:training_qty], (training_qty, self.output_size, 1))
+        # x_test = np.reshape(x[training_qty:], (testing_qty, self.input_size, 1)) if training_qty < len(x) else []
+        # y_test = np.reshape(y[training_qty:], (testing_qty, self.output_size, 1)) if training_qty < len(x) else []
         prev_printed = 0
-        x_train = np.reshape(x[:training_qty], (training_qty, self.input_size, 1))
-        y_train = np.reshape(y[:training_qty], (training_qty, self.output_size, 1))
-        x_test = np.reshape(x[training_qty:], (testing_qty, self.input_size, 1)) if training_qty < len(x) else []
-        y_test = np.reshape(y[training_qty:], (testing_qty, self.output_size, 1)) if training_qty < len(x) else []
+        training_proportion = len(x_train) / (len(x_train) + len(x_test))
+        x_train = np.reshape(x_train, (len(x_train), self.input_size, 1))
+        y_train = np.reshape(y_train, (len(y_train), self.output_size, 1))
+        x_test = np.reshape(x_test, (len(x_test), self.input_size, 1))
+        y_test = np.reshape(y_test, (len(y_test), self.output_size, 1))
         stats = {
             "proportion": training_proportion,
             "optimizer": self.optimizer.__str__(),
@@ -105,6 +114,7 @@ class MultiLayerPerceptron:
         if output_file:
             with open(f'{os.getcwd()}/{hash_value}_{timestamp}.json', 'w') as json_file:
                 json.dump(stats, json_file)
+        return stats
 
 
 def main():
