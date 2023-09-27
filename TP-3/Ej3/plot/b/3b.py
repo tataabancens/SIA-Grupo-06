@@ -21,7 +21,7 @@ def plot_lines_error_comp(path):
     plt.errorbar(xs, ys_test, label="test set")
     plt.errorbar(xs, ys, label="training set")
     plt.legend()
-    plt.title(f"{data['layers']}, p={data['proportion']}, {data['trainer']}, {data['activation']}, {data['optimizer']}, lr={data['learning_rate']}")
+    plt.title(f"{data['layers']}, {data['trainer']}, {data['activation']}, {data['optimizer']}, lr={data['learning_rate']}")
     plt.xlabel("epoch")
     plt.ylabel("error")
     plt.tight_layout()
@@ -43,7 +43,7 @@ def plot_lines(hash):  # misma configs o sea mismo hash con dif fecha
         ys = [v["error"] for v in data["data"]]
         plt.errorbar(xs, ys, label=f"learning_rate={data['learning_rate']}")
         plt.legend()
-    plt.title(f"{data['layers']}, p={data['proportion']}, {data['trainer']}, {data['activation']}, {data['optimizer']}")
+    plt.title(f"{data['layers']}, {data['trainer']}, {data['activation']}, {data['optimizer']}")
     plt.xlabel("epoch")
     plt.ylabel("error")
     plt.tight_layout()
@@ -88,7 +88,7 @@ def confusion_matrix(p: MultiLayerPerceptron, test_x: list, test_y: list, result
     confusion_matrix_data = [[0 for i in values] for j in values]
     for x,y in zip(test_x, test_y):
         pred_y = p.predict(x)
-        i = result_deriver(y)
+        i = result_deriver(np.array(y))
         j = result_deriver(pred_y)
         confusion_matrix_data[i][j] += 1
 
@@ -107,7 +107,7 @@ def confusion_matrix(p: MultiLayerPerceptron, test_x: list, test_y: list, result
     plt.ylabel("True")
     plt.xticks(range(len(confusion_matrix_data)), values)
     plt.yticks(range(len(confusion_matrix_data)), values)
-    plt.title(f"{data['layers']}, p={data['proportion']}, {data['trainer']}, {data['activation']}, {data['optimizer']}, lr={data['learning_rate']}")
+    plt.title(f"{data['layers']}, {data['trainer']}, {data['activation']}, {data['optimizer']}, lr={data['learning_rate']}")
 
     # Display the values in each cell
     for i in range(len(confusion_matrix_data)):
@@ -115,11 +115,69 @@ def confusion_matrix(p: MultiLayerPerceptron, test_x: list, test_y: list, result
             plt.text(j, i, str(confusion_matrix_data[i][j]), va='center', ha='center')
 
     plt.show()
+
+
+def ejC():
+    seed_value = 42
+    noise_intensity = 0.3
+    train_x = parse_numbers()
+    train_y = []
+    for i in range(10):
+        arr = [[0] for j in range(10)]
+        arr[i] = [1]
+        train_y.append(arr)
+
+    num_map  = numbers_map()
+    test_x = [noisify(num_map[i], noise_intensity) for i in range(len(train_x))]
+    test_y = train_y
+    result_deriver = lambda y: np.argmax(np.ravel(y))
+    # train_x,train_y,test_x,test_y = partition(train_x,train_y, train_proportion)
+    for learning_rate in [0.01,0.001,0.0001]:
+        np.random.seed(seed_value)
+        p = MultiLayerPerceptron([10], 35, 10, Tanh, GradientDescent())
+        stats = p.train(MeanSquared, train_x, train_y, Batch(), 100000, learning_rate,False, test_x, test_y, True)
+        confusion_matrix(p, test_x,test_y,result_deriver,[0,1,2,3,4,5,6,7,8,9], stats)
+
+    values = set()
+    files = []
+    for filename in os.listdir(os.getcwd()):
+        if 'json' in filename:
+            values.add(filename.split('_')[0])
+            files.append(filename)
+
+    for hash in values:
+        plot_lines(hash)
+    for filename in files:
+        plot_lines_error_comp(filename)
+def ejB():
+    seed_value = 42
+    train_proportion = 0.5
+
+    train_x = parse_numbers()
+    train_y = [[1] if i%2 == 0 else [0] for i in range(len(train_x))]
+    result_deriver = lambda y: round(y[0])
+    train_x,train_y,test_x,test_y = partition(train_x,train_y, train_proportion)
+    for learning_rate in [0.0001]:
+        np.random.seed(seed_value)
+        p = MultiLayerPerceptron([10], 35, 1, Tanh, GradientDescent())
+        stats = p.train(MeanSquared, train_x, train_y, Batch(), 20000, learning_rate,False, test_x, test_y, True)
+        confusion_matrix(p, test_x,test_y,result_deriver,[0,1], stats)
+
+    values = set()
+    files = []
+    for filename in os.listdir(os.getcwd()):
+        if 'json' in filename:
+            values.add(filename.split('_')[0])
+            files.append(filename)
+
+    for hash in values:
+        plot_lines(hash)
+    for filename in files:
+        plot_lines_error_comp(filename)
 def ejA():
     seed_value = 42
     train_proportion = 0.5
 
-       # EJ 3.B
     train_x = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
     result_deriver = lambda y:  1 if abs(y[0] - 1) < abs(y[0]) else 0
     train_y = [[0], [1], [1], [0]]
@@ -127,7 +185,6 @@ def ejA():
     for learning_rate in [0.01,0.001,0.0001]:
         np.random.seed(seed_value)
         p = MultiLayerPerceptron([4], 2, 1, Tanh, GradientDescent())
-        print(train_x)
         stats = p.train(MeanSquared, train_x, train_y, Batch(), 10000, learning_rate,False, test_x, test_y, True)
         confusion_matrix(p, test_x,test_y,result_deriver,[0,1], stats)
 
@@ -144,9 +201,8 @@ def ejA():
         plot_lines_error_comp(filename)
 
 
-
 def main():
-    ejA()
+    ejC()
     # EJ 3.B
     # train_x = [[0, 0], [0, 1], [1, 0], [1, 1]]
     # train_y = [[0], [1], [1], [0]]
