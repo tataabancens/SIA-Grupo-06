@@ -1,7 +1,10 @@
 {
-  "data_filename": "input/Ej2_dim1.csv",
+  "data_filename": "input/Ej2_dim1_2.csv",
   "input_dimension": 1,
-  "learning_rate": 0.1,
+  "learning_rate": 0.01,
   "epsilon": 1,
-  "out_filename": "out/results"
+  "epochs": 100,
+  "out_filename": "out/results_tanh_easy",
+  "perceptron_type": "NonLinealTanh",
+  "B": 0.8
 }

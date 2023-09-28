@@ -29,7 +29,7 @@ if __name__ == "__main__":
         layout=go.Layout(
             xaxis=dict(range=[-1.5, 1.5], autorange=False),
             yaxis=dict(range=[-2, 2], autorange=False),
-            title="Start Title",
+            title="XOR Operation",
             updatemenus=[dict(
                 type="buttons",
                 buttons=[dict(label="Play",
@@ -49,7 +49,7 @@ if __name__ == "__main__":
                              marker={
                                  "color": true_points['color']
                              },
-                             name='markers'))
+                             name='true'))
 
     fig.add_trace(go.Scatter(x=false_points['x'], y=false_points['y'],
                              fillcolor=false_points['color'],
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                              marker={
                                  "color": false_points['color']
                              },
-                             name='markers'))
+                             name='false'))
     fig.show()
 
 
