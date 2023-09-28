@@ -1,0 +1,10 @@
+{
+  "data_filename": "input/TP3-ej2-conjunto.csv",
+  "input_dimension": 3,
+  "learning_rate": 0.01,
+  "epochs": 8000,
+  "epsilon": 1,
+  "out_filename": "out/results_tanh",
+  "perceptron_type": "NonLinealTanh",
+  "B": 1
+}

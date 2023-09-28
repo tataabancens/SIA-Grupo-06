@@ -1,5 +1,6 @@
+import math
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Callable
 from pathlib import Path
 import json
 import pandas as pd
@@ -12,6 +13,9 @@ class ConfigData:
     out_filename: str = "not a filename"
     learning_rate: float = 0.0
     epsilon: float = 0.0
+    perceptron_type: Callable = "Setea el perceptron en la config"
+    B: float = 1
+    epochs: int = 100
 
 
 def load_config(config_path: Optional[Path]) -> ConfigData:
@@ -26,6 +30,18 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
 
         try:
             config_data.data_filename = json_config["data_filename"]
+        except KeyError:
+            pass
+        try:
+            config_data.epochs = json_config["epochs"]
+        except KeyError:
+            pass
+        try:
+            config_data.perceptron_type = json_config["perceptron_type"]
+        except KeyError:
+            pass
+        try:
+            config_data.B = json_config["B"]
         except KeyError:
             pass
         try:
@@ -51,6 +67,26 @@ def load_config(config_path: Optional[Path]) -> ConfigData:
 class Dataset:
     inputs: list[list[float]] = None
     outputs: list[float] = None
+    min_output: int = None
+    max_output: int = None
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            subset = Dataset()
+            subset.inputs = self.inputs[index]
+            subset.outputs = self.outputs[index]
+            return subset
+        else:
+            return self.inputs[index], self.outputs[index]
+
+    def __len__(self):
+        return len(self.inputs)
+
+
+def divide_data_set(dataset: Dataset):
+    part_1 = dataset[0:int(len(dataset.outputs) * 0.8)]
+    part_2 = dataset[int(len(dataset.outputs) * 0.2):len(dataset.outputs)]
+    return part_1, part_2
 
 
 def load_dataset(filepath: str, dim: int):
@@ -60,5 +96,12 @@ def load_dataset(filepath: str, dim: int):
     x_cols = [f'x{i}' for i in range(1, dim + 1)]
     dataset.inputs = df[x_cols].values.tolist()
     dataset.outputs = df['y'].values.tolist()
+    dataset.min_output = min(dataset.outputs)
+    dataset.max_output = max(dataset.outputs)
     return dataset
+
+
+if __name__ == "__main__":
+    dt = load_dataset("../input/TP3-ej2-conjunto.csv", 3)
+    print(dt[0:2])
 

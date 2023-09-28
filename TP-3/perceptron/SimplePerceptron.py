@@ -34,7 +34,7 @@ class SimplePerceptron:
             excitement = self.excitement(current_input)
             activation = self.activation(excitement)
 
-            self.weights += self.compute_delta_weights(expected_output, activation, current_input)
+            self.weights += self.compute_delta_weights(expected_output, activation, current_input, excitement)
 
             if activation != expected_output:
                 self.change = True
@@ -46,9 +46,9 @@ class SimplePerceptron:
 
             current_epoch += 1
             self.save_data(current_epoch, error)
-        return current_epoch, best_w
+        return current_epoch, best_w, min_error
 
-    def compute_delta_weights(self, expected_output, activation, current_input):
+    def compute_delta_weights(self, expected_output, activation, current_input, excitement):
         return self.learning_rate * (expected_output - activation) * current_input
 
     @staticmethod

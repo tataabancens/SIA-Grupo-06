@@ -1,14 +1,26 @@
+import math
+
 import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 
 
+def scale(numbers: list[float]):
+    min_val = min(numbers)
+    max_val = max(numbers)
+
+    scaled_list = [(x - min_val) / (max_val - min_val) for x in numbers]
+    return scaled_list
+
+
 def main():
-    input_df = pd.read_csv("../input/Ej2_dim1.csv")
+    input_df = pd.read_csv("../input/Ej2_dim1_2.csv")
     input_x_points = input_df['x1'].values.tolist()
     input_y_points = input_df['y'].values.tolist()
 
-    out_df = pd.read_csv("../out/results.csv")
+    input_y_points = scale(input_y_points)
+
+    out_df = pd.read_csv("../out/results_tanh_easy.csv")
 
     min_x, max_x = min(input_x_points) - 1, max(input_x_points) + 1
     min_y, max_y = min(input_y_points) - 1, max(input_y_points) + 1
@@ -16,11 +28,11 @@ def main():
     frames = []
     for index, row in out_df.iterrows():
         w = list(row)
-        x = np.linspace(min_x, max_x, 2)
-        y = w[0] + x * w[1]
+        x = np.linspace(min_x, max_x, 100)
+        y = [math.tanh(0.8 * (w[0] + xi * w[1])) for xi in x]
 
         frames.append(
-            go.Frame(data=[go.Scatter(x=[x[0], x[-1]], y=[y[0], y[-1]])])
+            go.Frame(data=[go.Scatter(x=x, y=y, mode="lines")])
         )
 
     fig = go.Figure(
@@ -28,7 +40,7 @@ def main():
         layout=go.Layout(
             xaxis=dict(range=[min_x, max_x], autorange=False),
             yaxis=dict(range=[min_y, max_y], autorange=False),
-            title="Lineal Perceptron",
+            title="Non lineal Perceptron Tanh B = 0.8",
             updatemenus=[dict(
                 type="buttons",
                 buttons=[dict(label="Play",
