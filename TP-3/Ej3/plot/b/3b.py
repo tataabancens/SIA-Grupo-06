@@ -119,6 +119,7 @@ def confusion_matrix(p: MultiLayerPerceptron, test_x: list, test_y: list, result
 
 def ejC():
     seed_value = 42
+    np.random.seed(seed_value)
     noise_intensity = 0.3
     train_x = parse_numbers()
     train_y = []
@@ -127,15 +128,19 @@ def ejC():
         arr[i] = [1]
         train_y.append(arr)
 
-    num_map  = numbers_map()
+    num_map = numbers_map()
     test_x = [noisify(num_map[i], noise_intensity) for i in range(len(train_x))]
-    test_y = train_y
+    test_x += [noisify(num_map[i], noise_intensity) for i in range(len(train_x))]
+    test_x += [noisify(num_map[i], noise_intensity) for i in range(len(train_x))]
+    for idx,num in enumerate(test_x):
+        print_number(idx, num)
+    test_y = train_y + train_y + train_y
     result_deriver = lambda y: np.argmax(np.ravel(y))
     # train_x,train_y,test_x,test_y = partition(train_x,train_y, train_proportion)
     for learning_rate in [0.01,0.001,0.0001]:
         np.random.seed(seed_value)
-        p = MultiLayerPerceptron([10], 35, 10, Tanh, GradientDescent())
-        stats = p.train(MeanSquared, train_x, train_y, Batch(), 100000, learning_rate,False, test_x, test_y, True)
+        p = MultiLayerPerceptron([16, 16], 35, 10, Tanh, GradientDescent())
+        stats = p.train(MeanSquared, train_x, train_y, Batch(), 300000, learning_rate,False, test_x, test_y, True)
         confusion_matrix(p, test_x,test_y,result_deriver,[0,1,2,3,4,5,6,7,8,9], stats)
 
     values = set()

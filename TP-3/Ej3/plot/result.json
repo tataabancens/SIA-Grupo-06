@@ -1,1 +1,0 @@
-{"iterations": 10, "optimization": "desc. gradient","values": [{"intensity": 0.1, "std": 0.06403124237432847, "accuracy": 0.9700000000000001}, {"intensity": 0.3, "std": 0.1264911064067352, "accuracy": 0.8}, {"intensity": 0.5, "std": 0.11357816691600546, "accuracy": 0.48999999999999994}, {"intensity": 0.7, "std": 0.13564659966250536, "accuracy": 0.33999999999999997}]}

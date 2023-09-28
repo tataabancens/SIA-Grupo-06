@@ -3,7 +3,8 @@ import json
 import numpy as np
 from Ej3.parse_numbers import parse_numbers, numbers_map
 from perceptron.MultiLayerPerceptron import MultiLayerPerceptron
-from perceptron.activation_functions import Sigmoid
+from perceptron.activation_functions import Sigmoid, Tanh
+from perceptron.optimizer import GradientDescent, Adam
 from perceptron.errors import MeanSquared
 from perceptron.trainer import Batch
 from Ej3.noise import print_number, noisify
@@ -11,19 +12,31 @@ from matplotlib import pyplot as plt
 
 
 def run_simulations(intensities, iterations, opt_method):
+
+    seed_value = 42
     json_result = {
         "iterations": iterations,
         "values": [],
         "optimization": opt_method
     }
     x_train = parse_numbers()
+
+
     y_train = []
     for i in range(10):
         arr = [0 for j in range(10)]
         arr[i] = 1
         y_train.append(arr)
     num_map = numbers_map()
+
+
     for intensity in intensities:
+        np.random.seed(seed_value)
+
+        test_x = [noisify(num_map[i], intensity) for i in range(len(x_train))]
+        test_x += [noisify(num_map[i], intensity) for i in range(len(x_train))]
+        test_x += [noisify(num_map[i], intensity) for i in range(len(x_train))]
+        test_y = y_train + y_train + y_train
         print(f"intensity {intensity}")
         """
         {"iters": 10,
@@ -32,27 +45,25 @@ def run_simulations(intensities, iterations, opt_method):
         intensity_obj = {"intensity": intensity}
         accuracies = []
         for iter in range(iterations):
-            p = MultiLayerPerceptron([16,16], 7*5, 10, Sigmoid)
-            p.train(MeanSquared, x_train, y_train, Batch(), 30000, 0.01, False)
-
-            noisified_x = [noisify(num_map[i],intensity) for i in range(len(x_train))]
+            p = MultiLayerPerceptron([10], 7*5, 10, Tanh, GradientDescent())
+            p.train(MeanSquared, x_train, y_train, Batch(), 120000, 0.01, False, [], [], False)
 
             correct = 0
-            for idx,val in enumerate(noisified_x):
+            for idx,val in enumerate(test_x):
                 guess = np.argmax(p.predict(val))
-                #print(guess)
-                #print_number(val)
-                if y_train[idx][guess] == 1:
+                # print(guess)
+                # print(test_y[idx])
+                if test_y[idx][guess] == 1:
                     correct += 1
 
-            accuracy = float(correct)/len(x_train)
+            accuracy = float(correct)/len(test_x)
             accuracies.append(accuracy)
 
         intensity_obj["std"] = np.std(accuracies)
         intensity_obj["accuracy"] = np.mean(accuracies)
         json_result["values"].append(intensity_obj)
 
-    with open('../result.json', 'w') as json_file:
+    with open('result.json', 'w') as json_file:
         json.dump(json_result, json_file)
 
 
@@ -91,7 +102,7 @@ def run_simulations_print_numbers(intensities, iterations):
     num_map = numbers_map()
     for intensity in intensities:
         for iter in range(iterations):
-            p = MultiLayerPerceptron([16, 16], 7 * 5, 10, Sigmoid)
+            p = MultiLayerPerceptron([10], 7 * 5, 10, Tanh)
             p.train(MeanSquared, x_train, y_train, Batch(), 30000, 0.01, False)
 
             noisified_x = [noisify(num_map[i], intensity) for i in range(len(x_train))]
@@ -110,12 +121,12 @@ def run_simulations_print_numbers(intensities, iterations):
 
 def main():
     intensities =  [0.1, 0.3, 0.5, 0.7]
-    iterations = 10
-   # run_simulations(intensities, iterations, 'desc. gradient')
-    #plot_accuracy_noise("result.json")
+    iterations = 4
+    run_simulations(intensities, iterations, 'desc. gradient')
+    plot_accuracy_noise("result.json")
 
     ##para imprimir los digitos con el guess:
-    run_simulations_print_numbers([0.3],1 )
+    # run_simulations_print_numbers([0.3],1 )
 
 if __name__ == '__main__':
     main()
