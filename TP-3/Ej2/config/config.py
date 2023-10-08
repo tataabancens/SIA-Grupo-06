@@ -92,6 +92,7 @@ def divide_data_set(dataset: Dataset):
 def load_dataset(filepath: str, dim: int):
     dataset = Dataset()
     df = pd.read_csv(f"{filepath}")
+    
 
     x_cols = [f'x{i}' for i in range(1, dim + 1)]
     dataset.inputs = df[x_cols].values.tolist()
