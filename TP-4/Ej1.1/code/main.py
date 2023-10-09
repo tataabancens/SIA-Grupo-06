@@ -1,12 +1,15 @@
-
+import json
 import math
-import numpy as np
-from typing import Optional, Callable
 from abc import ABC, abstractmethod
-from config.config import Input, load_config, ConfigData, ConfigPath
-from icecream.icecream import ic
-import pandas as pd
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+import numpy as np
 import plotly.graph_objs as go
+
+from config.config import Input, load_config, ConfigPath, KohonenConfig
+from utils.io import get_src_str
 
 
 class Similarity(ABC):
@@ -90,7 +93,7 @@ class KohonenNetwork:
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
         self.similarity = similarity
-        self.standarization = standardization
+        self.standardization = standardization
 
     @staticmethod
     def initialize_weights(k: int, input_size: int, weights: Optional[list]) -> np.ndarray:
@@ -98,19 +101,17 @@ class KohonenNetwork:
             return np.random.uniform(0, 1, k**2 * input_size).reshape((k**2, input_size))
         return np.array(weights).reshape((k**2, input_size))
 
-
     def train(self, data: np.ndarray):
         for current_epoch in range(0, self.max_epochs):
 
             self.input = data[np.random.randint(0, len(data))]
             # Estandarizamos por que sino no tiene sentido la comparacion
-            self.input = self.standarization.standardize(self.input)
+            self.input = self.standardization.standardize(self.input)
 
             winner_neuron = self.get_winner(self.input)
             self.update_weights(winner_neuron)
 
             self.radius = self.radius_update.update(self.original_radius, current_epoch)
-
 
     def update_weights(self, neuron):
         neighbourhood = self.get_neighbourhood(neuron)
@@ -143,7 +144,7 @@ class KohonenNetwork:
     @staticmethod
     def test() -> None:
         network = KohonenNetwork(5, 1, 0, 0, 100)
-        neighbourhood = network.get_neighbourhood(np.ravel_multi_index((5,5),(5,5)))
+        neighbourhood = network.get_neighbourhood(int(np.ravel_multi_index((5,5),(5,5))))
         print("Neighbourhood is:", neighbourhood)
         true_neighbourhood = [(6,5), (5,6), (4,5), (5,4)]
         assert neighbourhood == list(map(lambda c: np.ravel_multi_index(c, (5, 5)), true_neighbourhood))
@@ -155,9 +156,10 @@ def main():
     countries = [inputs.data[i][0] for i in range(len(inputs.data))]
     inputs.clean_input()
 
-    config = load_config(ConfigPath.EJ1_1, "template.json")
+    config: KohonenConfig = load_config(ConfigPath.EJ1_1, "template.json")
 
-    K = int(config.grid_size)
+
+    K = config.grid_size
     R = config.neighbours_radius
     LEARNING_RATE = config.learning_rate
     INPUT_SIZE = inputs.data.shape[1]
@@ -172,7 +174,7 @@ def main():
 
     winners = np.zeros(len(inputs.data))
 
-    groups = [[] for i in range(K**2)]
+    groups = [[] for _ in range(K**2)]
 
     for i in range(len(inputs.data)):
         winners[i] = kohonen.get_winner(inputs.data[i])  # [0, k**2)
@@ -180,11 +182,18 @@ def main():
 
     groups_dict = {f"Group {i}": g for i,g in enumerate(groups)}
 
-
-    output_file = open("./Ej1.1/output/output.txt", "w")
-
-    for w in kohonen.weights:
-        output_file.write(" ".join(map(str, w)) + "\n")
+    with open(Path(get_src_str(), "Ej1.1", "output", f"result-{datetime.now()}.json"), "w", encoding="utf-8") as file:
+        result = {
+            "config": config.to_json(),
+            "dataset": {
+                "name": "europe.csv",
+                "input_size": INPUT_SIZE,
+                "size": len(inputs.data)
+            },
+            "groups": groups_dict,
+            "weights": kohonen.weights.tolist()
+        }
+        json.dump(result, file, ensure_ascii=False, indent=4)
 
     group_names = np.array([" ".join(groups[i]) if len(groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
 
