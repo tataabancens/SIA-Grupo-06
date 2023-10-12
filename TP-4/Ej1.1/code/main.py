@@ -80,7 +80,7 @@ class KohonenNetwork:
                  max_epochs: int,
                  initial_input: Optional[list] = None,
                  radius_update: RadiusUpdate = IdentityUpdate(),
-                 standardization: Standardization = UnitLengthScaling(),
+                 # standardization: Standardization = UnitLengthScaling(),
                  similarity: Similarity = EuclideanSimilarity(),
                  ):
         self.input = np.zeros(input_size)
@@ -88,12 +88,13 @@ class KohonenNetwork:
         self.k = k
         self.radius = r
         self.original_radius = r
-        self.weights = self.initialize_weights(k, input_size, initial_input)
         self.radius_update = radius_update
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
         self.similarity = similarity
-        self.standardization = standardization
+        # self.standardization = standardization
+
+        self.weights = self.initialize_weights(k, input_size, initial_input)
 
     @staticmethod
     def initialize_weights(k: int, input_size: int, weights: Optional[list]) -> np.ndarray:
@@ -106,7 +107,7 @@ class KohonenNetwork:
 
             self.input = data[np.random.randint(0, len(data))]
             # Estandarizamos por que sino no tiene sentido la comparacion
-            self.input = self.standardization.standardize(self.input)
+            # self.input = self.standardization.standardize(self.input)
 
             winner_neuron = self.get_winner(self.input)
             self.update_weights(winner_neuron)
@@ -153,8 +154,15 @@ class KohonenNetwork:
 def main():
     inputs = Input()
     inputs.load_from_csv("europe.csv")
-    countries = [inputs.data[i][0] for i in range(len(inputs.data))]
     inputs.clean_input()
+
+    countries = [inputs.data[i][0] for i in range(len(inputs.data))]
+
+
+    standarization = UnitLengthScaling()
+
+    inputs = np.array([standarization.standardize(inputs.clear_data[i]) for i in range(len(inputs.clear_data))])
+
 
     config: KohonenConfig = load_config(ConfigPath.EJ1_1, "template.json")
 
@@ -162,25 +170,26 @@ def main():
     K = config.grid_size
     R = config.neighbours_radius
     LEARNING_RATE = config.learning_rate
-    INPUT_SIZE = inputs.data.shape[1]
+    INPUT_SIZE = inputs.shape[1]
     MAX_EPOCHS = config.epochs
 
     initial_weights = []
     for i in range(K**2):
-        initial_weights.extend(inputs.data[np.random.randint(0, len(inputs.data))])
+        initial_weights.extend(inputs[np.random.randint(0, len(inputs))])
 
-    kohonen = KohonenNetwork(K, R, INPUT_SIZE, LEARNING_RATE, MAX_EPOCHS, initial_input=initial_weights, standardization=UnitLengthScaling(), radius_update=ProgressiveReduction(),similarity=EuclideanSimilarity())
-    kohonen.train(inputs.data)
+    kohonen = KohonenNetwork(K, R, INPUT_SIZE, LEARNING_RATE, MAX_EPOCHS, initial_input=initial_weights, radius_update=ProgressiveReduction(), similarity=EuclideanSimilarity())
+    kohonen.train(inputs)
 
-    winners = np.zeros(len(inputs.data))
+    winners = np.zeros(len(inputs ))
 
     groups = [[] for _ in range(K**2)]
 
-    for i in range(len(inputs.data)):
-        winners[i] = kohonen.get_winner(inputs.data[i])  # [0, k**2)
+    for i in range(len(inputs)):
+        winners[i] = kohonen.get_winner(inputs[i])  # [0, k**2)
         groups[int(winners[i])].append(countries[i])
 
     groups_dict = {f"Group {i}": g for i,g in enumerate(groups)}
+
 
     with open(Path(get_src_str(), "Ej1.1", "output", f"result-{datetime.now()}.json"), "w", encoding="utf-8") as file:
         result = {
@@ -188,7 +197,7 @@ def main():
             "dataset": {
                 "name": "europe.csv",
                 "input_size": INPUT_SIZE,
-                "size": len(inputs.data)
+                "size": len(inputs)
             },
             "groups": groups_dict,
             "weights": kohonen.weights.tolist()

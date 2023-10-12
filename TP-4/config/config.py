@@ -74,23 +74,26 @@ def load_config(source: ConfigPath, filename: str = "config.json") -> ConfigData
 @dataclass
 class Input:
     data: np.ndarray
-
+    clear_data: np.ndarray
     def __init__(self):
         self.data = np.zeros(1)
+        self.clear_data = np.zeros(1)
 
     def load_from_csv(self, filename: str):
         dt = load_csv(filename)
         self.data = np.array(dt.values.tolist())
+        self.clear_data = np.array(dt.values.tolist())
 
     def clean_input(self):
         for i in range(len(self.data)):
             for j in range(len(self.data[i])):
                 if isinstance(self.data[i][j], str):
-                    self.data[i][j] = self.string_to_number(self, self.data[i][j])
-        self.data = self.data.astype(np.float)
+                    self.clear_data[i][j] = self.string_to_number(self, self.data[i][j])
+        self.clear_data = self.clear_data.astype(np.float_)
+
 
     @staticmethod
-    def string_to_number(self, string: str):
+    def string_to_number(self, string: np.ndarray):
         number = 0
         for i in range(len(string)):
             number += ord(string[i]) * math.pow(10, i)
