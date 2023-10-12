@@ -1,73 +1,17 @@
 import json
-import math
-from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 from config.config import Input, load_config, ConfigPath, KohonenConfig
+from radius_update import IdentityUpdate, ProgressiveReduction, RadiusUpdate
+from similarity import EuclideanSimilarity, Similarity
+from standardization import ZScore
 from utils.io import get_src_str
-
-
-class Similarity(ABC):
-    @abstractmethod
-    def calculate(self, input: np.ndarray, weights: np.ndarray) -> float:
-        pass
-
-
-class EuclideanSimilarity(Similarity):
-    def calculate(self, input: np.ndarray, weights: np.ndarray) -> float:
-        return np.linalg.norm(input - weights)
-
-
-class ExponentialSimilarity(Similarity):
-    def calculate(self, input: np.ndarray, weights: np.ndarray) -> float:
-        return np.exp(math.pow(-np.linalg.norm(input - weights),2))
-
-
-class Standardization(ABC):
-    @abstractmethod
-    def standardize(self, values: np.ndarray) -> np.ndarray:
-        pass
-
-
-class UnitLengthScaling(Standardization):
-    def standardize(self, values: np.ndarray) -> np.ndarray:
-        norm = np.linalg.norm(values)
-        return np.divide(values, norm)
-
-
-class MinMaxFeatureScaling(Standardization):
-    def __init__(self, range = (0.0, 1.0)):
-        self.range = range
-
-    def standardize(self, values: np.ndarray) -> np.ndarray:
-        min = np.ones(values.shape) * np.min(values)
-        max = np.ones(values.shape) * np.max(values)
-        return ((values - min) / (max-min)) * (self.range[1] - self.range[0]) + self.range[0]
-
-
-class RadiusUpdate(ABC):
-    @abstractmethod
-    def update(self, original_radius: float, iteration: int):
-        pass
-
-
-class IdentityUpdate(RadiusUpdate):
-
-    def update(self, original_radius: float, iteration: int):
-        return original_radius
-
-
-class ProgressiveReduction(RadiusUpdate):
-
-    def update(self, original_radius: float, iteration: int):
-        if iteration == 0:
-            return original_radius
-        return max(1 / iteration, 1)
 
 
 class KohonenNetwork:
@@ -80,7 +24,6 @@ class KohonenNetwork:
                  max_epochs: int,
                  initial_input: Optional[list] = None,
                  radius_update: RadiusUpdate = IdentityUpdate(),
-                 # standardization: Standardization = UnitLengthScaling(),
                  similarity: Similarity = EuclideanSimilarity(),
                  ):
         self.input = np.zeros(input_size)
@@ -92,7 +35,6 @@ class KohonenNetwork:
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
         self.similarity = similarity
-        # self.standardization = standardization
 
         self.weights = self.initialize_weights(k, input_size, initial_input)
 
@@ -106,8 +48,6 @@ class KohonenNetwork:
         for current_epoch in range(0, self.max_epochs):
 
             self.input = data[np.random.randint(0, len(data))]
-            # Estandarizamos por que sino no tiene sentido la comparacion
-            # self.input = self.standardization.standardize(self.input)
 
             winner_neuron = self.get_winner(self.input)
             self.update_weights(winner_neuron)
@@ -122,15 +62,12 @@ class KohonenNetwork:
     def get_neighbourhood(self, neuron_index: int) -> list:
         """given the index of a neuron, returns an array of all the neighbouring neurons inside the current radius"""
         neighbours = []
-        max_limit = self.radius * self.k
         matrix_shape = (self.k, self.k)
         neuron_coords_array = np.array(np.unravel_index(neuron_index, matrix_shape))
-        for i in range(int(neuron_index - max_limit), int(neuron_index + max_limit)):
-            if i >= self.k**2 or i < 0:
-                continue
+        for i in range(0, self.k**2):
             coord = np.unravel_index(i, matrix_shape)
             distance = np.linalg.norm(neuron_coords_array - np.array(coord))
-            if distance < self.radius:
+            if distance <= self.radius:
                 neighbours.append(i)
         return neighbours
 
@@ -142,13 +79,24 @@ class KohonenNetwork:
 
         return int(np.argmin(distances))
 
-    @staticmethod
-    def test() -> None:
-        network = KohonenNetwork(5, 1, 0, 0, 100)
-        neighbourhood = network.get_neighbourhood(int(np.ravel_multi_index((5,5),(5,5))))
-        print("Neighbourhood is:", neighbourhood)
-        true_neighbourhood = [(6,5), (5,6), (4,5), (5,4)]
-        assert neighbourhood == list(map(lambda c: np.ravel_multi_index(c, (5, 5)), true_neighbourhood))
+    def __get_direct_neighbours_coords(self, index: int):
+        matrix_shape = (self.k, self.k)
+        coord = np.unravel_index(index, matrix_shape)
+        neighbours = []
+        possible_neighbours = [(coord[0], coord[1] + 1), (coord[0], coord[1] - 1), (coord[0] + 1, coord[1]), (coord[0] - 1, coord[1])]
+        for p in possible_neighbours:
+            if 0 <= p[0] <= self.k - 1 and 0 <= p[1] <= self.k - 1:
+                neighbours.append(np.ravel_multi_index(p, matrix_shape))
+        return neighbours
+
+    def get_unified_distance_matrix(self):
+        matrix = np.zeros((self.k, self.k))
+
+        for i in range(self.k**2):
+            neighbours = self.__get_direct_neighbours_coords(i)
+            i_coord = np.unravel_index(i, (self.k, self.k))
+            matrix[i_coord] = np.mean(list(map(lambda n: np.linalg.norm(self.weights[i] - self.weights[n]), neighbours)))
+        return matrix
 
 
 def main():
@@ -158,14 +106,11 @@ def main():
 
     countries = [inputs.data[i][0] for i in range(len(inputs.data))]
 
-
-    standarization = UnitLengthScaling()
+    standarization = ZScore()
 
     inputs = np.array([standarization.standardize(inputs.clear_data[i]) for i in range(len(inputs.clear_data))])
 
-
     config: KohonenConfig = load_config(ConfigPath.EJ1_1, "template.json")
-
 
     K = config.grid_size
     R = config.neighbours_radius
@@ -177,10 +122,19 @@ def main():
     for i in range(K**2):
         initial_weights.extend(inputs[np.random.randint(0, len(inputs))])
 
-    kohonen = KohonenNetwork(K, R, INPUT_SIZE, LEARNING_RATE, MAX_EPOCHS, initial_input=initial_weights, radius_update=ProgressiveReduction(), similarity=EuclideanSimilarity())
+    kohonen = KohonenNetwork(
+        K,
+        R,
+        INPUT_SIZE,
+        LEARNING_RATE,
+        MAX_EPOCHS,
+        initial_input=initial_weights,
+        radius_update=ProgressiveReduction(),
+        similarity=EuclideanSimilarity())
+
     kohonen.train(inputs)
 
-    winners = np.zeros(len(inputs ))
+    winners = np.zeros(len(inputs))
 
     groups = [[] for _ in range(K**2)]
 
@@ -189,7 +143,6 @@ def main():
         groups[int(winners[i])].append(countries[i])
 
     groups_dict = {f"Group {i}": g for i,g in enumerate(groups)}
-
 
     with open(Path(get_src_str(), "Ej1.1", "output", f"result-{datetime.now()}.json"), "w", encoding="utf-8") as file:
         result = {
@@ -204,13 +157,26 @@ def main():
         }
         json.dump(result, file, ensure_ascii=False, indent=4)
 
-    group_names = np.array([" ".join(groups[i]) if len(groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
+    group_names = np.array([", ".join(groups[i]) if len(groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
 
-    fig = go.Figure(data=go.Heatmap(
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("Groups", "UDM"))
+    groups_heatmap = go.Heatmap(
                     z=np.array(list(map(lambda x: len(x), groups))).reshape((K, K)),
                     text=group_names,
                     texttemplate="%{text}",
-                    textfont={"size": 10}))
+                    textfont={"size": 10},
+                    colorscale='Viridis',
+                    colorbar=dict(title='Scale 1', x=0.45))
+
+    udm_heatmap = go.Heatmap(z=kohonen.get_unified_distance_matrix(),
+                             colorscale='Greys',
+                             colorbar=dict(title='Scale 2', x=1))
+
+    fig.add_trace(groups_heatmap, row=1, col=1)
+    fig.add_trace(udm_heatmap, row=1, col=2)
+    fig.update_layout(
+        title='Grouping of countries'
+    )
 
     fig.show()
 
