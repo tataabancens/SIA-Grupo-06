@@ -3,10 +3,10 @@ import math
 import numpy as np
 
 from Ej2.config.config import Dataset
-from perceptron.SimplePerceptron import SimplePerceptron
+from perceptron.OjaPerceptron import OjaPerceptron
 
 
-class LinealPerceptron(SimplePerceptron):
+class LinealPerceptron(OjaPerceptron):
     def __init__(self, weight_size, learning_rate: float, *args, **kwargs):
         super().__init__(weight_size, learning_rate, *args, **kwargs)
         self.epsilon = kwargs["epsilon"]
@@ -19,12 +19,12 @@ class LinealPerceptron(SimplePerceptron):
         return self.epsilon
 
     def compute_delta_weights(
-        self, expected_output, activation, current_input, excitement
+        self, output, activation, current_input, excitement
     ):
         act_der = self.activation_derivative(excitement)
         return (
             self.learning_rate
-            * (expected_output - activation)
+            * (output - activation)
             * act_der
             * current_input
         )
