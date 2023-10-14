@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from adjustText import adjust_text
 def get_stded_data():
     # Load the data from the CSV file
     data = pd.read_csv('europe.csv')
@@ -15,21 +16,25 @@ def get_stded_data():
     return labels, features.columns,scaled_features
 
 
-def biplot(score, coeff, labels=None):
-    plt.figure(figsize=(8, 8))
+def biplot(score, coeff, vars, labels):
+    plt.figure(figsize=(12, 8))
     xs = score[:, 0]
     ys = score[:, 1]
-    n = labels.shape[0]
-    scalex = 1.0 / (xs.max() - xs.min())
-    scaley = 1.0 / (ys.max() - ys.min())
     plt.scatter(xs, ys, cmap='viridis')
-
-    for i in range(n):
+    texts = []
+    if labels is not None:
+        for (x, y, label) in zip(xs, ys, labels):
+            text = plt.annotate(label, (x, y), fontsize=7, ha='center')
+            texts.append(text)
+    for i in range(coeff.shape[1]):
         plt.arrow(0, 0, coeff[i, 0], coeff[i, 1], color='r', alpha=0.5)
-        if labels is None:
-            plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, "Var" + str(i + 1), color='g', ha='center', va='center')
+        text = None
+        if vars is None:
+            text = plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, "Var" + str(i + 1), color='g', ha='center', va='center')
         else:
-            plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, labels[i], color='g', ha='center', va='center')
+            text = plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, vars[i], color='g', ha='center', va='center',fontsize=9)
+        texts.append(text)
+    adjust_text(texts, arrowprops=dict(arrowstyle='fancy', color='blue', lw=1))
     margin = 0.2
     plt.title("Valores de las Componentes Principales 1 y 2")
     plt.xlim(min(xs)-margin, max(xs)+margin)
@@ -39,11 +44,33 @@ def biplot(score, coeff, labels=None):
     plt.grid()
     plt.show()
 
+def pca1(pca1_values, country_labels):
+    plt.figure(figsize=(12, 8))
+    plt.subplots_adjust(bottom=0.2)
+    plt.bar(country_labels, pca1_values)
+    plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
+    plt.xlabel('Country')
+    plt.ylabel('PCA1 Value')
+    plt.title('PCA for Each Country')
+    plt.show()
+
 def main():
     labels, columns,scaled_features = get_stded_data()
     pca = PCA()
     pca.fit(scaled_features)
-    biplot(pca.transform(scaled_features)[:, :2], pca.components_[:, :], labels=columns)
+    components = pca.components_
+
+# Get the eigenvalues (variances)
+    eigenvalues = pca.explained_variance_
+
+    # Print the principal components and eigenvalues
+    for i, (component, eigenvalue) in enumerate(zip(components, eigenvalues)):
+        print(f"Principal Component {i + 1}:")
+        print([f"{l}:{v:.2f}" for (l,v) in zip(columns, component)])
+        print(f"Eigenvalue (Variance Explained): {eigenvalue:.4f}\n")
+    biplot(pca.transform(scaled_features)[:, :2], pca.components_[:, :],columns, labels)
+    biplot(pca.transform(scaled_features)[:, :2], pca.components_[:, :], columns, None)
+    pca1(pca.transform(scaled_features)[:, 0],labels)
 
 if __name__ == '__main__':
     main()
