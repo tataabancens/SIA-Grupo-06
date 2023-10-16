@@ -13,7 +13,7 @@ class OjaPerceptron:
         try:
             self.weights = np.array(kwargs["weights"])
         except KeyError:
-            self.weights = np.random.uniform(-1, 1, size=weight_size)
+            self.weights = np.random.uniform(0, 1, size=weight_size)
 
         # self.data: DataClass = data
         self.change = False
@@ -27,47 +27,54 @@ class OjaPerceptron:
     #         return
     #     self.change = False
     #     self.data.save_data(weights=self.weights)
-
+    def get_weights(self):
+        return self.weights
     def train(
         self, data: list[List[float]], epoch_limit: int
     ):
         current_epoch = 0
         best_w = np.array(self.weights)
 
-        while  current_epoch < epoch_limit:
-            current_input = self.random_np_input_from_list(
-                data
-            )
+        while current_epoch < epoch_limit:
+            for current_input in data:
+            #    current_input = self.random_np_input_from_list(
+            #     data
+            # )
 
-            excitement = self.excitement(current_input)
-            activation = self.activation(excitement)
+                excitement = self.excitement(current_input)
+                activation = self.activation(excitement)
 
-            self.weights += self.compute_delta_weights(
-                self.weights, activation, current_input, excitement
-            )
+                self.weights += self.compute_delta_weights(
+                    self.weights, activation, current_input
+                )
 
-            if current_epoch >= epoch_limit:
-                best_w = np.array(self.weights)
+                if current_epoch >= epoch_limit:
+                    best_w = np.array(self.weights)
 
             current_epoch += 1
             # self.save_data(current_epoch)
+            if current_epoch % 100000 == 0:
+                print(self.weights)
         return current_epoch, best_w
 
     def compute_delta_weights(
-        self, weights, activation, current_input, excitement
+        self, weights, activation, current_input
     ):
-        return self.learning_rate * (activation*current_input - activation*activation*weights)
+        # print([weights, activation, current_input])
+        return self.learning_rate * (activation*current_input - (activation**2)*weights)
 
     @staticmethod
     def get_tolerance():
         return 0
 
     def excitement(self, input_array: np.ndarray) -> float:
+        # print(input_array)
+        # print(self.weights)
         return float(np.dot(input_array, self.weights))
 
     @staticmethod
     def activation(excitement: float) -> int:
-        return 1 if excitement > 0 else -1
+        return excitement
 
     def calculate(self, cur_input: List[float]):
         current_input = self.add_x0_to_input(cur_input)
@@ -91,7 +98,8 @@ class OjaPerceptron:
         self, data: list[List[float]]
     ) -> tuple[np.ndarray, float]:
         random_index = np.random.randint(0, len(data))
-        current_input = self.add_x0_to_input(data[random_index])
+        # current_input = self.add_x0_to_input(data[random_index])
+        current_input = data[random_index]
 
         return current_input
 
@@ -104,9 +112,3 @@ class OjaPerceptron:
         return f"Weights: {self.weights}"
 
 
-if __name__ == "__main__":
-    perceptron = OjaPerceptron(3, 0.01,None)
-    epoch = perceptron.train(
-        [[-1, -1], [-1, 1], [1, -1], [1, 1]],  1000
-    )
-    print(perceptron.calculate([-1, -1]))

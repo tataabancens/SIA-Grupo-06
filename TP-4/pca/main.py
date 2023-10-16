@@ -3,6 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
+from perceptron import OjaPerceptron
 def get_stded_data():
     # Load the data from the CSV file
     data = pd.read_csv('europe.csv')
@@ -10,6 +11,7 @@ def get_stded_data():
     # Separate the labels (country names) from the features
     labels = data.iloc[:, 0]  # Assuming the country column is the first one
     features = data.iloc[:, 1:]
+    # print(features)
     # Standardize the features
     scaler = StandardScaler()
     scaled_features = scaler.fit_transform(features)
@@ -54,13 +56,24 @@ def pca1(pca1_values, country_labels):
     plt.title('PCA for Each Country')
     plt.show()
 
+def oja():
+    labels, columns, scaled_features = get_stded_data()
+    print(columns)
+    perceptron = OjaPerceptron.OjaPerceptron(7, 0.001, None)
+    epoch, weights = perceptron.train(
+        scaled_features,  10000000
+    )
+    print(weights)
+
 def main():
-    labels, columns,scaled_features = get_stded_data()
+    oja()
+
+def pca_plots():
+    labels, columns, scaled_features = get_stded_data()
     pca = PCA()
     pca.fit(scaled_features)
     components = pca.components_
 
-# Get the eigenvalues (variances)
     eigenvalues = pca.explained_variance_
 
     # Print the principal components and eigenvalues
