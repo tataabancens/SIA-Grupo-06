@@ -30,13 +30,19 @@ class Hopfield:
         s = pattern
         prev = pattern
         for i in range(self.num_iter):
-            print(i)
+            # Save data here
+            # self.energy_df(i, self.energy(s))
+            # self.pattern_df(i, s)
+
             s = np.sign(self.W @ s)
 
             if np.array_equal(s, prev):
                 return s
             prev = s
         return s
+
+    def energy(self, s):
+        return -0.5 * s @ self.W @ s
 
 
 if __name__ == "__main__":

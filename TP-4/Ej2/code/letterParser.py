@@ -65,5 +65,7 @@ def read_input_file(filepath: str) -> list[Letter]:
 
 
 if __name__ == "__main__":
-    letras = read_input_file("../input/simpleExample.json")
-    print(letras)
+    letras = read_input_file("../input/pattern_letters.json")
+    for let in letras:
+        print(let)
+
