@@ -10,3 +10,4 @@ colorama
 scipy
 adjustText~=0.8
 seaborn
+Jinja2

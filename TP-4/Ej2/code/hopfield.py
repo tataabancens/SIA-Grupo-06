@@ -6,19 +6,15 @@ from Ej2.code.letterParser import Letter, read_input_file
 
 class Hopfield:
 
-    def __init__(self, letters: list[Letter], num_iter):
-        self.letters = letters
+    def __init__(self, patterns: ndarray, num_iter):
+        self.patterns = patterns
         self.W = self.train_weights()
         self.num_iter = num_iter
 
     def train_weights(self) -> ndarray:
-        patterns = []
-        for letter in self.letters:
-            patterns.append(letter.data)
+        mat_k: ndarray = np.column_stack(self.patterns)
 
-        mat_k: ndarray = np.column_stack(patterns)
-
-        to_mult = 1 / len(patterns[0])
+        to_mult = 1 / len(self.patterns[0])
         mat_w: ndarray = np.dot(mat_k, mat_k.T) * to_mult
 
         diag_w = np.diag(np.diag(mat_w))
@@ -47,17 +43,16 @@ class Hopfield:
 
 if __name__ == "__main__":
     letras = read_input_file("../input/pattern_letters_2.json")
-    hopfield = Hopfield(letras, 1000)
+    hopfield = Hopfield(np.array(list(letras.values())), 1000)
 
-    letter = letras[2]
+    letter = letras["A"]
 
-    noisy_letter = letter.copy_with_noise(0.25, 1)
+    noisy_letter = Letter.apply_noise(letter, 0.25, 1)
 
     pat = np.array(noisy_letter.data)
     s_final = hopfield.run(pat)
 
-    final_letter = Letter("j", s_final)
-    print(letter)
-    print(noisy_letter)
-    print(final_letter)
+    print(Letter.print(letter))
+    print(Letter.print(noisy_letter))
+    print(Letter.print(s_final))
 

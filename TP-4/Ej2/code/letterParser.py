@@ -5,24 +5,18 @@ from numpy import ndarray
 
 
 class Letter:
-    def __init__(self, name: str, data: ndarray):
-        self.name = name
-        self.data = data
-
-    def __repr__(self):
+    @classmethod
+    def print(cls, letter: ndarray):
         matriz_str = ""
         for i in range(5):
             for j in range(5):
                 index = i * 5 + j
-                if self.data[index] == 1:
+                if letter[index] == 1:
                     matriz_str += "* "
                 else:
                     matriz_str += "  "
             matriz_str += '\n'
         return matriz_str
-
-    def copy_with_noise(self, noise: float, seed: int):
-        return Letter(self.name, self.apply_noise(self.data, noise, seed))
 
     @staticmethod
     def apply_noise(matriz: ndarray, noise_proportion: float, seed: int):
@@ -49,8 +43,8 @@ class Letter:
         return noisy_mat
 
 
-def read_input_file(filepath: str) -> list[Letter]:
-    letters = []
+def read_input_file(filepath: str) -> dict[str, ndarray]:
+    letters = {}
 
     with open(filepath, "r") as file:
         json_file = json.load(file)
@@ -59,13 +53,13 @@ def read_input_file(filepath: str) -> list[Letter]:
 
             data: list[list[int]] = letter["data"]
             flat_data = np.array(data).flatten()
-            letters.append(Letter(letter['name'], flat_data))
-
+            letters[letter['name']] = flat_data
     return letters
 
 
 if __name__ == "__main__":
     letras = read_input_file("../input/pattern_letters.json")
+
     for let in letras:
-        print(let)
+        print(Letter.print(letras[let]))
 

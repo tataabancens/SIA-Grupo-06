@@ -29,12 +29,12 @@ def biplot(score, coeff, vars, labels):
             text = plt.annotate(label, (x, y), fontsize=7, ha='center')
             texts.append(text)
     for i in range(coeff.shape[1]):
-        plt.arrow(0, 0, coeff[i, 0], coeff[i, 1], color='r', alpha=0.5)
+        plt.arrow(0, 0, coeff[0, i], coeff[1, i], color='r', alpha=0.5)
         text = None
         if vars is None:
             text = plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, "Var" + str(i + 1), color='g', ha='center', va='center')
         else:
-            text = plt.text(coeff[i, 0] * 1.15, coeff[i, 1] * 1.15, vars[i], color='g', ha='center', va='center',fontsize=9)
+            text = plt.text(coeff[0, i] * 1.15, coeff[1, i] * 1.15, vars[i], color='g', ha='center', va='center',fontsize=9)
         texts.append(text)
     adjust_text(texts, arrowprops=dict(arrowstyle='fancy', color='blue', lw=1))
     margin = 0.2
@@ -86,4 +86,4 @@ def pca_plots():
     pca1(pca.transform(scaled_features)[:, 0],labels)
 
 if __name__ == '__main__':
-    main()
+    pca_plots()
