@@ -37,6 +37,10 @@ class Hopfield:
             prev = s
         return s
 
+    def predict(self, true_pat: ndarray, noisy_pat: ndarray):
+        prediction = self.run(noisy_pat)
+        return np.array_equal(prediction, true_pat), prediction
+
     def energy(self, s):
         return -0.5 * s @ self.W @ s
 
