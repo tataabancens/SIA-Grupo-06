@@ -10,6 +10,7 @@ class Hopfield:
         self.patterns = patterns
         self.W = self.train_weights()
         self.num_iter = num_iter
+        self.end_iter = 0
         self.energies = []
         self.s_evolution = []
 
@@ -29,6 +30,8 @@ class Hopfield:
         prev = pattern
         self.s_evolution.append(s.copy())  
         for i in range(self.num_iter):
+            self.end_iter = i
+
             energy_val = self.energy(s)
             self.energies.append(energy_val)
             s = np.sign(self.W @ s)

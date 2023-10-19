@@ -30,7 +30,8 @@ class Letter:
         Returns:
             numpy.ndarray: Matriz con el ruido aplicado.
         """
-        np.random.seed(seed)
+        if seed != 0:
+            np.random.seed(seed)
         noisy_mat = np.copy(matriz)
 
         total_bits = matriz.size

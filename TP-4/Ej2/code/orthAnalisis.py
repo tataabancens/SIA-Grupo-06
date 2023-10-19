@@ -25,6 +25,8 @@ def main():
 
     df = pd.DataFrame(sorted(avg_dot_product), columns=["|<,>| medio", "grupo"])
     print(df.head(15))
+    print(df.iloc[7000])
+    print(df.iloc[12000])
 
     print(df.tail(5))
 
