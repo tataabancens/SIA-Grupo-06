@@ -1,0 +1,6 @@
+{
+  "letters": ["O", "P", "W", "Z"],
+  "noises": [0.1, 0.2, 0.3, 0.4, 0.5],
+  "n": 100,
+  "letters_path": "../input/pattern_letters.json"
+}
