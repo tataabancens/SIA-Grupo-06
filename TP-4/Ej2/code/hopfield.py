@@ -10,6 +10,7 @@ class Hopfield:
         self.patterns = patterns
         self.W = self.train_weights()
         self.num_iter = num_iter
+        self.end_iter = 0
 
     def train_weights(self) -> ndarray:
         mat_k: ndarray = np.column_stack(self.patterns)
@@ -26,15 +27,14 @@ class Hopfield:
         s = pattern
         prev = pattern
         for i in range(self.num_iter):
-            # Save data here
-            # self.energy_df(i, self.energy(s))
-            # self.pattern_df(i, s)
+            self.end_iter = i
 
             s = np.sign(self.W @ s)
 
             if np.array_equal(s, prev):
                 return s
             prev = s
+
         return s
 
     def predict(self, true_pat: ndarray, noisy_pat: ndarray):
