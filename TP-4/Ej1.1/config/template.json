@@ -1,6 +1,6 @@
 {
   "neighbours_radius": 3,
-  "epochs": 10000,
+  "epochs": 15000,
   "grid_size": 3,
-  "learning_rate": 0.001
+  "learning_rate": 0.1
 }

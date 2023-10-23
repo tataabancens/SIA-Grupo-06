@@ -18,4 +18,4 @@ class ProgressiveReduction(RadiusUpdate):
     def update(self, original_radius: float, iteration: int):
         if iteration == 0:
             return original_radius
-        return max(1 / iteration, 1)
+        return max(float(1.0 / iteration), 1)
