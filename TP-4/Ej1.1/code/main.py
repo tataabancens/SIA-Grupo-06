@@ -23,7 +23,7 @@ class KohonenNetwork:
                  learning_rate: float,
                  max_epochs: int,
                  initial_input: Optional[list] = None,
-                 radius_update: RadiusUpdate = IdentityUpdate(),
+                 radius_update: RadiusUpdate = ProgressiveReduction(),
                  similarity: Similarity = EuclideanSimilarity(),
                  ):
         self.input = np.zeros(input_size)
@@ -35,6 +35,7 @@ class KohonenNetwork:
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
         self.similarity = similarity
+
 
         self.weights = self.initialize_weights(k, input_size, initial_input)
 
@@ -164,8 +165,6 @@ def main():
         population_groups[int(winners[i])].append(float(populations[i]))
         unemployment_groups[int(winners[i])].append(float(unemployments[i]))
 
-    print(len(inputs), len(areas_groups), len(country_groups))
-
     for i in range(len(areas_groups)):
         areas_groups[i] = np.mean(areas_groups[i]) if len(areas_groups[i]) > 0 else 0
         gdp_groups[i] = np.mean(gdp_groups[i]) if len(gdp_groups[i]) > 0 else 0
@@ -193,7 +192,6 @@ def main():
 
     group_names = np.array([", ".join(country_groups[i]) if len(country_groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
     group_areas = np.array([str(areas_groups[i]) for i in range(K**2)]).reshape((K, K))
-    print(group_areas)
     group_gdps = np.array([str(gdp_groups[i]) for i in range(K**2)]).reshape((K, K))
     group_inflations = np.array([str(inflation_groups[i]) for i in range(K**2)]).reshape((K, K))
     group_life_expectancies = np.array([str(life_expectancy_groups[i]) for i in range(K**2)]).reshape((K, K))
@@ -294,23 +292,19 @@ def main():
     area_and_gdps_fig.update_layout(
         title='Areas and GDPS per group'
     )
-    area_and_gdps_fig.show()
 
     inflation_and_like_fig.update_layout(
         title='Inflation and life expectancies per group'
     )
-    inflation_and_like_fig.show()
 
     military_and_pop_fig.update_layout(
 
         title='Military expenditures and populations per group'
     )
-    military_and_pop_fig.show()
 
     unemployment_fig.update_layout(
         title='Unemployment per group'
     )
-    unemployment_fig.show()
 
 
 
@@ -321,6 +315,10 @@ def main():
     )
 
     fig.show()
+    area_and_gdps_fig.show()
+    inflation_and_like_fig.show()
+    military_and_pop_fig.show()
+    unemployment_fig.show()
 
 
 if __name__ == '__main__':
