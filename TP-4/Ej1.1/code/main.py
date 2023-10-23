@@ -215,7 +215,10 @@ def main():
                              colorbar=dict(title='Scale 2', x=1))
 
 
-    variables_fig = make_subplots(rows=2, cols=4, subplot_titles=("Areas", "GDPS", "Inflations", "Life expectancies", "Military expenditures", "Populations", "Unemployments"))
+    area_and_gdps_fig = make_subplots(rows=1, cols=2, subplot_titles=("Areas", "GDPS"))
+    inflation_and_like_fig = make_subplots(rows=1, cols=2, subplot_titles=("Inflations", "Life expectancies"))
+    military_and_pop_fig = make_subplots(rows=1, cols=2, subplot_titles=("Military expenditures", "Populations"))
+    unemployment_fig = make_subplots(rows=1, cols=2, subplot_titles=("Unemployments"))
 
     countries_per_area_heatmap = go.Heatmap(
         z=np.array([areas_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -225,7 +228,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun areas', x=0.45))
 
-    variables_fig.add_trace(countries_per_area_heatmap, row=1, col=1)
+    area_and_gdps_fig.add_trace(countries_per_area_heatmap, row=1, col=1)
 
     countries_per_gdp_heatmap = go.Heatmap(
         z=np.array([gdp_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -235,7 +238,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun GDP', x=0.45))
 
-    variables_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
+    area_and_gdps_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
 
     countries_per_inflation_heatmap = go.Heatmap(
         z=np.array([inflation_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -245,7 +248,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun inflacion', x=0.45))
 
-    variables_fig.add_trace(countries_per_inflation_heatmap, row=1, col=3)
+    inflation_and_like_fig.add_trace(countries_per_inflation_heatmap, row=1, col=1)
 
     countries_per_life_expectancy_heatmap = go.Heatmap(
         z=np.array([life_expectancy_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -255,7 +258,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun expectativa de vida', x=0.45))
 
-    variables_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=4)
+    inflation_and_like_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=2)
 
     countries_per_military_expenditure_heatmap = go.Heatmap(
         z=np.array([military_expenditure_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -265,7 +268,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun gasto militar', x=0.45))
 
-    variables_fig.add_trace(countries_per_military_expenditure_heatmap, row=2, col=1)
+    military_and_pop_fig.add_trace(countries_per_military_expenditure_heatmap, row=1, col=1)
 
     countries_per_population_heatmap = go.Heatmap(
         z=np.array([population_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -275,7 +278,7 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun poblacion', x=0.45))
 
-    variables_fig.add_trace(countries_per_population_heatmap, row=2, col=2)
+    military_and_pop_fig.add_trace(countries_per_population_heatmap, row=1, col=2)
 
     countries_per_unemployment_heatmap = go.Heatmap(
         z=np.array([unemployment_groups[i] for i in range(K**2)]).reshape((K, K)),
@@ -285,13 +288,31 @@ def main():
         textfont={"size": 10},
         colorbar=dict(title='Segun desempleo', x=0.45))
 
-    variables_fig.add_trace(countries_per_unemployment_heatmap, row=2, col=3)
+    unemployment_fig.add_trace(countries_per_unemployment_heatmap, row=1, col=1)
 
-    variables_fig.update_layout(
-        title='Variables per group'
+
+    area_and_gdps_fig.update_layout(
+        title='Areas and GDPS per group'
     )
+    area_and_gdps_fig.show()
 
-    variables_fig.show()
+    inflation_and_like_fig.update_layout(
+        title='Inflation and life expectancies per group'
+    )
+    inflation_and_like_fig.show()
+
+    military_and_pop_fig.update_layout(
+
+        title='Military expenditures and populations per group'
+    )
+    military_and_pop_fig.show()
+
+    unemployment_fig.update_layout(
+        title='Unemployment per group'
+    )
+    unemployment_fig.show()
+
+
 
     fig.add_trace(groups_heatmap, row=1, col=1)
     fig.add_trace(udm_heatmap, row=1, col=2)
