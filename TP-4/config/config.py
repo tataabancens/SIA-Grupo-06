@@ -86,9 +86,8 @@ class Input:
 
     def clean_input(self):
         for i in range(len(self.data)):
-            for j in range(len(self.data[i])):
-                if isinstance(self.data[i][j], str):
-                    self.clear_data[i][j] = self.string_to_number(self, self.data[i][j])
+            if isinstance(self.data[i][0], str):
+                self.clear_data[i][0] = self.string_to_number(self, self.data[i][0])
         self.clear_data = self.clear_data.astype(np.float_)
 
 
@@ -96,7 +95,7 @@ class Input:
     def string_to_number(self, string: np.ndarray):
         number = 0
         for i in range(len(string)):
-            number += ord(string[i]) * math.pow(10, i)
+            number += ord(string[i])
         return int(number)
 
     def __str__(self):
