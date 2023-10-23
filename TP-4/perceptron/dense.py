@@ -17,31 +17,23 @@ class Dense(Layer):
         self.optimizer = optimizer
         self.count = 0
         self.weights_accum = 0
-        self.bias_accum = 0
 
     def forward(self, input: List[float]):
         self.input = input
-        output = np.dot(self.weights, input) + self.bias
+        output = np.dot(self.weights, input)
         return output
 
     def update(self):
         self.weights -= self.weights_accum / self.count
-        self.bias -= self.bias_accum / self.count
         self.count = 0
         self.weights_accum = 0
-        self.bias_accum = 0
 
-    def backward(self, output_gradient: List[float], learning_rate: float):
-        weights_gradient = np.dot(output_gradient, self.input.T)
-        input_gradient = np.dot(self.weights.T, output_gradient)
-        #
-        # if update:
-        #     self.weights -= self.optimizer.adjust(learning_rate, weights_gradient)
-        #     self.bias -= self.optimizer.adjust(learning_rate, output_gradient)
-        # else:
+    def backward(self, output: List[float], learning_rate: float):
+        weights_gradient = np.dot(output, self.input.T)
+        input_gradient = np.dot(self.weights.T, output)
+
         self.weights_accum += self.optimizer.adjust(learning_rate, weights_gradient)
-        self.bias_accum += self.optimizer.adjust(learning_rate, output_gradient)
+        self.weights_accum += learning_rate*(output*)
         self.count += 1
-        # self.weights -= learning_rate * weights_gradient
-        # self.bias -= learning_rate * output_gradient
+
         return input_gradient

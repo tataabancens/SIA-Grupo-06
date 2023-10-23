@@ -1,24 +1,23 @@
 import numpy as np
 from numpy import ndarray
 
-from Ej2.code.letterParser import Letter, read_input_file
+from letterParser import Letter, read_input_file
 
 
 class Hopfield:
 
-    def __init__(self, letters: list[Letter], num_iter):
-        self.letters = letters
+    def __init__(self, patterns: ndarray, num_iter):
+        self.patterns = patterns
         self.W = self.train_weights()
         self.num_iter = num_iter
+        self.end_iter = 0
+        self.energies = []
+        self.s_evolution = []
 
     def train_weights(self) -> ndarray:
-        patterns = []
-        for letter in self.letters:
-            patterns.append(letter.data)
+        mat_k: ndarray = np.column_stack(self.patterns)
 
-        mat_k: ndarray = np.column_stack(patterns)
-
-        to_mult = 1 / len(patterns[0])
+        to_mult = 1 / len(self.patterns[0])
         mat_w: ndarray = np.dot(mat_k, mat_k.T) * to_mult
 
         diag_w = np.diag(np.diag(mat_w))
@@ -29,29 +28,39 @@ class Hopfield:
     def run(self, pattern: ndarray):
         s = pattern
         prev = pattern
+        self.s_evolution.append(s.copy())  
         for i in range(self.num_iter):
-            print(i)
+            self.end_iter = i
+
+            energy_val = self.energy(s)
+            self.energies.append(energy_val)
             s = np.sign(self.W @ s)
+            self.s_evolution.append(s.copy())  
 
             if np.array_equal(s, prev):
-                return s
+                return s, self.energies, self.s_evolution
             prev = s
-        return s
+        return s, self.energies, self.s_evolution
+
+    def predict(self, true_pat: ndarray, noisy_pat: ndarray):
+        prediction = self.run(noisy_pat)
+        return np.array_equal(prediction, true_pat), prediction
+
+    def energy(self, s):
+        return -0.5 * s @ self.W @ s 
 
 
 if __name__ == "__main__":
-    letras = read_input_file("../input/pattern_letters_2.json")
-    hopfield = Hopfield(letras, 1000)
+    letras = read_input_file("../input/pattern_letters.json")
+    hopfield = Hopfield(np.array(list(letras.values())), 1000)
 
-    letter = letras[2]
+    letter = letras["O"]
 
-    noisy_letter = letter.copy_with_noise(0.25, 1)
+    noisy_letter = Letter.apply_noise(letter, 0.25, 1)
 
     pat = np.array(noisy_letter.data)
     s_final = hopfield.run(pat)
 
-    final_letter = Letter("j", s_final)
-    print(letter)
-    print(noisy_letter)
-    print(final_letter)
-
+    print(Letter.print(letter))
+    print(Letter.print(noisy_letter))
+    print(Letter.print(s_final))
