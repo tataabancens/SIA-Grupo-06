@@ -57,20 +57,21 @@ def extract_and_save_accuracy():
     df.to_csv(f"../output/noises_{list(letras.keys())}.csv", index=False)
 
 
-def plot_bar():
-    data_frame = pd.read_csv("../output/noises_['K', 'N', 'O', 'U'].csv")
+def plot_bar(filename: str):
+    data_frame = pd.read_csv(filename)
 
     avg_accuracy = data_frame.groupby('noise')['accuracy'].mean().tolist()
     unique_noises = data_frame['noise'].unique().tolist()
+    letters = data_frame['letter'].unique().tolist()
 
-    fig = px.bar(data_frame, x=unique_noises, y=avg_accuracy, title="Model accuracy for 1000 tries")
+    fig = px.bar(data_frame, x=unique_noises, y=avg_accuracy, title=f"Model accuracy for 1000 tries {letters}")
     fig.update_yaxes(title_text="Accuracy")
     fig.update_xaxes(title_text="Noise proportion")
     fig.show()
 
 
-def plot_bar_group():
-    data_frame = pd.read_csv("../output/noises_['K', 'N', 'O', 'U'].csv")
+def plot_bar_group(filename: str):
+    data_frame = pd.read_csv(filename)
     unique_noises = data_frame['noise'].unique().tolist()
     letters = data_frame['letter'].unique().tolist()
 
@@ -84,7 +85,12 @@ def plot_bar_group():
 
     fig = go.Figure(data=bars)
     # Change the bar mode
+
+    fig.update_layout(title_text=f"Model accuracy for 1000 tries {letters}")
+    fig.update_yaxes(title_text="Accuracy")
+    fig.update_xaxes(title_text="Noise proportion")
     fig.update_layout(barmode='group')
+
     fig.show()
 
 
@@ -108,18 +114,19 @@ def plot_bar_group_noises(filename_list: list[str]):
     fig = go.Figure(data=bars)
     # Change the bar mode
     fig.update_layout(barmode='group')
+    fig.update_layout(title_text=f"Model accuracy for 1000 tries")
+    fig.update_yaxes(title_text="Accuracy")
+    fig.update_xaxes(title_text="Noise proportion")
     fig.show()
 
 
 if __name__ == "__main__":
     # extract_and_save_accuracy()
-    # plot_bar()
-    # plot_bar_group()
+    # plot_bar("../output/noises_['B', 'C', 'D', 'O'].csv")
+    # plot_bar_group("../output/noises_['B', 'C', 'D', 'O'].csv")
 
     fil_list = [
-        "../output/noises_['O', 'P', 'W', 'Z'].csv",
-        "../output/noises_['A', 'O', 'V', 'W'].csv",
-        "../output/noises_['K', 'N', 'O', 'U'].csv",
-        "../output/noises_['B', 'C', 'D', 'O'].csv"
+        "../output/noises_['F', 'I', 'L', 'X'].csv",
+        "../output/noises_['F', 'O', 'V', 'Z'].csv",\
     ]
     plot_bar_group_noises(fil_list)
