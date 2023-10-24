@@ -101,7 +101,9 @@ class KohonenNetwork:
             neighbours = self.__get_direct_neighbours_coords(i)
             i_coord = np.unravel_index(i, (self.k, self.k))
             matrix[i_coord] = np.mean(list(map(lambda n: np.linalg.norm(self.weights[i] - self.weights[n]), neighbours)))
-        return matrix
+        matrix = [matrix[i:i + self.k] for i in range(0, len(matrix), self.k)][::-1]
+        
+        return [item for row in matrix for item in row]
 
 
 def main():
@@ -202,16 +204,17 @@ def main():
     matrix = np.zeros((K, K), dtype=int)
 
     # Process the data and fill the matrix
+
     for group, countries in groups_dict.items():
         if countries:
             row, col = divmod(int(group.split()[1]), K)
-            matrix[row, col] = len(countries)
+            matrix[K-1-row, col] = len(countries)
 
     # Add group names to each cell
     plt.figure(figsize=(10, 8))
     for i in range(K):
         for j in range(K):
-            plt.text(j + 0.5, i + 0.5, '\n'.join(groups_dict.get(f"Group {i * K + j}", "")), ha='center', va='center',
+            plt.text(j + 0.5, K-1-i + 0.5, '\n'.join(groups_dict.get(f"Group {i * K + j}", "")), ha='center', va='center',
                      fontsize=10)
 
     plt.title(f"Groups Heatmap {K}x{K} with η(0)={str(LEARNING_RATE)}, R={str(R)} and {MAX_EPOCHS} epochs")
@@ -260,7 +263,6 @@ def main():
     udm_heatmap = go.Heatmap(z=kohonen.get_unified_distance_matrix(),
                              colorscale='Greys',
                              colorbar=dict(x=1))
-
 
     area_and_gdps_fig = make_subplots(rows=1, cols=2, subplot_titles=("Areas", "GDPS"))
     inflation_and_like_fig = make_subplots(rows=1, cols=2, subplot_titles=("Inflations", "Life expectancies"))
