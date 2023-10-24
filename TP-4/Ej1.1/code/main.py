@@ -263,7 +263,7 @@ def main():
         z=np.array([areas_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_areas,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun areas', x=0.45)
     )
@@ -274,7 +274,7 @@ def main():
         z=np.array([gdp_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_gdps,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun GDP', x=1))
 
@@ -284,7 +284,7 @@ def main():
         z=np.array([inflation_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_inflations,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun inflacion', x=0.45))
 
@@ -294,7 +294,7 @@ def main():
         z=np.array([life_expectancy_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_life_expectancies,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun expectativa de vida', x=1))
 
@@ -304,9 +304,9 @@ def main():
         z=np.array([military_expenditure_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_military_expenditures,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
-        colorbar=dict(title='Segun gasto militar', x=0.45))
+        colorbar=dict(title='Segun gasto militar',x=0.45))
 
     military_and_pop_fig.add_trace(countries_per_military_expenditure_heatmap, row=1, col=1)
 
@@ -314,7 +314,7 @@ def main():
         z=np.array([population_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_populations,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun poblacion', x=1))
 
@@ -324,7 +324,7 @@ def main():
         z=np.array([unemployment_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_unemployments,
         colorscale='Viridis',
-        texttemplate="%{text}:.2f",
+        texttemplate="%{text:.2f}",
         textfont={"size": 20},
         colorbar=dict(title='Segun desempleo', x=0.45))
 
