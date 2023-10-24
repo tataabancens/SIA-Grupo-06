@@ -212,10 +212,11 @@ def main():
     for i in range(K):
         for j in range(K):
             plt.text(j + 0.5, i + 0.5, '\n'.join(groups_dict.get(f"Group {i * K + j}", "")), ha='center', va='center',
-                     fontsize=7)
+                     fontsize=10)
 
     plt.title(f"Groups Heatmap {K}x{K} with η(0)={str(LEARNING_RATE)}, R={str(R)} and {MAX_EPOCHS} epochs")
     sns.heatmap(matrix, cmap='viridis', annot=False)
+    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
     plt.show()
 
     ####
@@ -223,6 +224,7 @@ def main():
 
     plt.title(f"Unified Distance Matrix Heatmap")
     sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='gray', annot=True)
+    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
     plt.show()
 
     ####
