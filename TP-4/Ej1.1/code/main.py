@@ -222,7 +222,7 @@ def main():
     ### NEIGHBOURS ###
 
     plt.title(f"Unified Distance Matrix Heatmap")
-    sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='inferno', annot=True)
+    sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='gray', annot=True)
     plt.show()
 
     ####
@@ -264,8 +264,8 @@ def main():
         text=group_areas,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=0.45)
+        textfont={"size": 20},
+        colorbar=dict(title='Segun areas', x=0.45)
     )
 
     area_and_gdps_fig.add_trace(countries_per_area_heatmap, row=1, col=1)
@@ -275,8 +275,8 @@ def main():
         text=group_gdps,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=1))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun GDP', x=1))
 
     area_and_gdps_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
 
@@ -285,8 +285,8 @@ def main():
         text=group_inflations,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=0.45))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun inflacion', x=0.45))
 
     inflation_and_like_fig.add_trace(countries_per_inflation_heatmap, row=1, col=1)
 
@@ -295,8 +295,8 @@ def main():
         text=group_life_expectancies,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict( x=1))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun expectativa de vida', x=1))
 
     inflation_and_like_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=2)
 
@@ -305,8 +305,8 @@ def main():
         text=group_military_expenditures,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=0.45))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun gasto militar', x=0.45))
 
     military_and_pop_fig.add_trace(countries_per_military_expenditure_heatmap, row=1, col=1)
 
@@ -315,8 +315,8 @@ def main():
         text=group_populations,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=1))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun poblacion', x=1))
 
     military_and_pop_fig.add_trace(countries_per_population_heatmap, row=1, col=2)
 
@@ -325,8 +325,8 @@ def main():
         text=group_unemployments,
         colorscale='Viridis',
         texttemplate="%{text}:.2f",
-        textfont={"size": 10},
-        colorbar=dict(x=0.45))
+        textfont={"size": 20},
+        colorbar=dict(title='Segun desempleo', x=0.45))
 
     unemployment_fig.add_trace(countries_per_unemployment_heatmap, row=1, col=1)
 
