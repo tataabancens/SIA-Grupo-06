@@ -1,10 +1,14 @@
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+import seaborn as sns
 
 import numpy as np
 import plotly.graph_objs as go
+from matplotlib import pyplot as plt
+
 from plotly.subplots import make_subplots
 
 from config.config import Input, load_config, ConfigPath, KohonenConfig
@@ -23,7 +27,7 @@ class KohonenNetwork:
                  learning_rate: float,
                  max_epochs: int,
                  initial_input: Optional[list] = None,
-                 radius_update: RadiusUpdate = IdentityUpdate(),
+                 radius_update: RadiusUpdate = ProgressiveReduction(),
                  similarity: Similarity = EuclideanSimilarity(),
                  ):
         self.input = np.zeros(input_size)
@@ -35,6 +39,7 @@ class KohonenNetwork:
         self.max_epochs = max_epochs
         self.learning_rate = learning_rate
         self.similarity = similarity
+
 
         self.weights = self.initialize_weights(k, input_size, initial_input)
 
@@ -164,8 +169,6 @@ def main():
         population_groups[int(winners[i])].append(float(populations[i]))
         unemployment_groups[int(winners[i])].append(float(unemployments[i]))
 
-    print(len(inputs), len(areas_groups), len(country_groups))
-
     for i in range(len(areas_groups)):
         areas_groups[i] = np.mean(areas_groups[i]) if len(areas_groups[i]) > 0 else 0
         gdp_groups[i] = np.mean(gdp_groups[i]) if len(gdp_groups[i]) > 0 else 0
@@ -177,6 +180,10 @@ def main():
 
 
     groups_dict = {f"Group {i}": g for i,g in enumerate(country_groups)}
+
+
+    output_directory = Path(get_src_str(), "Ej1.1", "output")
+    os.makedirs(output_directory, exist_ok=True)
 
     with open(Path(get_src_str(), "Ej1.1", "output", f"result-{datetime.now()}.json"), "w", encoding="utf-8") as file:
         result = {
@@ -191,9 +198,43 @@ def main():
         }
         json.dump(result, file, ensure_ascii=False, indent=4)
 
+    ### --- HEATMAP CON NOMBRES -----
+    matrix = np.zeros((K, K), dtype=int)
+
+    # Process the data and fill the matrix
+    for group, countries in groups_dict.items():
+        if countries:
+            row, col = divmod(int(group.split()[1]), K)
+            matrix[row, col] = len(countries)
+
+    # Add group names to each cell
+    plt.figure(figsize=(10, 8))
+    for i in range(K):
+        for j in range(K):
+            plt.text(j + 0.5, i + 0.5, '\n'.join(groups_dict.get(f"Group {i * K + j}", "")), ha='center', va='center',
+                     fontsize=10)
+
+    plt.title(f"Groups Heatmap {K}x{K} with η(0)={str(LEARNING_RATE)}, R={str(R)} and {MAX_EPOCHS} epochs")
+    sns.heatmap(matrix, cmap='viridis', annot=False)
+    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
+    plt.show()
+
+    ####
+    ### NEIGHBOURS ###
+
+    plt.title(f"Unified Distance Matrix Heatmap")
+    sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='gray', annot=True)
+    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
+    plt.show()
+
+    ####
+
+
+
+
+
     group_names = np.array([", ".join(country_groups[i]) if len(country_groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
     group_areas = np.array([str(areas_groups[i]) for i in range(K**2)]).reshape((K, K))
-    print(group_areas)
     group_gdps = np.array([str(gdp_groups[i]) for i in range(K**2)]).reshape((K, K))
     group_inflations = np.array([str(inflation_groups[i]) for i in range(K**2)]).reshape((K, K))
     group_life_expectancies = np.array([str(life_expectancy_groups[i]) for i in range(K**2)]).reshape((K, K))
@@ -215,83 +256,101 @@ def main():
                              colorbar=dict(title='Scale 2', x=1))
 
 
-    variables_fig = make_subplots(rows=2, cols=4, subplot_titles=("Areas", "GDPS", "Inflations", "Life expectancies", "Military expenditures", "Populations", "Unemployments"))
+    area_and_gdps_fig = make_subplots(rows=1, cols=2, subplot_titles=("Areas", "GDPS"))
+    inflation_and_like_fig = make_subplots(rows=1, cols=2, subplot_titles=("Inflations", "Life expectancies"))
+    military_and_pop_fig = make_subplots(rows=1, cols=2, subplot_titles=("Military expenditures", "Populations"))
+    unemployment_fig = make_subplots(rows=1, cols=2, subplot_titles=("Unemployments"))
 
     countries_per_area_heatmap = go.Heatmap(
         z=np.array([areas_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_areas,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun areas', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict(x=0.45)
+    )
 
-    variables_fig.add_trace(countries_per_area_heatmap, row=1, col=1)
+    area_and_gdps_fig.add_trace(countries_per_area_heatmap, row=1, col=1)
 
     countries_per_gdp_heatmap = go.Heatmap(
         z=np.array([gdp_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_gdps,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun GDP', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict( x=1))
 
-    variables_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
+    area_and_gdps_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
 
     countries_per_inflation_heatmap = go.Heatmap(
         z=np.array([inflation_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_inflations,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun inflacion', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict(x=0.45))
 
-    variables_fig.add_trace(countries_per_inflation_heatmap, row=1, col=3)
+    inflation_and_like_fig.add_trace(countries_per_inflation_heatmap, row=1, col=1)
 
     countries_per_life_expectancy_heatmap = go.Heatmap(
         z=np.array([life_expectancy_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_life_expectancies,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun expectativa de vida', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict( x=1))
 
-    variables_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=4)
+    inflation_and_like_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=2)
 
     countries_per_military_expenditure_heatmap = go.Heatmap(
         z=np.array([military_expenditure_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_military_expenditures,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun gasto militar', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict(x=0.45))
 
-    variables_fig.add_trace(countries_per_military_expenditure_heatmap, row=2, col=1)
+    military_and_pop_fig.add_trace(countries_per_military_expenditure_heatmap, row=1, col=1)
 
     countries_per_population_heatmap = go.Heatmap(
         z=np.array([population_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_populations,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun poblacion', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict( x=1))
 
-    variables_fig.add_trace(countries_per_population_heatmap, row=2, col=2)
+    military_and_pop_fig.add_trace(countries_per_population_heatmap, row=1, col=2)
 
     countries_per_unemployment_heatmap = go.Heatmap(
         z=np.array([unemployment_groups[i] for i in range(K**2)]).reshape((K, K)),
         text=group_unemployments,
         colorscale='Viridis',
-        texttemplate="%{text}",
-        textfont={"size": 10},
-        colorbar=dict(title='Segun desempleo', x=0.45))
+        texttemplate="%{text:.2f}",
+        textfont={"size": 20},
+        colorbar=dict( x=0.45))
 
-    variables_fig.add_trace(countries_per_unemployment_heatmap, row=2, col=3)
+    unemployment_fig.add_trace(countries_per_unemployment_heatmap, row=1, col=1)
 
-    variables_fig.update_layout(
-        title='Variables per group'
+
+    area_and_gdps_fig.update_layout(
+        title='Areas and GDPS per group'
     )
 
-    variables_fig.show()
+    inflation_and_like_fig.update_layout(
+        title='Inflation and life expectancies per group'
+    )
+
+    military_and_pop_fig.update_layout(
+
+        title='Military expenditures and populations per group'
+    )
+
+    unemployment_fig.update_layout(
+        title='Unemployment per group'
+    )
+
+
 
     fig.add_trace(groups_heatmap, row=1, col=1)
     fig.add_trace(udm_heatmap, row=1, col=2)
@@ -300,6 +359,10 @@ def main():
     )
 
     fig.show()
+    area_and_gdps_fig.show()
+    inflation_and_like_fig.show()
+    military_and_pop_fig.show()
+    unemployment_fig.show()
 
 
 if __name__ == '__main__':
