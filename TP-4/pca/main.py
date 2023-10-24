@@ -4,6 +4,23 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 from perceptron import OjaPerceptron
+import numpy as np
+
+
+def plot_boxplot(data, box_plot_title, labels):
+
+    plt.title(box_plot_title)
+    plt.boxplot(data, labels=labels, widths=0.5, boxprops=dict(color='black'), whiskerprops=dict(color='black'),
+                medianprops=dict(color='red', linewidth=2))
+    plt.xticks(fontsize=8, horizontalalignment='center')
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
+
 def get_stded_data():
     # Load the data from the CSV file
     data = pd.read_csv('europe.csv')
@@ -53,20 +70,60 @@ def pca1(pca1_values, country_labels):
     plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
     plt.xlabel('Country')
     plt.ylabel('PCA1 Value')
-    plt.title('PCA for Each Country')
+    plt.title('PCA for Each Country (Oja)')
     plt.show()
 
 def oja():
     labels, columns, scaled_features = get_stded_data()
-    print(columns)
     perceptron = OjaPerceptron.OjaPerceptron(7, 0.001, None)
     epoch, weights = perceptron.train(
-        scaled_features,  10000000
+        scaled_features,  100000
     )
-    print(weights)
 
+    print(weights)
+    results = []
+    for input in scaled_features:
+        results.append(-perceptron.excitement(input))
+    pca1(results,labels)
 def main():
-    oja()
+    # oja()
+    # 46%
+    # 17%
+
+    data = pd.read_csv('europe.csv')
+    fig, ax = plt.subplots()
+    # Extract labels (assuming the first column contains labels)
+    labels = data.iloc[:, 0]
+
+    # Extract and standardize the features
+    features = data.iloc[:, 1:]
+    scaler = StandardScaler()
+    scaled_features = scaler.fit_transform(features)
+
+    # Create subplots to display boxplots side by side
+    plt.figure(figsize=(12, 6))
+    # plt.subplots_adjust(hspace=2)  # Adjust the space between subplots
+
+    # Create a subplot for the original data
+    plt.subplot(1, 2, 1)
+    plt.boxplot(features, showfliers=False)
+    plt.title('Boxplot de datos sin estandarizar')
+    plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
+    plt.grid(axis='y')
+
+    # Create a subplot for the scaled data
+    plt.subplot(1, 2, 2)
+    plt.boxplot(scaled_features, showfliers=False)
+    plt.title('Boxplot de datos estandarizados')
+    plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
+    plt.grid(axis='y')
+    plt.tight_layout()
+    # fig.subplots_adjust(bottom=0.2)
+    plt.show()
+
+
+
+
 
 def pca_plots():
     labels, columns, scaled_features = get_stded_data()
@@ -79,7 +136,7 @@ def pca_plots():
     # Print the principal components and eigenvalues
     for i, (component, eigenvalue) in enumerate(zip(components, eigenvalues)):
         print(f"Principal Component {i + 1}:")
-        print([f"{l}:{v:.2f}" for (l,v) in zip(columns, component)])
+        print([f"{l}:{v:.3f}" for (l,v) in zip(columns, component)])
         print(f"Eigenvalue (Variance Explained): {eigenvalue:.4f}\n")
     biplot(pca.transform(scaled_features)[:, :2], pca.components_[:, :],columns, labels)
     biplot(pca.transform(scaled_features)[:, :2], pca.components_[:, :], columns, None)
