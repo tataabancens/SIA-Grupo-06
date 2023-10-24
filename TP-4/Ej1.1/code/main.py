@@ -215,16 +215,22 @@ def main():
                      fontsize=10)
 
     plt.title(f"Groups Heatmap {K}x{K} with η(0)={str(LEARNING_RATE)}, R={str(R)} and {MAX_EPOCHS} epochs")
-    sns.heatmap(matrix, cmap='viridis', annot=False)
-    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
+
+    groups = np.array(list(map(lambda x: len(x), country_groups))).reshape((K, K))
+    groups = np.flip(groups, axis=0)
+
+    sns.heatmap(groups, cmap='viridis', annot=False)
     plt.show()
 
     ####
     ### NEIGHBOURS ###
 
     plt.title(f"Unified Distance Matrix Heatmap")
-    sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='gray', annot=True)
-    plt.yticks(range(K), reversed(range(K)))  # Reversed range to go from 0 to 2
+
+    unified_distance = kohonen.get_unified_distance_matrix()
+    unified_distance = np.flip(unified_distance, axis=0)
+
+    sns.heatmap(unified_distance, cmap='gray', annot=True)
     plt.show()
 
     ####
@@ -249,11 +255,11 @@ def main():
                     texttemplate="%{text}",
                     textfont={"size": 10},
                     colorscale='Viridis',
-                    colorbar=dict(title='Scale 1', x=0.45))
+                    colorbar=dict(x=0.45))
 
     udm_heatmap = go.Heatmap(z=kohonen.get_unified_distance_matrix(),
                              colorscale='Greys',
-                             colorbar=dict(title='Scale 2', x=1))
+                             colorbar=dict(x=1))
 
 
     area_and_gdps_fig = make_subplots(rows=1, cols=2, subplot_titles=("Areas", "GDPS"))
@@ -278,7 +284,7 @@ def main():
         colorscale='Viridis',
         texttemplate="%{text:.2f}",
         textfont={"size": 20},
-        colorbar=dict( x=1))
+        colorbar=dict(x=1))
 
     area_and_gdps_fig.add_trace(countries_per_gdp_heatmap, row=1, col=2)
 
@@ -298,7 +304,7 @@ def main():
         colorscale='Viridis',
         texttemplate="%{text:.2f}",
         textfont={"size": 20},
-        colorbar=dict( x=1))
+        colorbar=dict(x=1))
 
     inflation_and_like_fig.add_trace(countries_per_life_expectancy_heatmap, row=1, col=2)
 
@@ -318,7 +324,7 @@ def main():
         colorscale='Viridis',
         texttemplate="%{text:.2f}",
         textfont={"size": 20},
-        colorbar=dict( x=1))
+        colorbar=dict(x=1))
 
     military_and_pop_fig.add_trace(countries_per_population_heatmap, row=1, col=2)
 
@@ -328,7 +334,7 @@ def main():
         colorscale='Viridis',
         texttemplate="%{text:.2f}",
         textfont={"size": 20},
-        colorbar=dict( x=0.45))
+        colorbar=dict(x=0.45))
 
     unemployment_fig.add_trace(countries_per_unemployment_heatmap, row=1, col=1)
 
