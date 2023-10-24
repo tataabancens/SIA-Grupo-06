@@ -1,10 +1,14 @@
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+import seaborn as sns
 
 import numpy as np
 import plotly.graph_objs as go
+from matplotlib import pyplot as plt
+
 from plotly.subplots import make_subplots
 
 from config.config import Input, load_config, ConfigPath, KohonenConfig
@@ -177,6 +181,10 @@ def main():
 
     groups_dict = {f"Group {i}": g for i,g in enumerate(country_groups)}
 
+
+    output_directory = Path(get_src_str(), "Ej1.1", "output")
+    os.makedirs(output_directory, exist_ok=True)
+
     with open(Path(get_src_str(), "Ej1.1", "output", f"result-{datetime.now()}.json"), "w", encoding="utf-8") as file:
         result = {
             "config": config.to_json(),
@@ -189,6 +197,39 @@ def main():
             "weights": kohonen.weights.tolist()
         }
         json.dump(result, file, ensure_ascii=False, indent=4)
+
+    ### --- HEATMAP CON NOMBRES -----
+    matrix = np.zeros((K, K), dtype=int)
+
+    # Process the data and fill the matrix
+    for group, countries in groups_dict.items():
+        if countries:
+            row, col = divmod(int(group.split()[1]), K)
+            matrix[row, col] = len(countries)
+
+    # Add group names to each cell
+    plt.figure(figsize=(10, 8))
+    for i in range(K):
+        for j in range(K):
+            plt.text(j + 0.5, i + 0.5, '\n'.join(groups_dict.get(f"Group {i * K + j}", "")), ha='center', va='center',
+                     fontsize=7)
+
+    plt.title(f"Groups Heatmap {K}x{K} with η(0)={str(LEARNING_RATE)}, R={str(R)} and {MAX_EPOCHS} epochs")
+    sns.heatmap(matrix, cmap='viridis', annot=False)
+    plt.show()
+
+    ####
+    ### NEIGHBOURS ###
+
+    plt.title(f"Unified Distance Matrix Heatmap")
+    sns.heatmap(kohonen.get_unified_distance_matrix(), cmap='inferno', annot=True)
+    plt.show()
+
+    ####
+
+
+
+
 
     group_names = np.array([", ".join(country_groups[i]) if len(country_groups[i]) > 0 else "Empty group" for i in range(K**2)]).reshape((K, K))
     group_areas = np.array([str(areas_groups[i]) for i in range(K**2)]).reshape((K, K))
