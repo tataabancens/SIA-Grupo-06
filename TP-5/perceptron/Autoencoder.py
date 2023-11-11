@@ -143,14 +143,14 @@ def main():
     for learning_rate in [0.0001]:
         np.random.seed(seed_value)
         p = Autoencoder([25, 15, 10], 35, 2, Tanh, Adam())
-        p.train(MeanSquared, train_x, train_y, Batch(), 200000, learning_rate, False)
+        p.train(MeanSquared, train_x, train_y, Batch(), 50000, learning_rate, False)
 
     print_letter([1 if val >= 0.5 else 0 for val in p.predict_reshaped(train_x[1])])
     print_letter(p.predict_reshaped(train_x[1]))
     print_letter(train_x[1])
 
-    print_letter(p.predict_reshaped(train_x[2]))
-    print_letter(train_x[2])
+    print_letter(p.predict_reshaped(train_x[3]))
+    print_letter(train_x[3])
     print(p.error(train_x[1], MeanSquared))
 
 
