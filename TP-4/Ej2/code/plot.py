@@ -25,12 +25,14 @@ def print_letters_line(letters: list[ndarray], cmap='Blues', cmaps=[]):
         create_letter_plot(letters[i].reshape(5, 5), ax=subplot, cmap=cmaps[i])
     plt.show()
 
+
 def plot_energies(energies):
         plt.plot(range(len(energies)), energies, marker='o')
-        plt.title('Energía de las interacciones')
+        plt.title('Energía de las iteraciones')
         plt.xlabel('Iteraciones')
         plt.ylabel('Energía')
         plt.show()
+
 
 def plot_s_evolution(s_evolution):
         num_plots = len(s_evolution)
@@ -39,10 +41,11 @@ def plot_s_evolution(s_evolution):
 
         for i, s in enumerate(s_evolution):
             plt.subplot(num_rows, 3, i + 1)
-            plt.imshow(np.array(s).reshape((int(np.sqrt(len(s))), -1)), cmap='Greys', interpolation='nearest')
+            plt.imshow(np.array(s).reshape((int(np.sqrt(len(s))), -1)), cmap='Blues', interpolation='nearest')
             plt.title(f"Iteration {i}")
             plt.axis('off')
         plt.show()
+
 
 def impresionLetras():
     letras = read_input_file("../input/pattern_letters.json")
@@ -55,26 +58,32 @@ def impresionLetras():
 
 def impresionrun():
     all_letras = read_input_file("../input/pattern_letters.json")
-    letters = ("O", "P", "W", "Z")
+    letters = ("A", "P", "W", "Z")
 
     letras = {letra: all_letras[letra] for letra in letters if letra in all_letras}
 
     hopfield = Hopfield(np.array(list(letras.values())), 1000)
 
-    letter = letras["Z"]
+    letter = letras["A"]
 
-    noisy_letter = Letter.apply_noise(letter, 0.25, 1)
-
+    noisy_letter = Letter.apply_noise(letter, 0.2, 326)
     pat = np.array(noisy_letter.data)
     s, energies, s_evolution = hopfield.run(pat)
 
+    for i in range(len(s_evolution)):
+        s_evolution[i] = np.where(s_evolution[i] == 0, -1, s_evolution[i])
 
-    plot_energies(energies)
-    plot_s_evolution(s_evolution)
+    # plot_energies(energies)
+    # plot_s_evolution(s_evolution)
+
+    sub_letras_list = [s_evolution[i:i + 4] for i in range(0, len(s_evolution), 4)]
+    for sub_letras in sub_letras_list:
+        print_letters_line(sub_letras)
+    # print_letters_line(s_evolution)
 
 
 if __name__ == "__main__":
-    impresionLetras()
+    # impresionLetras()
     impresionrun()
 
 

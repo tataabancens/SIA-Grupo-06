@@ -37,10 +37,12 @@ def extract_and_save_accuracy():
             correct_amount = 0
             for i in range(config.n):
                 noisy_letter = Letter.apply_noise(letter_value, noise, i)
-                found_pat, prediction = hopfield.predict(letter_value, noisy_letter)
+                found_pat, prediction, s_evolution = hopfield.predict(letter_value, noisy_letter)
                 if found_pat:
                     correct_amount += 1
 
+                if len(s_evolution) > 6:
+                    print("Here")
                 # Aca se ven estados espurios
                 if not is_in_pattern_list(prediction, list(letras.values())):
                     if not is_in_pattern_list(prediction, spurious) and not is_in_pattern_list(prediction, cycling):
@@ -121,7 +123,7 @@ def plot_bar_group_noises(filename_list: list[str]):
 
 
 if __name__ == "__main__":
-    # extract_and_save_accuracy()
+    extract_and_save_accuracy()
     # plot_bar("../output/noises_['B', 'C', 'D', 'O'].csv")
     # plot_bar_group("../output/noises_['B', 'C', 'D', 'O'].csv")
 
@@ -129,4 +131,4 @@ if __name__ == "__main__":
         "../output/noises_['F', 'I', 'L', 'X'].csv",
         "../output/noises_['F', 'O', 'V', 'Z'].csv",\
     ]
-    plot_bar_group_noises(fil_list)
+    # plot_bar_group_noises(fil_list)

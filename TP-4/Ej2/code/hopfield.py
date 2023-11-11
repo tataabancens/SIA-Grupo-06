@@ -28,6 +28,7 @@ class Hopfield:
     def run(self, pattern: ndarray):
         s = pattern
         prev = pattern
+        self.s_evolution = []
         self.s_evolution.append(s.copy())  
         for i in range(self.num_iter):
             self.end_iter = i
@@ -43,8 +44,8 @@ class Hopfield:
         return s, self.energies, self.s_evolution
 
     def predict(self, true_pat: ndarray, noisy_pat: ndarray):
-        prediction = self.run(noisy_pat)
-        return np.array_equal(prediction, true_pat), prediction
+        prediction, energies, s_evolution = self.run(noisy_pat)
+        return np.array_equal(prediction, true_pat), prediction, s_evolution
 
     def energy(self, s):
         return -0.5 * s @ self.W @ s 
