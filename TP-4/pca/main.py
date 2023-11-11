@@ -75,9 +75,9 @@ def pca1(pca1_values, country_labels):
 
 def oja():
     labels, columns, scaled_features = get_stded_data()
-    perceptron = OjaPerceptron.OjaPerceptron(7, 0.001, None)
+    perceptron = OjaPerceptron.OjaPerceptron(7, 0.5, None)
     epoch, weights = perceptron.train(
-        scaled_features,  100000
+        scaled_features,  10000
     )
 
     print(weights)
@@ -86,40 +86,40 @@ def oja():
         results.append(-perceptron.excitement(input))
     pca1(results,labels)
 def main():
-    # oja()
+    oja()
     # 46%
     # 17%
 
-    data = pd.read_csv('europe.csv')
-    fig, ax = plt.subplots()
-    # Extract labels (assuming the first column contains labels)
-    labels = data.iloc[:, 0]
-
-    # Extract and standardize the features
-    features = data.iloc[:, 1:]
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(features)
-
-    # Create subplots to display boxplots side by side
-    plt.figure(figsize=(12, 6))
-    # plt.subplots_adjust(hspace=2)  # Adjust the space between subplots
-
-    # Create a subplot for the original data
-    plt.subplot(1, 2, 1)
-    plt.boxplot(features, showfliers=False)
-    plt.title('Boxplot de datos sin estandarizar')
-    plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
-    plt.grid(axis='y')
-
-    # Create a subplot for the scaled data
-    plt.subplot(1, 2, 2)
-    plt.boxplot(scaled_features, showfliers=False)
-    plt.title('Boxplot de datos estandarizados')
-    plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
-    plt.grid(axis='y')
-    plt.tight_layout()
-    # fig.subplots_adjust(bottom=0.2)
-    plt.show()
+    # data = pd.read_csv('europe.csv')
+    # fig, ax = plt.subplots()
+    # # Extract labels (assuming the first column contains labels)
+    # labels = data.iloc[:, 0]
+    #
+    # # Extract and standardize the features
+    # features = data.iloc[:, 1:]
+    # scaler = StandardScaler()
+    # scaled_features = scaler.fit_transform(features)
+    #
+    # # Create subplots to display boxplots side by side
+    # plt.figure(figsize=(12, 6))
+    # # plt.subplots_adjust(hspace=2)  # Adjust the space between subplots
+    #
+    # # Create a subplot for the original data
+    # plt.subplot(1, 2, 1)
+    # plt.boxplot(features, showfliers=False)
+    # plt.title('Boxplot de datos sin estandarizar')
+    # plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
+    # plt.grid(axis='y')
+    #
+    # # Create a subplot for the scaled data
+    # plt.subplot(1, 2, 2)
+    # plt.boxplot(scaled_features, showfliers=False)
+    # plt.title('Boxplot de datos estandarizados')
+    # plt.xticks(range(1, len(features.columns) + 1), features.columns, rotation=90)
+    # plt.grid(axis='y')
+    # plt.tight_layout()
+    # # fig.subplots_adjust(bottom=0.2)
+    # plt.show()
 
 
 
