@@ -1,5 +1,8 @@
 
 import matplotlib.pyplot as plt
+import numpy as np
+
+
 def number_to_binary_list(number):
     # Get the binary representation of the number as a string and remove the '0b' prefix
     binary_string = bin(number)[2:]
@@ -49,7 +52,7 @@ def get_letters():
         [0x04, 0x04, 0x04, 0x00, 0x04, 0x04, 0x04],   # 0x7c, |
         [0x0c, 0x02, 0x02, 0x01, 0x02, 0x02, 0x0c],   # 0x7d, ]
         [0x08, 0x15, 0x02, 0x00, 0x00, 0x00, 0x00],   # 0x7e, ~
-        [0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f]   # 0x7f, DEL
+        # [0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f]   # 0x7f, DEL
     ]
     for idx ,letter in enumerate(letters_array):
         actual_letter = [number_to_binary_list(number) for number in letter]
@@ -67,4 +70,38 @@ def print_letter(letter_vec):
 
     # Show the plot
     plt.show()
+
+
+
+def noisify(vector, intensity=0.1):
+
+    noise_matrix = np.array(vector).astype(float).reshape(7,5)
+    # print(noise_matrix)
+
+    # Define noise spread and intensity
+    spread = 1
+
+    # Iterate through the list and add noise around the 1s
+    rows = 7
+    cols = 5
+    for i in range(rows):
+        for j in range(cols):
+            if noise_matrix[i][j] == 1:
+                for x_offset in range(-spread, spread+1):
+                    for y_offset in range(-spread, spread+1):
+                        if 0 <= i+x_offset < rows and 0 <= j+y_offset < cols:
+                            noise =  np.random.normal(1, 1)*intensity/2
+                            noise_matrix[i+x_offset][j+y_offset] += noise
+                            # val = noise_matrix[i+x_offset][j+y_offset]
+                            # if val > 1:
+                            #     noise_matrix[i+x_offset][j+y_offset] = 1
+                            # elif val < 0:
+                            #     noise_matrix[i+x_offset][j+y_offset] = 0
+
+    # Add the noise to the original list
+    # noisy_matrix = [[noise_matrix[noise_matrix[i][j] for j in range(cols)] for i in range(rows)]
+    # Sample 2D list
+    max_val = max(item for sublist in noise_matrix for item in sublist)
+    # print(noise_matrix)
+    return [item/max_val for sublist in noise_matrix for item in sublist]
 
