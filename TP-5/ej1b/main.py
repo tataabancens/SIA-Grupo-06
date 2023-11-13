@@ -22,7 +22,7 @@ def main():
     seed_value = 42
     train_x = get_letters()
 
-    for learning_rate in [0.00005]:
+    for learning_rate in [0.0001]:
         np.random.seed(seed_value)
         p = Autoencoder([25, 15, 10, 5], 35, 4, Sigmoid, Adam())
         p.train(MeanSquared, train_x, Batch(), 500000, learning_rate, noisify)

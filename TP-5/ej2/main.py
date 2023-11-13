@@ -15,8 +15,9 @@ def ej_c(autoencoder: Autoencoder):
     train_x = get_emoji_vectors()
     for value in train_x:
         print(autoencoder.latent_space(value))
+        draw_emoji(value)
         draw_emoji(autoencoder.predict_reshaped(value))
-    input = (autoencoder.latent_space(train_x[0]) + autoencoder.latent_space(train_x[1]))/2
+    input = (autoencoder.latent_space(train_x[0]*0.7) + autoencoder.latent_space(train_x[1]*0.3))/2
     output = autoencoder.generate(input)
     draw_emoji(output)
 
@@ -26,8 +27,8 @@ def main():
 
     for learning_rate in [0.0001]:
         np.random.seed(seed_value)
-        p = Autoencoder([100, 50], 20*20, latent_size, Sigmoid, Adam())
-        p.train(MeanSquared, train_x, Batch(), 300000, learning_rate)
+        p = Autoencoder([100, 50], 20*20, latent_size, Sigmoid, Adam(), True)
+        p.train(MeanSquared, train_x, Batch(), 1000000, learning_rate)
 
     ej_c(p)
 

@@ -49,14 +49,11 @@ def main():
 
     for learning_rate in [0.0001]:
         np.random.seed(seed_value)
-        p = Autoencoder([25, 15, 10, 5], 35, 2, Sigmoid, Adam(), True)
+        p = Autoencoder([25, 15, 10, 5], 35, 2, Sigmoid, Adam())
         p.train(MeanSquared, train_x, Batch(), 500000, learning_rate)
 
     ej_a2(p)
-    # ej_a3(p)
-
-
-
+    ej_a3(p)
 
 
 

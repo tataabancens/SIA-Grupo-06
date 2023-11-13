@@ -14,34 +14,46 @@ class Reparam(Layer):
     def forward(self, input):
         self.epsilon = np.random.standard_normal(size=(self.output_size, input.shape[1]))
 
-        self.std = np.exp(self.log_var_p.forward(input))
+        self.log_var = self.log_var_p.forward(input)
         self.mean = self.mean_p.forward(input)
-        self.sample = self.std*self.epsilon + self.mean
+        self.sample = np.exp(self.log_var)*self.epsilon + self.mean
 
         return self.sample
 
 
-    def backward(self, output_gradient, learning_rate: float):
-        gradLogVar = {}
-        gradMean = {}
-        tmp = self.output_size * output_gradient.shape[1]
+    # def backward(self, output_gradient, learning_rate: float):
+    #     gradLogVar = {}
+    #     gradMean = {}
+    #     tmp = self.output_size * output_gradient.shape[1]
+    #
+    #     # KL divergence gradients
+    #     gradLogVar["KL"] = (self.std - 1) / (2 * tmp)
+    #     gradMean["KL"] = self.mean / tmp
+    #
+    #     # MSE gradients
+    #     gradLogVar["MSE"] = 0.5 * output_gradient* self.epsilon * self.std
+    #     gradMean["MSE"] = output_gradient
+    #
+    #     # backpropagate gradients thorugh self.mean and self.logVar
+    #     return self.mean_p.backward(gradMean["KL"] + gradMean["MSE"], learning_rate) + self.log_var_p.backward(
+    #         gradLogVar["KL"] + gradLogVar["MSE"], learning_rate)
+    #     # return self.mean_p.backward(self.mean + output_gradient*output_gradient , learning_rate) + \
+    #     #        self.log_var_p.backward(-self.std - np.exp(self.std)*output_gradient, learning_rate)
+    def backward(self, output_gradient, learning_rate):
+        mean_gradient = self.mean_p.backward(output_gradient, learning_rate)
+        log_var_gradient = self.log_var_p.backward(output_gradient, learning_rate)
 
-        # KL divergence gradients
-        gradLogVar["KL"] = (self.std - 1) / (2 * tmp)
-        gradMean["KL"] = self.mean / tmp
+        # # Compute the gradient of the KL divergence with respect to mean and log_var
+        # kl_divergence_gradient = self.get_KL()
 
-        # MSE gradients
-        gradLogVar["MSE"] = 0.5 * output_gradient* self.epsilon * self.std
-        gradMean["MSE"] = output_gradient
+        # Update gradients with the KL divergence term
+        self.mean_p.weights_accum += self.mean_p.optimizer.adjust(learning_rate, self.mean)
+        self.log_var_p.weights_accum += self.log_var_p.optimizer.adjust(learning_rate, (np.exp(self.log_var) - 1))
 
-        # backpropagate gradients thorugh self.mean and self.logVar
-        return self.mean_p.backward(gradMean["KL"] + gradMean["MSE"], learning_rate) + self.log_var_p.backward(
-            gradLogVar["KL"] + gradLogVar["MSE"], learning_rate)
-        # return self.mean_p.backward(self.mean + output_gradient*output_gradient , learning_rate) + \
-        #        self.log_var_p.backward(-self.std - np.exp(self.std)*output_gradient, learning_rate)
+        return mean_gradient
 
     def get_KL(self):
-        return - np.sum(1 + self.std - np.square(self.mean) - np.exp(self.std))
+        return - np.sum(1 + self.log_var - np.square(self.mean) - np.exp(self.log_var))
 
 
     def update(self):
