@@ -9,7 +9,7 @@ from perceptron.errors import MeanSquared
 from perceptron.optimizer import Adam
 from perceptron.trainer import Batch
 
-latent_size = 50
+latent_size = 20
 
 def ej_c(autoencoder: Autoencoder):
     train_x = get_emoji_vectors()
@@ -25,10 +25,10 @@ def main():
     seed_value = 40
     train_x = get_emoji_vectors()
 
-    for learning_rate in [0.0001]:
+    for learning_rate in [0.00001]:
         np.random.seed(seed_value)
         p = Autoencoder([100, 50], 20*20, latent_size, Sigmoid, Adam(), True)
-        p.train(MeanSquared, train_x, Batch(), 1000000, learning_rate)
+        p.train(MeanSquared, train_x, Batch(), 2000000, learning_rate)
 
     ej_c(p)
 
