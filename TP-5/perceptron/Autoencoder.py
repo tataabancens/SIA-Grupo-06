@@ -3,6 +3,8 @@ from perceptron.dense import Dense
 from typing import Type
 from perceptron.errors import ErrorFunction, MeanSquared
 import numpy as np
+
+from perceptron.reparam import Reparam
 from perceptron.trainer import Trainer, Batch, MiniBatch, Online
 from perceptron.optimizer import Optimizer, GradientDescent, Adam
 from datetime import datetime
@@ -14,7 +16,7 @@ from parse_letters import get_letters, print_letter, noisify
 
 class Autoencoder:
     def __init__(self, layers: list[int], input_size: int, output_size: int, activation: Type[Activation],
-                 optimizer: Optimizer = GradientDescent()) -> None:
+                 optimizer: Optimizer = GradientDescent(), variational: bool=False) -> None:
         self.latent_idx = len(layers) + 1
         layers = [input_size] + layers + [output_size] + [val for val in reversed(layers)] + [input_size]
         self.input_size = input_size
@@ -22,14 +24,17 @@ class Autoencoder:
         self.optimizer = optimizer
         self.activation = activation
         self.layer_config = layers
+        self.variational = variational
         layer_list = []
         i = 0
         while i < (len(layers) - 1):
             counts = layers[i:i + 2]
-            layer_list.append(Dense(counts[0], counts[1], optimizer.get_one()))
             if i == self.latent_idx:
+                self.reparam_layer = Reparam(counts[0], counts[1], optimizer.get_one()) if variational else Dense(counts[0], counts[1], optimizer.get_one())
+                layer_list.append(self.reparam_layer)
                 layer_list.append(Linear())
             else:
+                layer_list.append(Dense(counts[0], counts[1], optimizer.get_one()))
                 layer_list.append(activation())
             i += 1
 
@@ -55,15 +60,23 @@ class Autoencoder:
 
     def error(self, value, error_func: ErrorFunction):
         pred = self.predict(value)
-        return error_func.eval(pred, value)
+        err = error_func.eval(pred, value)
+        return err
 
-    def train(self, error_func: ErrorFunction, x_train, y_train, training_method: Trainer, epochs=1000,
+
+    def generate(self, value):
+        output = np.array([value]).T if isinstance(value, list) else value
+        for layer in self.layers[self.latent_idx*2:]:
+            output = layer.forward(output)
+        return [item for sublist in output for item in sublist]
+
+    def train(self, error_func: ErrorFunction, x_train, training_method: Trainer, epochs=1000,
               learning_rate=0.01, modifier_func=lambda x: x, output_file=False):
 
         idx = 0
         prev_printed = 0
         x_train = np.reshape(x_train, (len(x_train), self.input_size, 1))
-        y_train = np.reshape(y_train, (len(y_train), self.output_size, 1))
+        y_train = x_train
 
         stats = {
             "optimizer": self.optimizer.__str__(),
@@ -81,6 +94,7 @@ class Autoencoder:
         # Step 3: Get the hexadecimal representation of the hash
         hash_value = hash_obj.hexdigest()
         first_time = True
+        prev_err = 1000000
         for e, dataset in enumerate(training_method.iterator(x_train, y_train, epochs)):
             error = 0
             # if idx % 10000 == 0:
@@ -91,6 +105,10 @@ class Autoencoder:
                 output = self.predict(modifier_func(x))
                 error += error_func.eval(y, output)
 
+                if self.variational:
+                    error += self.reparam_layer.get_KL()
+
+
                 # backward
                 grad = error_func.eval_derivative(y, output)
 
@@ -99,6 +117,11 @@ class Autoencoder:
 
             error /= len(x_train)
 
+
+
+            if error > prev_err:
+                prev_err = error
+                learning_rate /= 2
 
 
             for layer in reversed(self.layers):
@@ -112,36 +135,12 @@ class Autoencoder:
                 first_time = False
                 prev_printed = e if e - prev_printed == epochs / 100 else 0
 
-            if idx % 10000 == 0:
-                print(f"{e + 1}/{epochs}, error={error}")
+            if idx == 0 or (idx+1) % 500 == 0:
+                print(f"{e + 1}/{epochs}, error={error}, lr={learning_rate}")
             idx += 1
+
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-3]
         if output_file:
             with open(f'{os.getcwd()}/{hash_value}_{timestamp}.json', 'w') as json_file:
                 json.dump(stats, json_file)
         return stats
-
-
-def main():
-    seed_value = 42
-    train_x = get_letters()
-    train_y = get_letters()
-
-    for learning_rate in [0.0001]:
-        np.random.seed(seed_value)
-        p = Autoencoder([25, 15, 10, 5], 35, 2, Sigmoid, Adam())
-        p.train(MeanSquared, train_x, train_y, Batch(), 500000, learning_rate)
-
-    for val in train_x:
-        noisified = noisify(val)
-        print_letter(noisified)
-        print_letter(p.predict_reshaped(noisified))
-        print_letter(val)
-        # print_letter([1 if a >= 0.5 else 0 for a in p.predict_reshaped(val)])
-
-    print_letter(noisify(train_x[1], 0.2))
-
-
-
-if __name__ == "__main__":
-    main()

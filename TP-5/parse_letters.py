@@ -61,7 +61,6 @@ def get_letters():
 
 def print_letter(letter_vec):
     data = [letter_vec[i:i + 5] for i in range(0, len(letter_vec), 5)]
-    print(data)
     # Create the heatmap
     plt.imshow(data, cmap='gray_r', interpolation='nearest', aspect='auto')
 
