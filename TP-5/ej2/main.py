@@ -9,7 +9,7 @@ from perceptron.errors import MeanSquared
 from perceptron.optimizer import Adam
 from perceptron.trainer import Batch
 
-latent_size = 20
+latent_size = 50
 
 def ej_c(autoencoder: Autoencoder):
     train_x = get_emoji_vectors()
@@ -17,7 +17,7 @@ def ej_c(autoencoder: Autoencoder):
         print(autoencoder.latent_space(value))
         draw_emoji(value)
         draw_emoji(autoencoder.predict_reshaped(value))
-    input = (autoencoder.latent_space(train_x[0]*0.7) + autoencoder.latent_space(train_x[1]*0.3))/2
+    input = (autoencoder.latent_space(train_x[0])*0.7 + autoencoder.latent_space(train_x[1])*0.7)/2
     output = autoencoder.generate(input)
     draw_emoji(output)
 

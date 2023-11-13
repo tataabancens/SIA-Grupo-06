@@ -40,15 +40,11 @@ class Reparam(Layer):
     #     # return self.mean_p.backward(self.mean + output_gradient*output_gradient , learning_rate) + \
     #     #        self.log_var_p.backward(-self.std - np.exp(self.std)*output_gradient, learning_rate)
     def backward(self, output_gradient, learning_rate):
-        mean_gradient = self.mean_p.backward(output_gradient, learning_rate)
-        log_var_gradient = self.log_var_p.backward(output_gradient, learning_rate)
+        mean_gradient = self.mean_p.backward(output_gradient + self.mean, learning_rate)
+        log_var_gradient = self.log_var_p.backward(output_gradient + (np.exp(self.log_var) - 1), learning_rate)
 
-        # # Compute the gradient of the KL divergence with respect to mean and log_var
-        # kl_divergence_gradient = self.get_KL()
-
-        # Update gradients with the KL divergence term
-        self.mean_p.weights_accum += self.mean_p.optimizer.adjust(learning_rate, self.mean)
-        self.log_var_p.weights_accum += self.log_var_p.optimizer.adjust(learning_rate, (np.exp(self.log_var) - 1))
+        # self.mean_p.weights_accum += self.mean_p.optimizer.adjust(learning_rate, self.mean)
+        # self.log_var_p.weights_accum += self.log_var_p.optimizer.adjust(learning_rate, (np.exp(self.log_var) - 1))
 
         return mean_gradient
 
