@@ -2,7 +2,7 @@ import os
 
 from PIL import Image
 import matplotlib.pyplot as plt
-size = 20
+size = 24
 def get_emoji_vectors():
     # Load the SVG and render it into a 15x15 pixel image
     # You'll need to parse the SVG and adjust the size accordingly
@@ -14,7 +14,8 @@ def get_emoji_vectors():
 
             w, h = img.size
             crop = 100
-            img = img.crop((crop,crop,w - crop,h -crop))
+            adj = 28
+            img = img.crop((crop,crop-adj,w - crop,h -crop))
             img = img.resize((size, size))
 
             # Initialize three separate 2D arrays to store the color intensities

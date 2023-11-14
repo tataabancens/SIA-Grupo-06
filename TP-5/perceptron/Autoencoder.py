@@ -119,10 +119,6 @@ class Autoencoder:
 
 
 
-            if error > prev_err:
-                prev_err = error
-                learning_rate /= 2
-
 
             for layer in reversed(self.layers):
                 layer.update()
