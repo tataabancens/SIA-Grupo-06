@@ -42,6 +42,11 @@ def ej_a2(autoencoder: Autoencoder):
         print_letter(autoencoder.predict_reshaped(val))
         print_letter(val)
         print_letter([1 if a >= 0.5 else 0 for a in autoencoder.predict_reshaped(val)])
+def ej_a4(autoencoder: Autoencoder):
+    train_x = get_letters()
+    new_input = autoencoder.latent_space(train_x[1]) - 0.1 # Generamos un nuevo valor para el espacio latente a partir de la letra 'a'
+    print_letter(autoencoder.generate(new_input))
+    print_letter([1 if a >= 0.5 else 0 for a in autoencoder.generate(new_input)])
 
 def main():
     seed_value = 42
@@ -54,7 +59,7 @@ def main():
 
     ej_a2(p)
     ej_a3(p)
-
+    ej_a4(p)
 
 
 if __name__ == "__main__":
