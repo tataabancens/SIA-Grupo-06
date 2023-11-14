@@ -8,6 +8,12 @@ from perceptron.optimizer import Adam
 from perceptron.trainer import Batch
 
 
+def print_noisified_letters(intensity):
+    train_x = get_letters()
+    for val in train_x:
+        noisified = noisify(val, intensity) # Aplicamos un ruido nuevo
+        print_letter(noisified)
+
 def ej_b2(autoencoder: Autoencoder):
 
     train_x = get_letters()
@@ -15,6 +21,7 @@ def ej_b2(autoencoder: Autoencoder):
         noisified = noisify(val) # Aplicamos un ruido nuevo
         print_letter(noisified) # Asi se ve con ruido
         print_letter(autoencoder.predict_reshaped(noisified)) # Asi lo devuelve el autoencoder
+        # Agregar un grafico de letras correctas vs nivel de ruido
         # print_letter(val)
 
 

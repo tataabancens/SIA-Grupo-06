@@ -131,7 +131,7 @@ class Autoencoder:
                 first_time = False
                 prev_printed = e if e - prev_printed == epochs / 100 else 0
 
-            if idx == 0 or (idx+1) % 500 == 0:
+            if idx == 0 or (idx+1) % 100 == 0:
                 print(f"{e + 1}/{epochs}, error={error}, lr={learning_rate}")
             idx += 1
 

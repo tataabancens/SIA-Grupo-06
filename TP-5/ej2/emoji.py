@@ -67,7 +67,7 @@ def draw_emoji(vec):
 
     # Create a Matplotlib figure and display the RGB image
     plt.figure(figsize=(5, 5))  # Define the figure size (adjust as needed)
-    plt.imshow(rgb_image)
+    plt.imshow(rgb_image, cmap='gray')
     plt.axis('off')  # Hide the axis
     plt.show()
 
