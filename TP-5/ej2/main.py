@@ -29,7 +29,7 @@ def main():
 
     for learning_rate in [0.00005]:
         np.random.seed(seed_value)
-        p = Autoencoder([200, 100, 50], 24*24, latent_size, Sigmoid, Adam(), True)
+        p = Autoencoder([200, 100, 50], 24*24, latent_size, Sigmoid, Adam(), True) # Ver diferencia usando VAE y sin VAE (Pasando True o False)
         p.train(MeanSquared, train_x, Batch(), 400000, learning_rate)
 
     ej_c(p, train_x)
