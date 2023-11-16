@@ -16,7 +16,7 @@ class Reparam(Layer):
 
         self.log_var = self.log_var_p.forward(input)
         self.mean = self.mean_p.forward(input)
-        self.sample = np.exp(self.log_var)*self.epsilon + self.mean
+        self.sample = np.exp(0.5 * self.log_var) * self.epsilon + self.mean
 
         return self.sample
 
@@ -49,7 +49,7 @@ class Reparam(Layer):
         return mean_gradient + log_var_gradient
 
     def get_KL(self):
-        return - np.sum(1 + self.log_var - np.square(self.mean) - np.exp(self.log_var))
+        return -0.5 * np.sum(1 + self.log_var - np.square(self.mean) - np.exp(self.log_var))
 
 
     def update(self):
