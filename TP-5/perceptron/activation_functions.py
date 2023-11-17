@@ -2,7 +2,17 @@ import numpy as np
 from perceptron.layer import Layer
 from perceptron.activation import Activation
 
+class ReLU(Activation):
+    def __str__(self):
+        return "ReLU"
+    def __init__(self):
+        def tanh(x):
+            return x*(x > 0)
 
+        def tanh_prime(x):
+            return 1*(x > 0)
+
+        super().__init__(tanh, tanh_prime)
 
 class Linear(Activation):
     def __str__(self):
@@ -12,7 +22,7 @@ class Linear(Activation):
             return x
 
         def tanh_prime(x):
-            return 1
+            return np.ones(x.shape)
 
         super().__init__(tanh, tanh_prime)
 class Tanh(Activation):
