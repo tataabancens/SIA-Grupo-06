@@ -1,6 +1,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 
 def number_to_binary_list(number):
@@ -71,6 +72,27 @@ def print_letter(letter_vec):
     plt.show()
 
 
+def create_letter_plot(letter, ax, cmap='gray_r'):
+    p = sns.heatmap(letter, ax=ax, annot=False, cbar=False, cmap=cmap, square=True, linewidth=0.5, linecolor='black')
+    p.xaxis.set_visible(False)
+    p.yaxis.set_visible(False)
+    return p
+
+
+def print_letters_line(letters, cmap='Blues', cmaps=[]):
+    letts = np.array(letters)
+
+    fig, ax = plt.subplots(1, len(letts))
+    fig.set_dpi(360)
+
+    if not cmaps:
+        cmaps = [cmap] * len(letts)
+    if len(cmaps) != len(letts):
+        raise Exception('cmap list should be same length as letters')
+    for i, subplot in enumerate(ax):
+        create_letter_plot(letts[i].reshape(7, 5), ax=subplot, cmap=cmaps[i])
+    plt.show()
+
 
 def noisify(vector, intensity=0.1):
 
@@ -104,3 +126,9 @@ def noisify(vector, intensity=0.1):
     # print(noise_matrix)
     return [item/max_val for sublist in noise_matrix for item in sublist]
 
+
+if __name__ == "__main__":
+    train_x = get_letters()
+
+    print_letters_line(train_x[0: 15], cmap='plasma')
+    print_letters_line(train_x[15: len(train_x)], cmap='plasma')

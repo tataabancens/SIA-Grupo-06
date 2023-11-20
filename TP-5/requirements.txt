@@ -10,3 +10,5 @@ colorama
 pandas
 scipy~=1.11.2
 Pillow~=10.0.1
+jupyter
+seaborn
