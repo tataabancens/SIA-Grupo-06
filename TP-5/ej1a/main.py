@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from parse_letters import get_letters, print_letter, noisify
+from parse_letters import get_letters, print_letter, noisify, print_letters_line
 from perceptron.Autoencoder import Autoencoder
 from perceptron.activation_functions import Tanh, Sigmoid
 from perceptron.errors import MeanSquared
@@ -36,12 +36,18 @@ def ej_a3(autoencoder: Autoencoder):
     plt.show()
 
 def ej_a2(autoencoder: Autoencoder):
-
     train_x = get_letters()
+    predicted = []
+    predicted_umbral = []
+
     for val in train_x:
-        print_letter(autoencoder.predict_reshaped(val))
-        print_letter(val)
-        print_letter([1 if a >= 0.5 else 0 for a in autoencoder.predict_reshaped(val)])
+        predicted.append(autoencoder.predict_reshaped(val))
+        predicted_umbral.append([1 if a >= 0.5 else 0 for a in autoencoder.predict_reshaped(val)])
+
+    print_letters_line(train_x, cmap='plasma')
+    print_letters_line(predicted, cmap='plasma')
+    print_letters_line(predicted_umbral, cmap='plasma')
+
 def ej_a4(autoencoder: Autoencoder):
     train_x = get_letters()
     new_input = autoencoder.latent_space(train_x[1]) - 0.1 # Generamos un nuevo valor para el espacio latente a partir de la letra 'a'
@@ -55,7 +61,7 @@ def main():
     for learning_rate in [0.0001]:
         np.random.seed(seed_value)
         p = Autoencoder([25, 15, 10, 5], 35, 2, Sigmoid, Adam())
-        p.train(MeanSquared, train_x, Batch(), 500000, learning_rate)
+        p.train(MeanSquared, train_x, Batch(), 10000, learning_rate)
 
     ej_a2(p)
     ej_a3(p)
