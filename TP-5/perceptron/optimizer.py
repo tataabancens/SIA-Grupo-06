@@ -56,8 +56,8 @@ class Adam(Optimizer):
         # Update biased second raw moment estimate
         self.v = self.beta2 * self.v + (1 - self.beta2) * np.square(gradient)
 
-        m_corrected = self.m / (1 - np.power(self.beta1, self.t))
-        v_corrected = self.v / (1 - np.power(self.beta2, self.t))
+        m_corrected = self.m #/ (1 - np.power(self.beta1, self.t))
+        v_corrected = self.v #/ (1 - np.power(self.beta2, self.t))
 
         step_size = learning_rate * m_corrected / np.sqrt(v_corrected + self.epsilon)
 
